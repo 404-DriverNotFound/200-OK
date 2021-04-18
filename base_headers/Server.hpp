@@ -7,6 +7,10 @@
 
 class Server
 {
-	std::vector<Config>&	config_locations;		
-	std::list<Client>		clients;
+	public:
+		std::vector<Config>		config_locations; // & 레퍼런스 삭제함
+		std::list<Client>		clients;
+
+	public :
+		Server(){};
 };

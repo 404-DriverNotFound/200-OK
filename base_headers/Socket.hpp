@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minckim <minckim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yunslee <yunslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/08 17:45:05 by minckim           #+#    #+#             */
-/*   Updated: 2021/04/16 10:40:15 by minckim          ###   ########.fr       */
+/*   Updated: 2021/04/18 18:41:40 by yunslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "Utils.hpp"
+#include "utils.hpp"
 
 class Socket : public sockaddr
 {

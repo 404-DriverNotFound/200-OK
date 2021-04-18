@@ -1,0 +1,19 @@
+server
+	root /test/directory
+	server_name localhost
+	port 80
+	error_page error.html
+	index index.html
+	head_length 8000
+	body_length 1000000
+	autoindex on
+	timeout 10
+	auth testtest
+	location /abc
+		root a_directory
+		index index.html index.php index.txt
+		method POST PUT GET
+		body_length 100
+	location /def
+		root d_directory
+		error_page d_error.html

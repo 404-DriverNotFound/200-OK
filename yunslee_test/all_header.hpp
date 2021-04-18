@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace std;
+	
 #include "../base_headers/Buffer.hpp"
 #include "../base_headers/Cgi.hpp"
 #include "../base_headers/Cgi.hpp"
