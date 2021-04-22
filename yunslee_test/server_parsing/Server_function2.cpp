@@ -2,6 +2,7 @@
 #include "./server.hpp"
 #include "../gnl/get_next_line_bonus.hpp"
 
+
 typedef int FD;
 
 int error_return(char const * str)
@@ -64,121 +65,102 @@ void outdentTab(std::string &str)
 	return ;
 }
 
-int setDefaultServer(Config &config, std::string &oneline)
+
+#define START 0
+#define END 1
+
+int setRangeBracket(std::vector<std::string> &gnl, int serverBracket[2], int start)
+{
+	// error 처리는 잘 안함 ({}가 여러번 들어온다던지)
+	int i = start;
+	bool startCheck = false;
+	bool endCheck = false;
+	while (i < gnl.size())
+	{
+		if (gnl[i].size() == 1 && gnl[i].compare("{") == 0)
+		{
+			serverBracket[START] = i;
+			startCheck = true;
+		}
+		else if (gnl[i].size() == 1 && gnl[i].compare("}") == 0)
+		{
+			serverBracket[end] = i;
+			endCheck = true;
+		}
+		i++;
+		if (startCheck == true && endCheck == true)
+			return (true);
+	}
+	if (!(startCheck == true && endCheck == true))
+		return (false);
+}
+
+struct serverBracket
+{
+	int start;
+	int end;
+};
+class ServerConfig
+{
+	public :
+		std::vector<serverBracket> serverBrack;
+		static int serverNum;
+		
+};
+int A::serverNum = 0;
+
+int setServerBracket()
 {
 	
 }
 
-int registerDefaultServer(Server &servers, Config &config)
-{
-	
-}
-
-bool isValidLocationBlock(std::string &oneline)
-{
-	
-}
 
 int parsingServerBlock(Server &servers, std::vector<std::string> &gnl)
 {
 	std::string oneline;
-	int flag_server = 0;
+	ServerConfig confings;
+	int flagServer = 0;
 	int i = 0;
+	int j = 0;
+	int serverBracket[2];
+	int locationBracket[2];
+	serverBracket[START] = 0; serverBracket[END] = 0;
+	locationBracket[START] = 0; locationBracket[END] = 0;
 	while (i < gnl.size())
 	{
-		if (gnl[i][0] != '\t' && gnl[i].compare("server") == 0) // server block
+		if (gnl[i][0] != '\t' && gnl[i].compare("server") == 0) // server block 단위 하나 처리
 		{
-			Config config; //default webserv 생성
-			i++; // 다음 줄로 이동
+			if (setRangeBracket(gnl, serverBracket, i) == false)
+				return (-1);
+			else
+			{
+				Config config; //default webserv 생성
+				for (size_t i = serverBracket[START] + 1; i < serverBracket[END] - 1; i++)
+				{
+					outdentTab(gnl[i]); // '\t'을 없애는 전처리를 함
+				}
+			}
+			
+			for (j = serverBracket[START] + 1; j < serverBracket[END] - 1; j++)
+			{
+				if (gnl[j].size() == 1 && gnl[j] == '\n')
+					// setConfig()
+			}
+			
+			
+			if (gnl)
+			
 			oneline = gnl[i];
 			while (oneline[0] == '\t' && (oneline[0] != '\n' && oneline[1] != '\n')
 					&& i < gnl.size())
 			{
-				outdentTab(oneline);
-				// default 웹서버 탄생
-				setDefaultServer(config, oneline);
-				i++;
-			}
-			if (i >= gnl.size())
-			{
-				// default 서버하나 생성
-			}
-			else if (oneline[0] == '\n')
-			{
-				// 다음 서버를 찾으려 가자
-			}
-			else if (oneline[0] == '\t' && oneline[1] == '\n')
-			{
-				i++;
-				if (i < gnl.size())
-					oneline = gnl[i];
-				else
-				{
-					registerDefaultServer(servers, config);
-					return (1);
-				}
-				while (oneline[0] == '\t' && i < gnl.size())
-				{
-					outdentTab(oneline);
-					// outdentTab(oneline);
-					if (isValidLocationBlock(oneline) == true)
-					{
-						Config config2;
-						i++;
-						if (i < gnl.size())
-							oneline = gnl[i];
-						else
-						{
-							registerDefaultServer(servers, config);
-							config2 = config;
-							registerDefaultServer(servers, config2);
-							return (1);
-						}
-						while (oneline[0] == '\t' && oneline[1] == '\t')
-						{
-							outdentTab(oneline);
-							outdentTab(oneline);
-							/* code */
-							i++;
-							if (i < gnl.size())
-								oneline = gnl[i];
-							else
-							{
-								registerDefaultServer(servers, config);
-								config2 = config;
-								registerDefaultServer(servers, config2);
-								return (1);
-							}
-						}
-					}
-					else
-					{
-						//에러처리
-						// return ;
-					}
-					i++;
-					if (i < gnl.size())
-						oneline = gnl[i];
-					else
-						return (1);
-				}
 				
 			}
-			else if (oneline[0] != '\t')
-			{
-				// error 처리
-				break ; 
-			}
-			else
-			{
-				// error 처리
-				break ; 
-			}
-			//default webserv 등록
-			registerDefaultServer(servers, config);
 		}
-		i++;
+		i = serverBracket[1];
 	}
+	
+	
 	return (-1);
 }
 
@@ -187,7 +169,7 @@ int main()
 	Server server;
 	FD server_config;
 	char buffer[BUFSIZ];
-	server_config = open("./server_config", O_RDONLY, 0755);
+	server_config = open("./server_config2", O_RDONLY, 0755);
 	if (server_config < 0)
 		return (error_return("fd open error"));
 	int read_size;
@@ -205,7 +187,7 @@ int main()
 	{
 		cout << gnl[i] << endl;
 	}
-	cout << gnl.size() << endl;
+	// cout << gnl.size() << endl;
 
 	if (-1 == parsingServerBlock(server, gnl))
 		return (error_return("no server block"));
