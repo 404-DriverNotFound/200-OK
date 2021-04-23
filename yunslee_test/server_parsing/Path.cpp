@@ -2,7 +2,7 @@
 #include "./server.hpp"
 #include "../gnl/get_next_line_bonus.hpp"
 
-void Path::setPath2(std::vector<std::string> &vec, const std::string& str)
+void			Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 {
 	size_t before = 0; //string처음부터 검사
 	size_t after = 0;
@@ -26,7 +26,7 @@ void Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 	}
 }
 
-const string Path::getPath2(std::vector<std::string> const &vec) const
+const string	Path::getPath2(std::vector<std::string> const &vec) const
 {
 	std::string temp;
 	for (size_t i = 0; i < vec.size(); i++)
@@ -38,27 +38,36 @@ const string Path::getPath2(std::vector<std::string> const &vec) const
 	return (temp);
 }
 
-const string Path::getPath() const
+const string	Path::getPath() const
 {
 	return (getPath2(this->segments));
 }
 
-void		Path::setPath(const std::string& str)
+void			Path::setPath(const std::string& str)
 {
 	setPath2(this->segments, str);
 }
 
-Path&		Path::operator+(Path& path)
+Path&			Path::operator+(Path& path)
 {
+	// cout << path.segments.size() << endl;
 	for (size_t i = 0; i < path.segments.size(); i++)
 	{
 		this->segments.push_back(path.segments[i]);
 	}
+	return (*this);
 }
 
-Path&		Path::operator--()
+Path&			Path::operator--(int)
 {
 	this->segments.pop_back();
+	return (*this);
+}
+
+Path&			Path::operator--()
+{
+	this->segments.pop_back();
+	return (*this);
 }
 
 Path::Path(){}
@@ -70,13 +79,13 @@ Path::Path(std::string const &str)
 	this->setPath(str);
 }
 
-Path&		Path::operator=(const std::string& str)
+Path&			Path::operator=(const std::string& str)
 {
 	setPath(str);
 	return (*this);
 }
 
-Path&						Path::operator=(const Path& path)
+Path&			Path::operator=(const Path& path)
 {
 	if (this == &path)
 		return (*this);
@@ -88,4 +97,9 @@ Path::Path(Path const &path)
 {
 	this->segments.clear();
 	(*this) = path;
+}
+
+const int		Path::getSize() const
+{
+	return (this->segments.size());
 }

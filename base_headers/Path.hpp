@@ -17,9 +17,11 @@ class Path
 		~Path();
 		const std::string			getPath() const;
 		void						setPath(const std::string&);
+		const int					getSize() const;
 		
 		Path&						operator+(Path&);
-		Path&						operator--();
+		Path&						operator--();     // prefix "--"
+		Path&						operator--(int);  // prefix "--"
 		Path&						operator=(const std::string&);
 		Path&						operator=(const Path&);
 };
