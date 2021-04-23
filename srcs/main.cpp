@@ -12,7 +12,7 @@ int main() {
 	connections = socket.Accept(connections);
 
 	/* 테스트 진행 */
-		// Read from the connection
+		// STUB Read from the connection
 		char buffer[1000];	memset(buffer, 0, 1000);
 		int bytesRead = read(connections, buffer, 1000);
 		std::cout << "The message was: " << buffer;
