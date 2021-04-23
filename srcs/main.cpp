@@ -1,6 +1,7 @@
 #include "../base_headers/Socket.hpp"
 #include <fstream>
 #include <sstream>
+#include <string.h> // memset forbidden
 
 
 int main() {
@@ -12,7 +13,7 @@ int main() {
 
 	/* 테스트 진행 */
 		// Read from the connection
-		char buffer[1000];
+		char buffer[1000];	memset(buffer, 0, 1000);
 		int bytesRead = read(connections, buffer, 1000);
 		std::cout << "The message was: " << buffer;
 

@@ -23,7 +23,7 @@ fclean	:	clean
 re		:	fclean all
 
 $(NAME)	:	$(OBJS)
-			$(CC) -c $(SRCS)
+# $(CC) -c $(SRCS)
 			$(CC) -o $(NAME) $(OBJS)
 
 # $(CC) $(CFLAG) -c $(SRCS)
