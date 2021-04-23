@@ -17,7 +17,7 @@ int main() {
 		int bytesRead = read(connections, buffer, 1000);
 		std::cout << "The message was: " << buffer;
 
-		// Send a message to the connection
+		// STUB Send a message to the connection
 		std::stringstream resp;
 		std::ifstream header("./testcase/header.http");
 		std::ifstream body("./testcase/body.html");
