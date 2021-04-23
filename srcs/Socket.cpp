@@ -47,6 +47,10 @@ void					Socket::Bind(uint16_t port, uint32_t ip)
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_port = htons(port); // htons is necessary to convert a number to
 	sockaddr.sin_addr.s_addr = ip; // localhost
+
+	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다. 
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	
 	// network byte order
 	if (bind(fd, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0) {
 		std::cout << "Failed to bind to port " << port << ". errno: " << errno << std::endl;
