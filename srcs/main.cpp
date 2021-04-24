@@ -1,38 +1,50 @@
 #include "../base_headers/Socket.hpp"
-#include <fstream>
-#include <sstream>
-#include <string.h> // memset forbidden
+#include "HttpMessage/HttpMessageRequest.hpp"
+#include "HttpMessage/HttpMessageResponse.hpp"
 
+#include <fstream>	//	FIXME	나중에 지우기 테스트용
+#include <sstream>	//	FIXME	나중에 지우기 테스트용
+#include <string.h>	//	FIXME	나중에 지우기 테스트용
 
-int main() {
+#define BUFFER_SIZE 1000000
+int main()
+{
 	// Create a socket (IPv4, TCP)
-	Socket socket(100, INADDR_ANY); // Listen 작업까지 되어 있는 소켓
+	Socket socket(80, INADDR_ANY); // Listen 작업까지 되어 있는 소켓
 	size_t connections;
 
 	connections = socket.Accept(connections);
 
 	/* 테스트 진행 */
-		// STUB Read from the connection
-		char buffer[1000];	memset(buffer, 0, 1000);
-		int bytesRead = read(connections, buffer, 1000);
-		std::cout << "The message was: " << buffer;
+		//	STUB : Read from the connection
+		char buffer[BUFFER_SIZE];	memset(buffer, 0, BUFFER_SIZE);	//	REVIEW : 전체 탐색하는 것들은 성능 개선의 여지가 있음
+		int bytesRead = read(connections, buffer, BUFFER_SIZE);
+		// std::cout << "The message was: " << buffer;
 
-		// STUB Send a message to the connection
-		std::stringstream resp;
-		std::ifstream header("./testcase/header.http");
-		std::ifstream body("./testcase/body.html");
+		//	STUB : HttpMessageRequest
+		HttpMessageRequest	request(buffer);
+		request.Parser();
 
-		resp << header.rdbuf() << "\r\n" << body.rdbuf();
+		//	STUB : HttpMessageResponse
+		HttpMessageResponse	response(request);
+		response.SetMessage();
 
-		std::string response = resp.str();
-		int len = response.size();
+		//	STUB : Send a message to the connection
+		// std::stringstream resp;
+		// std::ifstream header("./testcase/header.http");
+		// std::ifstream body("./testcase/body.html");
 
-		std::cout << "Answer is :\n";
-		std::cout << response << std::endl;
+		// resp << header.rdbuf() << "\r\n" << body.rdbuf();
 
-		std::cout << "Wrote " << len  << " bytes" << '\n';
-		int ret = send(connections, response.c_str(), len, 0);
-		std::cout << "Wrote " << len  << " bytes, sent " << ret << '\n';
+		// std::string response = resp.str();
+		int len = response.GetMessage().size();
+
+		// std::cout << "Answer is :\n";
+		// std::cout << response << std::endl;
+
+		// std::cout << "Wrote " << len  << " bytes" << '\n';
+		int ret = send(connections, response.GetMessage().c_str(), len, 0);
+		// std::cout << "Wrote " << len  << " bytes, sent " << ret << '\n';
 
 	// Close the connections
 	close(connections);

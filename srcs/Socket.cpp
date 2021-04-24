@@ -34,7 +34,7 @@ Socket::Socket(int fd)
 
 Socket::~Socket()
 {
-	std::cout << "~Socket()\n";
+	// std::cout << "~Socket()\n";
 }
 
 void					Socket::SetAddr(void)
@@ -56,7 +56,7 @@ void					Socket::Bind(uint16_t port, uint32_t ip)
 		std::cout << "Failed to bind to port " << port << ". errno: " << errno << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "finished binding\n";
+	// std::cout << "finished binding\n";
 }
 
 void					Socket::Listen(void)
@@ -67,7 +67,7 @@ void					Socket::Listen(void)
 		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "finished listening\n";
+	// std::cout << "finished listening\n";
 }
 
 size_t					Socket::Accept(size_t connections)
@@ -80,7 +80,7 @@ size_t					Socket::Accept(size_t connections)
 		std::cout << "Failed to grab connection. errno: " << errno << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "finished accepting\n";
+	// std::cout << "finished accepting\n";
 	return (connections);
 }
 
