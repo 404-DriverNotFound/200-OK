@@ -6,7 +6,7 @@
 #include <sstream>	//	FIXME	나중에 지우기 테스트용
 #include <string.h>	//	FIXME	나중에 지우기 테스트용
 
-#define BUFFER_SIZE 1000000
+#define BUFFER_SIZE 65536
 int main()
 {
 	// Create a socket (IPv4, TCP)
