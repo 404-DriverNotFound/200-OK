@@ -1,5 +1,6 @@
 
 SRCS	=	$(wildcard ./srcs/*.cpp)\
+			srcs/Server/Socket.cpp\
 			srcs/HttpMessage/HttpMessageRequest.cpp\
 			srcs/HttpMessage/HttpMessageResponse.cpp
 

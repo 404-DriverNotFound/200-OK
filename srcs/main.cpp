@@ -1,4 +1,4 @@
-#include "../base_headers/Socket.hpp"
+#include "Server/Socket.hpp"
 #include "HttpMessage/HttpMessageRequest.hpp"
 #include "HttpMessage/HttpMessageResponse.hpp"
 
@@ -14,15 +14,15 @@ int main()
 	/* 테스트 진행 */
 		//	STUB : Read from the connection
 		char buffer[BUFFER_SIZE];	memset(buffer, 0, BUFFER_SIZE);	//	REVIEW : 전체 탐색하는 것들은 성능 개선의 여지가 있음
-		int bytesRead = read(connections, buffer, BUFFER_SIZE);
+		int bytesRead = read(connections, buffer, BUFFER_SIZE); // request 를 여기서 받아서..
 		// std::cout << "The message was: " << buffer;
 
 		//	STUB : HttpMessageRequest
 		HttpMessageRequest	request(buffer);
-		request.Parser();
+		request.Parser(); // request 를 parsing 한 후,
 
 		//	STUB : HttpMessageResponse
-		HttpMessageResponse	response(request);
+		HttpMessageResponse	response(request); // reponse 를 정리한다.
 		response.SetMessage();
 
 		//	STUB : Send a message to the connection
