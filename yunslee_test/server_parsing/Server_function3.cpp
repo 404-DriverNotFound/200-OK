@@ -96,27 +96,73 @@ void outdentTab(std::string &str)
 #define START 0
 #define END 1
 
-struct locationBracket
+class locationBracket
 {
-	int start;
-	int end;
+	public:
+		int start;
+		int end;
+		Config config;
+		locationBracket();
+		virtual ~locationBracket();
 };
 
-struct serverBracket
+locationBracket::locationBracket() : start(0), end(0) {};
+locationBracket::~locationBracket() {};
+
+class serverBracket
 {
-	int start;
-	int end;
-	std::vector<locationBracket> locationBracket;
-	int locationNum;
+	public:
+		int start; // start = 0
+		int end; // end = 0 
+		// start = 0 & end = 0 이면, server Bracket 설정이 제대로 안된 상황
+		std::vector<locationBracket> locationBracket;
+		int locationNum;
+		
+		serverBracket();
+		virtual ~serverBracket();
 };
+
+serverBracket::serverBracket() : locationNum(0), start(0), end(0){}
+serverBracket::~serverBracket(){}
+
+
 class ServerConfig
 {
 	public :
 		std::vector<serverBracket> serverBracket;
-		static int serverNum;
+		int serverNum;
+		ServerConfig();
+		virtual ~ServerConfig();
 		
+		// TODO {} bracket 유효한지 판단하는 함수 bool check_bracket_syntax()
+		bool check_bracket_syntax(std::vector<std::string> &gnl, int start, int end);
 };
-int ServerConfig::serverNum = 0;
+
+bool ServerConfig::check_bracket_syntax(std::vector<std::string> &gnl, int start, int end)
+{
+	int i = start;
+	int startCheck = false;
+	int endCheck = false;
+	while (i < end)
+	{
+		if (startCheck == true && endCheck == true) // NOTE true 로 탈출하는 조건
+			return (true);
+		else if (startCheck == false && endCheck == true) // } 로 먼저 시작한 경우
+			return (false);
+		else if (startCheck > true && endCheck == false)
+			return (false);
+		
+		if (gnl[i].size() == 1 && gnl[i].compare("{") == 0)
+			startCheck++;
+		else if (gnl[i].size() == 1 && gnl[i].compare("}") == 0)
+			endCheck++;
+		i++;
+	}
+	return (false); // NOTE false 반복문에서 true로 탈출하지 못하면, 무조건 false임	
+}
+
+ServerConfig::ServerConfig() : serverNum(0){}
+ServerConfig::~ServerConfig(){}
 
 int Step2_1(std::vector<std::string> &gnl, ServerConfig &configs, int start)
 {
@@ -124,7 +170,7 @@ int Step2_1(std::vector<std::string> &gnl, ServerConfig &configs, int start)
 	int i = start;
 	bool startCheck = false;
 	bool endCheck = false;
-	serverBracket temp; temp.start = 0; temp.end = 0;
+	serverBracket temp;
 	// int serverBracket[2]; serverBracket[START] = 0; serverBracket[END] = 0;
 	while (i < gnl.size())
 	{
@@ -161,12 +207,15 @@ int Step2(ServerConfig &configs, std::vector<std::string> &gnl)
 	{
 		if (gnl[i].compare("server") == 0) // server block 단위 하나 처리
 		{
-			if (Step2_1(gnl, configs, i) == false)
-				return (-1);
-			else
+			if (configs.check_bracket_syntax(gnl, i + 1, gnl.size()) == true)
 			{
-				i = configs.serverBracket[configs.serverNum - 1].end;
-				// cout << configs.serverBracket[0].locationNum << endl;
+				if (Step2_1(gnl, configs, i) == false)
+					return (-1);
+				else
+				{
+					i = configs.serverBracket[configs.serverNum - 1].end;
+					// cout << configs.serverBracket[0].locationNum << endl;
+				}
 			}
 		}
 		i++;
@@ -175,13 +224,13 @@ int Step2(ServerConfig &configs, std::vector<std::string> &gnl)
 	// cout << configs.serverBracket[0].locationNum << endl;
 	// cout << configs.serverBracket[0].start << endl;
 	// cout << configs.serverBracket[0].end << endl;
-	
+
 }
 
 
 int Step3_1(std::vector<std::string> &gnl, ServerConfig &configs, int server_idx, int start, int end)
 {
-	// error 처리는 잘 안함 ({}가 여러번 들어온다던지)
+	// error 처리는 잘 안함
 	bool startCheck = false;
 	bool endCheck = false;
 	locationBracket temp; temp.start = 0; temp.end = 0;
@@ -216,36 +265,39 @@ int Step3_1(std::vector<std::string> &gnl, ServerConfig &configs, int server_idx
 
 int Step3(ServerConfig &configs, std::vector<std::string> &gnl)
 {
-	for (int server_idx = 0; server_idx < configs.serverNum; server_idx++)
+	for (int serverNum = 0; serverNum < configs.serverNum; serverNum++)
 	{
-		int start = configs.serverBracket[server_idx].start + 1;
-		int end = configs.serverBracket[server_idx].end - 1;
+		int start = configs.serverBracket[serverNum].start + 1;
+		int end = configs.serverBracket[serverNum].end - 1;
 		int temp = start;
-		configs.serverBracket[server_idx].locationNum = 0;
+		configs.serverBracket[serverNum].locationNum = 0;
 		while (temp <= end)
 			outdentTab(gnl[temp++]);
 		while (start <= end)
 		{
 			if (gnl[start].find("location ") != std::string::npos) // server block 단위 하나 처리
 			{
-				if (Step3_1(gnl, configs, server_idx, start, end) == false)
+				if (configs.check_bracket_syntax(gnl, start + 1, end) == true)
 				{
-					cout << "righ?" << endl;
-					// cout << start << endl;
-					return (-1);
-				}
-				else
-				{
-					int location_idx = configs.serverBracket[server_idx].locationNum - 1;
-					cout << "location_idx: " << location_idx << endl;
-	
-					if (location_idx < 0)
+					if (Step3_1(gnl, configs, serverNum, start, end) == false) // NOTE {}가 짝을 이루지 않는 경우여러번 들어온다던지)
 					{
-						cout << " here is it " << endl;
-						return (1);
+						cout << "righ?" << endl;
+						// cout << start << endl;
+						return (-1);
 					}
-					start = configs.serverBracket[server_idx].locationBracket[location_idx].end;
-					// start = configs.serverBracket[server_idx].locationBracket.
+					else
+					{
+						int location_idx = configs.serverBracket[serverNum].locationNum - 1;
+						cout << "location_idx: " << location_idx << endl;
+		
+						if (location_idx < 0)
+						{
+							cout << " here is it " << endl;
+							return (1);
+						}
+						start = configs.serverBracket[serverNum].locationBracket[location_idx].end;
+						// start = configs.serverBracket[serverNum].locationBracket.
+					}
 				}
 			}
 			start++;
@@ -271,7 +323,7 @@ int Step1(Server &servers, std::vector<std::string> &gnl)
 		return (-1);
 	}
 		
-	/* 서버 갯수만큼 loop */
+	//STUB 출력: 서버 범위
 	for (size_t i = 0; i < idx_configs.serverNum; i++)
 	{
 		int start = 0; int end = 0;
@@ -295,7 +347,7 @@ int Step1(Server &servers, std::vector<std::string> &gnl)
 		}
 	}
 	
-	/* 출력하는 부분 */
+	//STUB 출력하는 부분
 	cout << "Total serverNum: "<< idx_configs.serverNum << endl;
 	for (size_t i = 0; i < idx_configs.serverNum; i++)
 	{
@@ -309,7 +361,7 @@ int main()
 	Server server;
 	int server_config;
 	char buffer[BUFSIZ];
-	server_config = open("server_config2", O_RDWR);
+	server_config = open("server_config3", O_RDWR);
 	if (server_config < 0)
 	{
 		cout << "---" << server_config << endl;
