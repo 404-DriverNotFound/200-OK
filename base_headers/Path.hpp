@@ -7,8 +7,8 @@ class Path
 	private:
 		std::vector<std::string>	segments;
 
-		const std::string			getPath2(std::vector<std::string> const &vec) const;
-		void						setPath2(std::vector<std::string> &vec, const std::string& str);
+		const std::string			getPath2(std::vector<std::string> const &vec) const; // NOTE getPath의 sub 함수
+		void						setPath2(std::vector<std::string> &vec, const std::string& str); // NOTE setPath의 sub 함수
 	
 	public:
 		Path();
@@ -20,8 +20,8 @@ class Path
 		const int					getSize() const;
 		
 		Path&						operator+(Path&);
-		Path&						operator--();     // prefix "--"
-		Path&						operator--(int);  // prefix "--"
+		Path&						operator--();     // 전위 prefix "--Path"
+		Path&						operator--(int);  // 후위 postfix "Path--"
 		Path&						operator=(const std::string&);
 		Path&						operator=(const Path&);
 };

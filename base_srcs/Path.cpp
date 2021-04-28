@@ -1,6 +1,5 @@
-#include "../all_header.hpp"
-#include "./server.hpp"
-#include "../gnl/get_next_line_bonus.hpp"
+#include "../yunslee_test/all_header.hpp"
+#include "../yunslee_test/gnl/get_next_line_bonus.hpp"
 
 void			Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 {
@@ -32,7 +31,7 @@ const string	Path::getPath2(std::vector<std::string> const &vec) const
 	for (size_t i = 0; i < vec.size(); i++)
 	{
 		temp.append(vec[i]);
-		if (i != vec.size() - 1)
+		if (i != vec.size() - 1) // REVIEW 나중에봐서 마지막에 '/' 붙일지 말지 선택
 			temp += "/";
 	}
 	return (temp);
@@ -60,8 +59,9 @@ Path&			Path::operator+(Path& path)
 
 Path&			Path::operator--(int)
 {
+	Path temp = *this;
 	this->segments.pop_back();
-	return (*this);
+	return (temp);
 }
 
 Path&			Path::operator--()
@@ -79,6 +79,12 @@ Path::Path(std::string const &str)
 	this->setPath(str);
 }
 
+Path::Path(Path const &path)
+{
+	this->segments.clear();
+	(*this) = path;
+}
+
 Path&			Path::operator=(const std::string& str)
 {
 	setPath(str);
@@ -93,11 +99,6 @@ Path&			Path::operator=(const Path& path)
 	return (*this);
 }
 
-Path::Path(Path const &path)
-{
-	this->segments.clear();
-	(*this) = path;
-}
 
 const int		Path::getSize() const
 {

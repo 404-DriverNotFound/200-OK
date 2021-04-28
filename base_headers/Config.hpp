@@ -7,11 +7,14 @@
 class Config
 {
 	public :
-		std::string			name;
+		std::string			server_name;		// localhost
 		Path				root;				// def = /
-		uint16_t			port;				// def = 80; // REVIEW nginx를 따라한다면, port 보다는 listen이 나을 것 같음
-		std::vector<Path>	index_page;			// def = index.html
+		uint16_t			port;				// def = 80;
+		std::vector<Path>	index_pages;		// def = index.html
 		Path				error_page;			// def = error.html
+		// REVIEW 위에 부분은 필수적인 파트
+		
+		// REVIEW server config 멤버로써 구성해야하는 부분인가?
 		uint64_t			head_length_max;	// def = 8k // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
 		uint64_t			body_length_max;	// def = 1M // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
 		bool				autoindex;			// def = off
@@ -19,7 +22,8 @@ class Config
 		Path				auth;				// REVIEW 뭔지 모르겠음 삭제해도 될 꺼 같음
 
 	public:
-		Config() : name(""), root(), port(80), index_page(), error_page(), head_length_max(8000),
-					body_length_max(10000), autoindex(false), timeout(5), auth()
-					{}
+		Config();
+		virtual ~Config();
+		Config(const Config &);
+		Config &operator=(const Config &);
 };

@@ -4,32 +4,26 @@ server
 	server_name localhost
 	port 80
 	error_page error.html
-	index index.html
-	head_length 8000
-	body_length 1000000
-	autoindex on
-	timeout 10
-	auth testtest
+	index_pages index.html index5.html
 	
 	location /abc
 	{
-		root a_directory
-		index index.html index.php index.txt
-		method POST PUT GET
-		body_length 100
+		root aaa
+		index_pages index1.html index2.php index3.txt
+		error_page error1.html
 	}
 	
 	location /def
 	{
-		root d_directory
-		error_page d_error.html
+		root bbb
+		error_page error2.html
 	}
 }
 server
 {
 	server_name 127.0.0.1
-	port 80
-	error_page error.html
-	index index2.html
+	port 8080
+	error_page error3.html
+	index_pages index6.html
 }
 
