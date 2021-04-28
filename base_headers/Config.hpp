@@ -9,14 +9,14 @@ class Config
 	public :
 		std::string			name;
 		Path				root;				// def = /
-		uint16_t			port;				// def = 80;
+		uint16_t			port;				// def = 80; // REVIEW nginx를 따라한다면, port 보다는 listen이 나을 것 같음
 		std::vector<Path>	index_page;			// def = index.html
 		Path				error_page;			// def = error.html
-		uint64_t			head_length_max;	// def = 8k
-		uint64_t			body_length_max;	// def = 1M
+		uint64_t			head_length_max;	// def = 8k // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
+		uint64_t			body_length_max;	// def = 1M // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
 		bool				autoindex;			// def = off
 		uint32_t			timeout;			// def = 5s
-		Path				auth;
+		Path				auth;				// REVIEW 뭔지 모르겠음 삭제해도 될 꺼 같음
 
 	public:
 		Config() : name(""), root(), port(80), index_page(), error_page(), head_length_max(8000),
