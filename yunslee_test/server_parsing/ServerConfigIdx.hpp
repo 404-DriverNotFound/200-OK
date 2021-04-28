@@ -14,12 +14,12 @@ class locationBracket
 	public:
 		int start;
 		int end;
-		Config config;
+		Path location_path;
 		locationBracket();
 		virtual ~locationBracket();
 };
 
-locationBracket::locationBracket() : start(0), end(0) {};
+locationBracket::locationBracket() : start(0), end(0), location_path() {};
 locationBracket::~locationBracket() {};
 
 class serverBracket

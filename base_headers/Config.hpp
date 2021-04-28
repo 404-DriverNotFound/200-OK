@@ -9,6 +9,7 @@ class Config
 	public :
 		std::string			server_name;		// localhost
 		Path				root;				// def = /
+		Path				location_path;		// def = /
 		uint16_t			port;				// def = 80;
 		std::vector<Path>	index_pages;		// def = index.html
 		Path				error_page;			// def = error.html

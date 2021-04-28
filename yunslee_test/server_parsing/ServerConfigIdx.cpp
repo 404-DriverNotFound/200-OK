@@ -43,8 +43,8 @@ void setPath(std::vector<std::string> &vec, const std::string& str)
 	while((after = str.find("/", before)) != std::string::npos)  //from을 찾을 수 없을 때까지
 	{
 		substr = str.substr(before, after - before);
-		cout << "   str: " << str << endl;
-		cout << "substr: " << substr << endl;
+		// cout << "   str: " << str << endl;
+		// cout << "substr: " << substr << endl;
 		if (substr.size() != 0)
 			vec.push_back(substr);
 		before = after + 1;
@@ -210,10 +210,16 @@ int ServerConfigIdx::Step2(ServerConfigIdx &configidx, std::vector<std::string> 
 		{
 			if (gnl[start].find("location ") != std::string::npos) // server block 단위 하나 처리
 			{
+				std::vector<std::string> temp;
+				ft_split_vector(temp, gnl[start], " ");
+				std::string location_path = temp[1];
 				if (configidx.check_bracket_syntax(gnl, start + 1, end) == true) // NOTE { 로 시작하는 라인을 index(=start+1)로 넘겨줌
 				{
+					
 					configidx.SetLocationBracket(gnl, configidx, serverNum, start, end);
 					int location_idx = configidx.mserverBracket[serverNum].locationBlockNum - 1;
+					configidx.mserverBracket[serverNum].locationBracket[location_idx].location_path = location_path;
+					// cout << "location_path: " << configidx.mserverBracket[serverNum].locationBracket[location_idx].location_path.getPath() << endl;
 					start = configidx.mserverBracket[serverNum].locationBracket[location_idx].end; // NOTE location '}' 이후에 바로 다음줄에 location이 나오는 경우 때문에 '+1'을 해주지 않음
 				}
 			}
@@ -294,18 +300,11 @@ int parsingServerBlock(std::vector<std::string> &gnl, Config &default_location, 
 	return (1);
 }
 
-int parsingBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end)
+int parsingLocationBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end)
 {
 	std::string oneline;
 	std::vector<std::string> split_vector;
-	
-	// FIXME now
-	// std::string folder = gnl[start - 1];
-	// std::vector<std::string> temp;
-	// ft_split_vector(temp, folder, "/");
-	// folder = temp[1];
-	// cout << "folder: " << endl;
-	// FIXME now
+	bool exist_index_pages = false;
 	
 	while (start <= end)
 	{
@@ -342,9 +341,18 @@ int parsingBlock(std::vector<std::string> &gnl, Config &default_location, int st
 			std::vector<Path> index_pages;
 			while (i < split_vector.size())
 			{
-				// Path index_page(split_vector[i]);
-				default_location.index_pages.push_back(split_vector[i]);
+				
+				Path index_page(split_vector[i]);
+				if (exist_index_pages == true)
+					default_location.index_pages.push_back(split_vector[i]);
+				else
+					index_pages.push_back(split_vector[i]);
 				i++;
+			}
+			if (exist_index_pages == false)
+			{
+				default_location.index_pages = index_pages;
+				exist_index_pages = true;
 			}
 		}
 		else if (split_vector[0].compare("error_page") == 0)
@@ -423,7 +431,8 @@ int SetServer(Server &servers, std::vector<std::string> &gnl)
 			Config temp = default_location;
 			int start2 = configIdx.mserverBracket[i].locationBracket[j].start + 1;
 			int end2 = configIdx.mserverBracket[i].locationBracket[j].end - 1;
-			if (parsingBlock(gnl, temp, start2, end2) == -1)
+			temp.location_path = configIdx.mserverBracket[i].locationBracket[j].location_path;
+			if (parsingLocationBlock(gnl, temp, start2, end2) == -1)
 			{
 				cout << "parsingBlock error" << endl;
 				return (-1);
@@ -478,6 +487,7 @@ void PrintServer(Server &server)
 	{
 		cout << "server_name: " << server.config_locations[i].server_name << endl;
 		cout << "root: " << server.config_locations[i].root.getPath() << endl;
+		cout << "location_path: " << server.config_locations[i].location_path.getPath() << endl;
 		cout << "port: " << server.config_locations[i].port << endl;
 		
 		cout << "index_pages: ";
