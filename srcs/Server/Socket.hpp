@@ -12,13 +12,13 @@ class Socket : public sockaddr
 	sockaddr_in	sockaddr; // <-- 추가함.
 
 	public:
-				Socket(uint16_t port, uint32_t ip);
+				Socket(uint32_t ip, uint16_t port);
 				Socket(int fd);
 				// Socket(const Socket& x);
 	// Socket&		operator=(const Socket& x);
 	virtual		~Socket();
 	void		SetAddr(void);
-	void		Bind(uint16_t port, uint32_t ip);
+	void		Bind(uint32_t ip, uint16_t port);
 	void		Listen(void);
 	// void		Listen(size_t connections); // connection 은 뭘까?
 	size_t		Accept(size_t connections);

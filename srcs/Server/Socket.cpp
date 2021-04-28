@@ -1,16 +1,16 @@
 #include "Socket.hpp"
-#include <string.h> // memset forbidden
+#include "../Utils/utils.hpp"
 #include <fstream>
 #include <sstream>
 /*
 ?? port 와 ip 로 들어온 것이 Socket 에서 무슨 역할인지 모르겠다.
-Socket::Socket(uint16_t port, uint32_t ip)
+Socket::Socket(uint32_t ip, uint16_t port)
 {
 }
 */
 
 /* Socket 에 이런식으로 넣으면 binding, listen 작업까지 */
-Socket::Socket(uint16_t port, uint32_t ip)
+Socket::Socket(uint32_t ip, uint16_t port)
 {
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1) {
@@ -18,7 +18,7 @@ Socket::Socket(uint16_t port, uint32_t ip)
 		exit(EXIT_FAILURE);
 	}
 	SetAddr();
-	Bind(port, ip);
+	Bind(ip, port);
 	Listen();
 }
 
@@ -39,14 +39,14 @@ Socket::~Socket()
 
 void					Socket::SetAddr(void)
 {
-	memset((char*)&sockaddr, 0, sizeof(sockaddr));
+	ft_memset((char*)&sockaddr, 0, sizeof(sockaddr));
 }
 
-void					Socket::Bind(uint16_t port, uint32_t ip)
+void					Socket::Bind(uint32_t ip, uint16_t port)
 {
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_port = htons(port); // htons is necessary to convert a number to
 	sockaddr.sin_addr.s_addr = ip; // localhost
+	sockaddr.sin_port = htons(port); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
