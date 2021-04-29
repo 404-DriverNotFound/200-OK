@@ -1,13 +1,10 @@
 #include "../yunslee_test/all_header.hpp"
 
-Config::Config() : server_name("localhost"), root(), port(80), index_pages(), error_page(), head_length_max(8000), location_path(),
-					body_length_max(10000), autoindex(false), timeout(5), auth()
+Config::Config() : mserver_name("localhost"), mroot(), mport(80), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
+					mbody_length_max(10000), mautoindex(false), mtimeout(5), mauth()
 					{}
-					
-					
-					
-Config::~Config(){}
 
+Config::~Config(){}
 
 Config::Config(const Config &ref)
 {
@@ -18,16 +15,16 @@ Config &Config::operator=(const Config &ref)
 {
 	if (this == &ref)
 		return (*this);
-	this->server_name = ref.server_name;
-	this->root = ref.root;
-	this->location_path = ref.location_path;
-	this->port = ref.port;
-	this->index_pages = ref.index_pages;
-	this->error_page = ref.error_page;
-	this->head_length_max = ref.head_length_max;
-	this->body_length_max = ref.body_length_max;
-	this->autoindex = ref.autoindex;
-	this->timeout = ref.timeout;
-	this->auth = ref.auth;
+	this->mserver_name = ref.mserver_name;
+	this->mroot = ref.mroot;
+	this->mlocation_path = ref.mlocation_path;
+	this->mport = ref.mport;
+	this->mindex_pages = ref.mindex_pages;
+	this->merror_page = ref.merror_page;
+	this->mhead_length_max = ref.mhead_length_max;
+	this->mbody_length_max = ref.mbody_length_max;
+	this->mautoindex = ref.mautoindex;
+	this->mtimeout = ref.mtimeout;
+	this->mauth = ref.mauth;
 	return (*this);
 }

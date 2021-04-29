@@ -1,4 +1,4 @@
-#include "../yunslee_test/all_header.hpp"
+#include "../base_headers/Path.hpp"
 #include "../yunslee_test/gnl/get_next_line_bonus.hpp"
 
 void			Path::setPath2(std::vector<std::string> &vec, const std::string& str)
@@ -25,7 +25,7 @@ void			Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 	}
 }
 
-const string	Path::getPath2(std::vector<std::string> const &vec) const
+const std::string	Path::getPath2(std::vector<std::string> const &vec) const
 {
 	std::string temp;
 	for (size_t i = 0; i < vec.size(); i++)
@@ -37,7 +37,7 @@ const string	Path::getPath2(std::vector<std::string> const &vec) const
 	return (temp);
 }
 
-const string	Path::getPath() const
+const std::string	Path::getPath() const
 {
 	return (getPath2(this->segments));
 }
