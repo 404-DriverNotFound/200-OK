@@ -26,16 +26,9 @@ enum e_status
 
 class Client
 {
-	Socket		sock;
-	Buffer		buffer;
-	std::string	line;
-	e_status	status;
-	Http		req;
-	Http		res;
-	Cgi			cgi;
-	Config&		config_location;
-
-	public:
+public:
+	Client();
+	virtual ~Client();
 	void		manage_client(bool is_buffer);
 	void		read_buffer();
 	void		recv_start_line();
@@ -46,4 +39,14 @@ class Client
 	void		terminate_cgi();
 	void		make_msg();
 	void		send_msg();
+	
+private:
+	Socket		sock;
+	Buffer		buffer;
+	std::string	line;
+	e_status	status;
+	Http		req;
+	Http		res;
+	Cgi			cgi;
+	Config&		config_location;
 };
