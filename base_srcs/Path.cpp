@@ -1,7 +1,7 @@
 #include "../base_headers/Path.hpp"
-#include "../yunslee_test/gnl/get_next_line_bonus.hpp"
+#include "../gnl/get_next_line_bonus.hpp"
 
-void			Path::setPath2(std::vector<std::string> &vec, const std::string& str)
+void				Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 {
 	size_t before = 0; //string처음부터 검사
 	size_t after = 0;
@@ -42,14 +42,13 @@ const std::string	Path::getPath() const
 	return (getPath2(this->segments));
 }
 
-void			Path::setPath(const std::string& str)
+void				Path::setPath(const std::string& str)
 {
 	setPath2(this->segments, str);
 }
 
-Path&			Path::operator+(Path& path)
+Path&				Path::operator+(Path& path)
 {
-	// cout << path.segments.size() << endl;
 	for (size_t i = 0; i < path.segments.size(); i++)
 	{
 		this->segments.push_back(path.segments[i]);
@@ -57,14 +56,14 @@ Path&			Path::operator+(Path& path)
 	return (*this);
 }
 
-Path&			Path::operator--(int)
+Path				Path::operator--(int) // 후위 postfix "Path--"
 {
 	Path temp = *this;
 	this->segments.pop_back();
 	return (temp);
 }
 
-Path&			Path::operator--()
+Path&				Path::operator--() // 전위 prefix "--Path"
 {
 	this->segments.pop_back();
 	return (*this);
@@ -85,13 +84,13 @@ Path::Path(Path const &path)
 	(*this) = path;
 }
 
-Path&			Path::operator=(const std::string& str)
+Path&				Path::operator=(const std::string& str)
 {
 	setPath(str);
 	return (*this);
 }
 
-Path&			Path::operator=(const Path& path)
+Path&				Path::operator=(const Path& path)
 {
 	if (this == &path)
 		return (*this);
@@ -99,8 +98,7 @@ Path&			Path::operator=(const Path& path)
 	return (*this);
 }
 
-
-const int		Path::getSize() const
+const int			Path::getSize() const
 {
 	return (this->segments.size());
 }

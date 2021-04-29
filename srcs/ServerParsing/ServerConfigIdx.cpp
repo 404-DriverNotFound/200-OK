@@ -2,6 +2,8 @@
 
 using namespace std;
 
+//ANCHOR class ServerConfigIdx 멤버 변수와 함수
+
 void ServerConfigIdx::outdentTab(std::string &str)
 {
 	if (str.size() < 2 || str[0] != '\t')
@@ -44,18 +46,15 @@ void ServerConfigIdx::SetServerBracket(std::vector<std::string> &gnl, ServerConf
 	bool startCheck = false;
 	bool endCheck = false;
 	ServerBracket temp;
-	// int ServerBracket[2]; ServerBracket[START] = 0; ServerBracket[END] = 0;
 	while (i < gnl.size())
 	{
 		if (gnl[i].size() == 1 && gnl[i].compare("{") == 0)
 		{
-			// cout << gnl[i] << "; "<< gnl[i].size() << endl;
 			temp.mstart = i;
 			startCheck = true;
 		}
 		else if (gnl[i].size() == 1 && gnl[i].compare("}") == 0)
 		{
-			// cout << gnl[i] << "; "<< gnl[i].size() << endl;
 			temp.mend = i;
 			endCheck = true;
 		}
@@ -71,13 +70,11 @@ void ServerConfigIdx::SetServerBracket(std::vector<std::string> &gnl, ServerConf
 
 void ServerConfigIdx::SetLocationBracket(std::vector<std::string> &gnl, ServerConfigIdx &configidx, int server_idx, int start, int end)
 {
-	// error 처리는 잘 안함
 	bool startCheck = false;
 	bool endCheck = false;
 	LocationBracket temp;
 	while (start <= end)
 	{
-		// cout << gnl[start] << endl;
 		if (gnl[start].size() == 1 && gnl[start].compare("{") == 0)
 		{
 			temp.mstart = start;
@@ -100,7 +97,6 @@ void ServerConfigIdx::SetLocationBracket(std::vector<std::string> &gnl, ServerCo
 	}
 }
 
-// serverConfig를 채워넣음 파싱 첫 단계
 int ServerConfigIdx::Step1(ServerConfigIdx &configidx, std::vector<std::string> &gnl)
 {
 	int i = 0;
@@ -114,9 +110,12 @@ int ServerConfigIdx::Step1(ServerConfigIdx &configidx, std::vector<std::string> 
 				configidx.SetServerBracket(gnl, configidx, i + 1);
 				i = configidx.mserverBracket[configidx.mserverNum - 1].mend;
 			}
+			else
+				return (-1);
 		}
 		i++;
 	}
+	return (1);
 }
 
 int ServerConfigIdx::Step2(ServerConfigIdx &configidx, std::vector<std::string> &gnl)
@@ -134,50 +133,73 @@ int ServerConfigIdx::Step2(ServerConfigIdx &configidx, std::vector<std::string> 
 			if (gnl[start].find("location ") != std::string::npos) // server block 단위 하나 처리
 			{
 				std::vector<std::string> temp;
+				std::string mlocation_path;
 				ft_split_vector(temp, gnl[start], " ");
-				std::string mlocation_path = temp[1];
-				if (configidx.check_bracket_syntax(gnl, start + 1, end) == true) // NOTE { 로 시작하는 라인을 index(=start+1)로 넘겨줌
+				if (temp.size() == 2)
 				{
-					
-					configidx.SetLocationBracket(gnl, configidx, serverNum, start, end);
-					int location_idx = configidx.mserverBracket[serverNum].mlocationBlockNum - 1;
-					configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path = mlocation_path;
-					// cout << "mlocation_path: " << configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path.getPath() << endl;
-					start = configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mend; // NOTE location '}' 이후에 바로 다음줄에 location이 나오는 경우 때문에 '+1'을 해주지 않음
+					mlocation_path = temp[1];
+					if (configidx.check_bracket_syntax(gnl, start + 1, end) == true) // NOTE { 로 시작하는 라인을 index(=start+1)로 넘겨줌
+					{
+						
+						configidx.SetLocationBracket(gnl, configidx, serverNum, start, end);
+						int location_idx = configidx.mserverBracket[serverNum].mlocationBlockNum - 1;
+						configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path = mlocation_path;
+						// cout << "mlocation_path: " << configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path.getPath() << endl;
+						start = configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mend; // NOTE location '}' 이후에 바로 다음줄에 location이 나오는 경우 때문에 '+1'을 해주지 않음
+					}
+					else
+						return (-1);
 				}
+				else
+					return (-1);
 			}
 			start++;
 		}
 	}
+	return (1);
+}
+
+ServerConfigIdx::ServerConfigIdx() : mserverNum(0), mtotalLocationNum(0) {}
+ServerConfigIdx::~ServerConfigIdx(){}
+
+ServerBracket::ServerBracket() : mlocationBlockNum(0), mstart(0), mend(0){}
+ServerBracket::~ServerBracket(){}
+
+LocationBracket::LocationBracket() : mstart(0), mend(0), mlocation_path() {};
+LocationBracket::~LocationBracket() {};
+
+/*
+// ANCHOR 서버파싱하는데 필요한 일반함수들. 다른 파일로 분리할 수 없어서 여기에 잔존한다.
+*/
+
+int isCorrespondedServerDirective(int index, ServerBracket &ServerBracket)
+{
+	for (size_t i = 0; i < ServerBracket.mlocationBracket.size(); i++)
+	{
+		if (index >= ServerBracket.mlocationBracket[i].mstart && index <= ServerBracket.mlocationBracket[i].mend)
+		{
+			return (false);
+		}
+	}
+	return (true);
 }
 
 int parsingServerBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end, ServerBracket &ServerBracket)
 {
 	std::string oneline;
 	std::vector<std::string> split_vector;
-	bool avoidLocationBlock = false;
-	while (start <= end)
+	int i = start;
+	while (i <= end)
 	{
-		avoidLocationBlock = false;
-		for (size_t i = 0; i < ServerBracket.mlocationBracket.size(); i++)
+		if (isCorrespondedServerDirective(i, ServerBracket) == false)
 		{
-			if (start >= ServerBracket.mlocationBracket[i].mstart && start <= ServerBracket.mlocationBracket[i].mend)
-			{
-				avoidLocationBlock = true;
-				break;
-			}
-		}
-		if (avoidLocationBlock == true)
-		{
-			start++;
+			i++;
 			continue;
 		}
-		oneline = gnl[start];
+		
+		oneline = gnl[i];
 		split_vector.clear();
 		ft_split_vector(split_vector, oneline, " ");
-		//
-		
-		// void function(std::vector<std::string> split_vector, Config &default_location);
 		
 		// STUB if문 비교하기
 		if (split_vector[0].compare("server_name") == 0)
@@ -218,7 +240,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, Config &default_location, 
 			Path error_page(split_vector[1]);
 			default_location.merror_page = error_page;
 		}
-		start++;
+		i++;
 	}
 	return (1);
 }
@@ -228,15 +250,12 @@ int parsingLocationBlock(std::vector<std::string> &gnl, Config &default_location
 	std::string oneline;
 	std::vector<std::string> split_vector;
 	bool exist_index_pages = false;
-	
-	while (start <= end)
+	int i = start;
+	while (i <= end)
 	{
-		oneline = gnl[start];
+		oneline = gnl[i];
 		split_vector.clear();
 		ft_split_vector(split_vector, oneline, " ");
-		//
-		
-		// void function(std::vector<std::string> split_vector, Config &default_location);
 		
 		// STUB if문 비교하기
 		if (split_vector[0].compare("server_name") == 0)
@@ -285,7 +304,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, Config &default_location
 			Path error_page(split_vector[1]);
 			default_location.merror_page = error_page;
 		}
-		start++;
+		i++;
 	}
 	return (1);
 }
@@ -326,11 +345,11 @@ int SetServer(Server &servers, std::vector<std::string> &gnl)
 	// 	}
 	// 	cout << " =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << endl;
 	// }
+	
 	for (size_t i = 0; i < configIdx.mserverNum; i++)
 	{
 		configIdx.mtotalLocationNum += (configIdx.mserverBracket[i].mlocationBlockNum + 1); // NOTE location block 갯수에 default location을 더해야하기 때문에
 	}
-	
 	
 	// ANCHOR Step2. 값 넣기
 	for (size_t i = 0; i < configIdx.mserverNum; i++)
@@ -341,14 +360,13 @@ int SetServer(Server &servers, std::vector<std::string> &gnl)
 		int start = configIdx.mserverBracket[i].mstart + 1;
 		int end = configIdx.mserverBracket[i].mend - 1;
 		
-		// if (default_location.parsingServerBlock(gnl, start, end, configIdx.mserverBracket[i]) == -1)
 		if (parsingServerBlock(gnl, default_location, start, end, configIdx.mserverBracket[i]) == -1)
 		{
 			cout << "parsingBlock error" << endl;
 			return (-1);
 		}
 
-		servers.mconfig_locations.push_back(default_location); // NOTE server의 default location
+		servers.mconfig_locations.push_back(default_location); // NOTE (1)서버의 default location을 기본으로 넣어줌
 
 		for (size_t j = 0; j < configIdx.mserverBracket[i].mlocationBlockNum ; j++)
 		{
@@ -356,58 +374,14 @@ int SetServer(Server &servers, std::vector<std::string> &gnl)
 			int start2 = configIdx.mserverBracket[i].mlocationBracket[j].mstart + 1;
 			int end2 = configIdx.mserverBracket[i].mlocationBracket[j].mend - 1;
 			temp.mlocation_path = configIdx.mserverBracket[i].mlocationBracket[j].mlocation_path;
-			// if (temp.parsingLocationBlock(gnl, start2, end2) == -1)
 			if (parsingLocationBlock(gnl, temp, start2, end2) == -1)
 			{
 				cout << "parsingBlock error" << endl;
 				return (-1);
 			}
-			servers.mconfig_locations.push_back(temp); // NOTE 서버의 location 블록에 있는 정보를 넣는다.
+			servers.mconfig_locations.push_back(temp); // NOTE (2)서버의 location block 이 있다면 넣어줌
 		}
 	}
 	return (1);
 }
 
-int main()
-{
-	Server server;
-	int fd_conf;
-	char buffer[BUFSIZ];
-	fd_conf = open("/Users/yunslee/webserv_200/yunslee_test/server_parsing/server_config3", O_RDWR);
-	if (fd_conf < 0)
-	{
-		cout << ("fd open error") << endl;
-		return (-1);
-	}
-		
-	// ANCHOR gnl로 벡터에 넣어줌
-	std::vector<std::string> gnl;
-	char *line;
-	while (get_next_line(fd_conf, &line) > 0)
-	{
-		gnl.push_back(line);
-		free(line);
-	}
-	gnl.push_back(line);
-	free(line);
-
-	// STUB 벡터에 넣어진 값 출력	
-	// for (size_t i = 0; i < gnl.size(); i++)
-	// {
-	// 	cout << gnl[i] << endl;
-	// }
-	// cout << gnl.size() << endl;
-	cout << " ------------ ==== ------------" << endl;
-
-	// if (-1 == server.SetServer(gnl))
-	if (-1 == SetServer(server, gnl))
-	{
-		cout << ("no server block") << endl;
-		return (-1);
-	}
-	
-	// NOTE 값이 제대로 들어왔나 출력해보기
-	server.ShowServerConfigs();
-	close(fd_conf);
-	return (1);
-}

@@ -1,4 +1,4 @@
-#include "../yunslee_test/all_header.hpp"
+#include "../base_headers/all_header.hpp"
 
 Config::Config() : mserver_name("localhost"), mroot(), mport(80), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
 					mbody_length_max(10000), mautoindex(false), mtimeout(5), mauth()

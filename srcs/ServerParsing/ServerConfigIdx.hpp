@@ -1,7 +1,6 @@
 #pragma once
-# include "../all_header.hpp"
-
-# include "../gnl/get_next_line_bonus.hpp"
+# include "../../base_headers/all_header.hpp"
+# include "../../gnl/get_next_line_bonus.hpp"
 # include <iostream>
 # include <stdlib.h> // FIXME atoi 때문에 추가
 # include <sys/types.h> // FIXME 확인해봐야함
@@ -22,9 +21,6 @@ class LocationBracket
 		Path mlocation_path;
 };
 
-LocationBracket::LocationBracket() : mstart(0), mend(0), mlocation_path() {};
-LocationBracket::~LocationBracket() {};
-
 class ServerBracket
 {
 	public:
@@ -38,10 +34,6 @@ class ServerBracket
 		int mstart; // start = 0
 		int mend; // end = 0 
 };
-
-ServerBracket::ServerBracket() : mlocationBlockNum(0), mstart(0), mend(0){}
-ServerBracket::~ServerBracket(){}
-
 
 class ServerConfigIdx
 {
@@ -65,8 +57,7 @@ class ServerConfigIdx
 		int mtotalLocationNum;
 };
 
-ServerConfigIdx::ServerConfigIdx() : mserverNum(0), mtotalLocationNum(0) {}
-ServerConfigIdx::~ServerConfigIdx(){}
-
 int parsingServerBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end, ServerBracket &ServerBracket);
 int parsingLocationBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end);
+int SetServer(Server &servers, std::vector<std::string> &gnl);
+int isCorrespondedServerDirective(int index, ServerBracket &ServerBracket);
