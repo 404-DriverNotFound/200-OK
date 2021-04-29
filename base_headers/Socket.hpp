@@ -1,34 +1,29 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yunslee <yunslee@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/08 17:45:05 by minckim           #+#    #+#             */
-/*   Updated: 2021/04/18 18:41:40 by yunslee          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/in.h> // <-- htons 추가하였음.
 #include "utils.hpp"
 
+/* 김포프 컨벤션으로 바꿈 */
 class Socket : public sockaddr
 {
 	int			fd;
 	socklen_t	socklen;
+	sockaddr_in	sockaddr; // <-- 추가함.
 
 	public:
 				Socket(uint16_t port, uint32_t ip);
 				Socket(int fd);
-				Socket(const Socket& x);
-	Socket&		operator=(const Socket& x);
+				// Socket(const Socket& x);
+	// Socket&		operator=(const Socket& x);
 	virtual		~Socket();
-	void		bind(uint16_t port, uint32_t ip);
-	void		accept(int serv_sock);
-	void		listen(size_t connections);
+	void		SetAddr(void);
+	void		Bind(uint16_t port, uint32_t ip);
+	void		Listen(void);
+	// void		Listen(size_t connections); // connection 은 뭘까?
+	size_t		Accept(size_t connections);
+	// void		Accept(int servSock); // servSock 은 뭘까?
+	int			GetFd(void); // socket fd 를 close 를 main 에서 하기 위한
 
 	// exceptions
 	class socket_failed_exception : public std::exception{
