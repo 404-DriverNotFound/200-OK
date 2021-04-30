@@ -22,7 +22,7 @@ private:
 		std::string	mRequestTarget;
 		std::string	mHttpVersion;
 	};
-	
+
 	enum eCursor
 	{
 		REQUESTLINE,

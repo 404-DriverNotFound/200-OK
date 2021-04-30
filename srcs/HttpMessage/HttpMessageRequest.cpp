@@ -101,7 +101,7 @@ void	HttpMessageRequest::Parser(void)
 					foundFromFront = 0;
 				}
 				std::size_t foundFromBack = value.find_last_not_of(" ");
-				//	REVIEW : substr이 leak을 유발할수도 있으니 확인 필요 
+				//	REVIEW : substr이 leak을 유발할수도 있으니 확인 필요
 				if (foundFromBack != value.length())
 				{
 					value = value.substr(foundFromFront, foundFromBack - foundFromFront + 1);
@@ -138,5 +138,5 @@ void	HttpMessageRequest::Parser(void)
 			}
 		}
 	}
-	// Test();	//	ANCHOR : 테스트 코드
+	Test();	//	ANCHOR : 테스트 코드
 }
