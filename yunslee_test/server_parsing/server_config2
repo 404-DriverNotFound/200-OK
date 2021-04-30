@@ -10,16 +10,20 @@ server
 	timeout 10
 	auth testtest
 	
-	location /
-		root a_directory
-		index index.html index.php index.txt
-		method POST PUT GET
-		body_length 100
 	location /abc
 		root a_directory
 		index index.html index.php index.txt
 		method POST PUT GET
 		body_length 100
+	
 	location /def
 		root d_directory
 		error_page d_error.html
+		
+server
+	server_name 127.0.0.1
+	port 80
+	error_page error.html
+	index index2.html
+
+
