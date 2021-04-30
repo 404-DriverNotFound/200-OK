@@ -12,27 +12,25 @@ Webserver::Webserver(int argc, char** argv, char** envp)
 
 void Webserver::start_server(void)
 {
-	Socket socket_one(INADDR_ANY, 8000);
-	int client_socket; // connections 를 client_socket 으로 이름 바꿈. 통신 소켓
-	char buffer[BUFFER_SIZE];
-	int bytesRead = BUFFER_SIZE - 1;
-	fd_set readfds;
-	int ret;
-	int fd_max;
-	timeval	timeout;
-	sockaddr_in	clnt_addr;
-	socklen_t addr_size;
+	Socket socket_one(INADDR_ANY, 8000); // STUB : Server socket 윤성이의 config 에 따라 ip, port 번호가 주어짐.
+	int client_socket; // STUB : Accept 의 반환값을 받아 만들어지는 통신 소켓
+	char buffer[BUFFER_SIZE]; // STUB : 버퍼. 버퍼사이즈는 위에 define 되어 있음.
+	int bytesRead = BUFFER_SIZE - 1; // STUB : read 를 얼마나 했는 지 받는 변수. read 반복문에 들어가기 위해 초기화를 해준다.
+	fd_set readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
+	int ret; // STUB : select 의 반환 값을 받아. -1: error, 0: timeout, 그외 성공.
+	int fd_max; // STUB : 가장 fd 번호가 늦는 서버 소켓을 저장. select 가 이 값을 참고해 서버 소켓의 변화를 확인한다.
+	timeval	timeout; // STUB : timeout 시간 설정.
 
-	/* 테스트 진행 */
+	/* TEST : 테스트 진행 */
 	bytesRead = BUFFER_SIZE - 1;
 
-	/* 1. clear the socket set */
+	/* STUB 1. clear the socket set */
 	FD_ZERO(&readfds);
 
-	/* 2. add master socket to set */
+	/* STUB 2. add master socket to set */
 	FD_SET(socket_one.GetFd(), &readfds);
 
-	/* 3. max_sd 초기화 */
+	/* STUB 3. max_sd 초기화 */
 	fd_max = socket_one.GetFd();
 
 	while (1)
@@ -40,26 +38,26 @@ void Webserver::start_server(void)
 		timeout.tv_sec = 5;
 		timeout.tv_usec = 0;
 
-		/* 4. select */
+		/* STUB 4. select */
 		if((ret = select(fd_max + 1, &readfds, NULL, NULL, &timeout)) == -1)
 		{
 			std::cout << "Select error\n";
 			break ;
 		}
-		if (ret == 0)
+		else if (ret == 0)
 		{
 			std::cout << "timeout\n";
 			continue ;
 		}
-		if (ret > 0)
+		else if (ret > 0)
 		{
 			std::cout << "Received connection\n";
 		}
 
-		/* 4. FD_ISSET 서버 소켓 버퍼 감시 */
+		/* STUB 4. FD_ISSET 서버 소켓 버퍼 감시 */
 		if (FD_ISSET(socket_one.GetFd(), &readfds))
 		{
-			std::cerr << "ret is " << ret << std::endl;
+			// std::cerr << "ret is " << ret << std::endl;
 			client_socket = socket_one.Accept(client_socket);
 			if (client_socket == -1)
 				std::cerr << "Could not create socket." << std::endl;
@@ -73,6 +71,9 @@ void Webserver::start_server(void)
 				{
 					ft_memset(buffer, 0, BUFFER_SIZE);	//	REVIEW : 전체 탐색하는 것들은 성능 개선의 여지가 있음
 					bytesRead = read(client_socket, buffer, BUFFER_SIZE - 1); // request 를 여기서 받아서..
+					/***************************************************
+					 * 영환이가 버퍼를 받아 코드에서 적용시키는 영역
+					 ***************************************************/
 					if (bytesRead == -1)
 						std::cerr << "Could not read request." << std::endl;
 				}
@@ -91,9 +92,9 @@ void Webserver::start_server(void)
 					int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
 				}
 			}
-			// Close the connections
+			// STUB Close the connections
 			close(client_socket);
 		}
 	}
-	close(socket_one.GetFd());
+	close(socket_one.GetFd()); // STUB : close server socket
 }

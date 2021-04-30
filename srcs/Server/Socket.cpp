@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-/* Socket 에 이런식으로 넣으면 binding, listen 작업까지 */
+/* STUB : Socket 에 이런식으로 넣으면 binding, listen 작업까지 */
 Socket::Socket(uint32_t ip, uint16_t port)
 {
 	fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -14,6 +14,7 @@ Socket::Socket(uint32_t ip, uint16_t port)
 	Listen();
 }
 
+/* STUB : 혹시 이 생성자가 쓰일 수도 있을 것같아서 뒀음. */
 Socket::Socket(int fd)
 {
 	fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -26,11 +27,13 @@ Socket::~Socket()
 	// std::cout << "~Socket()\n";
 }
 
+/* STUB : sockaddr 을 초기화 시켜줌. */
 void					Socket::SetAddr(void)
 {
 	ft_memset((char*)&sockaddr, 0, sizeof(sockaddr));
 }
 
+/* STUB : Bind 작업. */
 void					Socket::Bind(uint32_t ip, uint16_t port)
 {
 	sockaddr.sin_family = AF_INET;
@@ -44,6 +47,7 @@ void					Socket::Bind(uint32_t ip, uint16_t port)
 	// std::cout << "finished binding\n";
 }
 
+/* STUB : Listen 작업. */
 void					Socket::Listen(void)
 {
 	// Start listening. Hold at most 10 connections in the queue
@@ -52,6 +56,7 @@ void					Socket::Listen(void)
 	// std::cout << "finished listening\n";
 }
 
+/* STUB : Accept 작업. */
 size_t					Socket::Accept(size_t connections)
 {
 	// Grab a connection from the queue
@@ -63,6 +68,7 @@ size_t					Socket::Accept(size_t connections)
 	return (connections);
 }
 
+/* STUB : fd 를 반환함. */
 int						Socket::GetFd(void)
 {
 	return (fd);
