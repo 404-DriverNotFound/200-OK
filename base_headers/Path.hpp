@@ -6,8 +6,8 @@ class Path
 {
 public:
 	Path();
-	Path(std::string const &);
-	Path(Path const &);
+	Path(std::string const&);
+	Path(Path const&);
 	~Path();
 	const std::string			getPath() const;
 	void						setPath(const std::string&);
@@ -25,4 +25,3 @@ private:
 	const std::string			getPath2(std::vector<std::string> const &vec) const;				// NOTE getPath의 sub 함수
 	void						setPath2(std::vector<std::string> &vec, const std::string& str);	// NOTE setPath의 sub 함수
 };
-
