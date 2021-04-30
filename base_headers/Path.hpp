@@ -6,7 +6,7 @@ class Path
 {
 public:
 	Path();
-	Path(std::string const &);
+	Path(std::string const&);
 	Path(Path const&);
 	~Path();
 	const std::string			getPath() const;
