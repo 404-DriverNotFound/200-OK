@@ -37,6 +37,7 @@ void Webserver::start_server(void)
 
 	while (1)
 	{
+<<<<<<< HEAD
 		timeout.tv_sec = 5;
 		timeout.tv_usec = 0;
 
@@ -45,6 +46,19 @@ void Webserver::start_server(void)
 		{
 			std::cout << "Select error\n";
 			break ;
+=======
+		bytesRead = BUFFER_SIZE - 1;
+		connections = socket_one.Accept(connections);
+		//	STUB : Read from the connection
+		char *temp = buffer;
+		while (bytesRead == BUFFER_SIZE - 1)
+		{
+			// ft_memset(buffer, 0, BUFFER_SIZE);	//	REVIEW : 전체 탐색하는 것들은 성능 개선의 여지가 있음
+			bytesRead = read(connections, temp, BUFFER_SIZE - 1); // request 를 여기서 받아서..
+			if (bytesRead == -1)
+				std::cerr << "Could not read request." << std::endl;
+			temp += bytesRead;
+>>>>>>> 228a2fc8fcae567e8c1782d1e58f6d3f38438252
 		}
 		if (ret == 0)
 		{
@@ -86,6 +100,7 @@ void Webserver::start_server(void)
 					HttpMessageResponse	response(request); // reponse 를 정리한다.
 					response.SetMessage();
 
+<<<<<<< HEAD
 					//	STUB : Send a message to the connection
 					int len = response.GetMessage().size();
 					int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
@@ -93,6 +108,17 @@ void Webserver::start_server(void)
 			}
 			// Close the connections
 			close(client_socket);
+=======
+			//	STUB : Send a message to the connection
+			int len = response.GetMessage().size();
+
+			// FIXME 확인용. 아직 reponse header를 보내진 않았구나.
+			std::cout << "-- - - - - - - - - - - -- -  -" << std::endl;
+			std::cout << response.GetMessage() << std::endl;
+			std::cout << "-- - - - - - - - - - - -- -  -" << std::endl;
+
+			int ret = send(connections, response.GetMessage().c_str(), len, 0);
+>>>>>>> 228a2fc8fcae567e8c1782d1e58f6d3f38438252
 		}
 	}
 	close(socket_one.GetFd());
