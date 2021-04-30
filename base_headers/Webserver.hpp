@@ -6,7 +6,6 @@
 #include <sys/select.h>
 #include <vector>
 
-
 class Webserver
 {
 	ConfigWebserver			config;
