@@ -9,7 +9,7 @@ public:
 	Config();
 	virtual ~Config();
 	Config(const Config &);
-	Config &operator=(const Config &);
+	Config&	operator=(const Config &);
 	
 	// FIXME 헤더파일의 상호참조 문제를 해결해야함 #20
 	// int parsingServerBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end, ServerBracket &ServerBracket);
