@@ -1,6 +1,6 @@
 #pragma once
-#include "Path.hpp"
-#include "Method.hpp"
+#include "../Path/Path.hpp"
+// #include "Method.hpp"
 #include <string>
 
 class Config

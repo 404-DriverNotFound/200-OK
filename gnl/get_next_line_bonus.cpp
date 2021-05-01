@@ -14,22 +14,22 @@
 
 int		get_next_line_sub(int fd, char **line)
 {
-	char		buffer[BUFFER_SIZE + 1];//-D BUFFER_SIZE 만큼 읽음.
+	char		buffer[BUFFER_SIZE_GNL + 1];//-D BUFFER_SIZE 만큼 읽음.
 	char		*oneline_string; // *line = oneline_string; line에 값을 할당해주기 위한 변수. line 29
 	static char	*remain_string[5] = {0, }; // 파일을 읽어서 얻은 fd와 remain_string의 index와 일치시킴. element는 개행이후의 값을 저장하는 static char *
 	int			validation; // read의 return 값
 
 	if (exist_newline_in_remain_string(remain_string, fd, line) == 1)
 		return (1);
-	ft_memset(buffer, 0, (BUFFER_SIZE + 1)); //read로 담기 이전에 buffer를 깨끗이 청소해줌
-	while ((validation = read(fd, buffer, BUFFER_SIZE)) > 0)
+	ft_memset_gnl(buffer, 0, (BUFFER_SIZE_GNL + 1)); //read로 담기 이전에 buffer를 깨끗이 청소해줌
+	while ((validation = read(fd, buffer, BUFFER_SIZE_GNL)) > 0)
 	{
 		if (read_until_newline(buffer, fd, &oneline_string, remain_string) == 1)//개행이 buffer에 하나 이상 담길 때 while문과 gnl을 탈출할 수 있다.
 		{
 			*line = oneline_string;
 			return (1);
 		}
-		ft_memset(buffer, 0, BUFFER_SIZE);
+		ft_memset_gnl(buffer, 0, BUFFER_SIZE_GNL);
 	}
 	if (validation == -1) //open으로 fd에 할당되지않은 임의의 정수일 때, read에서도 open과 같은 에러값(-1)을 반환해준다. read에서 에러발생시 빠져나오도록하기
 	{
@@ -46,7 +46,7 @@ int		get_next_line(int fd, char **line)
 {
 	int return_value;
 
-	if (BUFFER_SIZE <=0 || line == NULL) //line에 값을 할당해주지않고 return, fd값에 대한 에러는 line에 빈문자열을 할당해주고 return한다.
+	if (BUFFER_SIZE_GNL <=0 || line == NULL) //line에 값을 할당해주지않고 return, fd값에 대한 에러는 line에 빈문자열을 할당해주고 return한다.
 	{
 		return (-1);
 	}

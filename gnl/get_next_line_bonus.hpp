@@ -15,8 +15,8 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1024
+# ifndef BUFFER_SIZE_GNL
+#  define BUFFER_SIZE_GNL 1024
 # endif
 
 int		get_next_line_sub(int fd, char **line);
@@ -28,7 +28,7 @@ int exist_newline_in_remain_string(char **remain_string, int fd, char **line);
 
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strdup(const char *str);
-void	*ft_memset(void *dest, int c, size_t len);
+void	*ft_memset_gnl(void *dest, int c, size_t len);
 char	*ft_strchr(const char *s, int c);
 size_t	ft_strlen(const char *s);
 #endif

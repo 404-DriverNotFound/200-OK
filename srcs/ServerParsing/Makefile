@@ -1,4 +1,5 @@
-SRCS = ./*.cpp ../../gnl/*.cpp ../../base_srcs/*.cpp -fsanitize=address
+SRCS = ./*.cpp ../../gnl/*.cpp ../Utils/*.cpp ../Path/*.cpp ../Server/Server.cpp \
+			../Config/*.cpp -fsanitize=address
 
 all :
 	clang++ $(SRCS)

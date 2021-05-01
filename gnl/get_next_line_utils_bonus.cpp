@@ -30,7 +30,7 @@ char		*ft_strchr(const char *s, int c)
 	return (0);
 }
 
-void		*ft_memset(void *dest, int c, size_t len)
+void		*ft_memset_gnl(void *dest, int c, size_t len)
 {
 	unsigned int	i;
 	char			*str;
