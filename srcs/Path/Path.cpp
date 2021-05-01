@@ -1,5 +1,4 @@
-#include "../base_headers/Path.hpp"
-#include "../gnl/get_next_line_bonus.hpp"
+#include "./Path.hpp"
 
 void				Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 {

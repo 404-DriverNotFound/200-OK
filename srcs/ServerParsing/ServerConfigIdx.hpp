@@ -1,11 +1,14 @@
 #pragma once
-# include "../../base_headers/all_header.hpp"
 # include "../../gnl/get_next_line_bonus.hpp"
+# include "../../srcs/Server/Socket.hpp"
+# include "../Path/Path.hpp"
+# include "../Utils/utils.hpp"
+# include "../Server/Server.hpp"
+# include "../Config/Config.hpp"
 # include <iostream>
 # include <stdlib.h> // FIXME atoi 때문에 추가
 # include <sys/types.h> // FIXME 확인해봐야함
 # include <fcntl.h> // FIXME 확인해봐야함
-
 
 # define START 0
 # define END 1

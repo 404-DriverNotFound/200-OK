@@ -1,4 +1,4 @@
-#include "../base_headers/Server.hpp"
+#include "./Server.hpp"
 
 void Server::ShowServerConfigs()
 {

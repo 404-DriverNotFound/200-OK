@@ -1,4 +1,5 @@
 #pragma once
+#include "../../gnl/get_next_line_bonus.hpp"
 #include <vector>
 #include <string>
 
