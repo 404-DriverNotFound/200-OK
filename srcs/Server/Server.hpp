@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 #include <list>
-// #include "../Client/Client.hpp"
 #include "../Config/Config.hpp"
+// #include "../Client/Client.hpp"
+
+// FIXME 아래 header 파일을 포함하는 순간, 컴파일이 안됨.
 // #include "../ServerParsing/ServerConfigIdx.hpp"
 #include "unistd.h"
 #include "sys/types.h"

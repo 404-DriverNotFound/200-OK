@@ -8,6 +8,7 @@ SRCS	=	srcs/main.cpp\
 			srcs/Server/Server.cpp\
 			srcs/Path/Path.cpp\
 			srcs/Config/Config.cpp\
+			srcs/Config/Configs.cpp\
 			gnl/get_next_line_bonus.cpp\
 			gnl/get_next_line_utils_bonus.cpp
 # $(wildcard ./srcs/*.cpp)\

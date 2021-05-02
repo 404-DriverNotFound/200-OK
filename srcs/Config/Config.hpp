@@ -15,13 +15,17 @@ public:
 	// int parsingServerBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end, ServerBracket &ServerBracket);
 	// int parsingLocationBlock(std::vector<std::string> &gnl, Config &default_location, int start, int end);
 	// int isCorrespondedServerDirective(int index, ServerBracket &ServerBracket);
-
 public :
+	int config_fd;
+	std::vector<std::string> gnl;
 	// REVIEW 아래 멤버들은 필수적인 파트
+	// NOTE - location에서 덮어씌워지는 않는 요소들
 	std::string			mserver_name;		// localhost
-	Path				mroot;				// def = 
-	Path				mlocation_path;		// def = 
 	uint16_t			mport;				// def = 80;
+	
+	Path				mlocation_path;		// def = 
+	// NOTE - location에서 덮어씌워지는 요소들
+	Path				mroot;				// def = 
 	std::vector<Path>	mindex_pages;		// def = index.html
 	Path				merror_page;			// def = error.html
 	
