@@ -35,11 +35,12 @@ void Webserver::start_server(void)
 
 	while (1)
 	{
+		fd_set cpy_readfds = readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
 		timeout.tv_sec = 5;
 		timeout.tv_usec = 0;
 
 		/* STUB 4. select */
-		if((ret = select(fd_max + 1, &readfds, NULL, NULL, &timeout)) == -1)
+		if((ret = select(fd_max + 1, &cpy_readfds, NULL, NULL, &timeout)) == -1)
 		{
 			std::cout << "Select error\n";
 			break ;
