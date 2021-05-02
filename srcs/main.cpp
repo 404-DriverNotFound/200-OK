@@ -14,13 +14,14 @@ int		main(int argc, char** argv, char** env)
 	try {
 		Webserver	s(argc, argv, env);
 		Configs configss("srcs/ServerParsing/webserv.config");
-		configss.ShowConfigs();
+		// configss.ShowConfigs();
 		Servers servers;
 		if (-1 == servers.SetServers(&configss))
 		{
 			std::cout << "error" << std::endl;
 			return (-1);
 		}
+		servers.ShowServers();
 		// STUB 대체하기
 		// Server server;
 		// server.SetGnl(server.config_fd);

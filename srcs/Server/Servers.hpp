@@ -29,6 +29,7 @@ public :
 	int GetIdxServer(int port);
 	int GetIdxServerBlock(std::vector<ServerBlock> &serverBlocks, std::string serverName);
 	int GetIdxLocationPath(std::vector<LocationPath> &locationPaths, Path locationPath);
+	int ShowServers();
 
 	// FIXME 헤더파일의 상호참조 문제를 해결해야함 #20
 	// int SetServer(Servers &servers, std::vector<std::string> &gnl);

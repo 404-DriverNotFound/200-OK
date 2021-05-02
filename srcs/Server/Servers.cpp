@@ -4,12 +4,12 @@ int Servers::SetServers(Configs *configs)
 {
 	while (configs->mconfigs.size() != 0)
 	{
-		Config config = configs->mconfigs[configs->mconfigs.size() - 1];
-		Server server;
+		Config &config = configs->mconfigs[configs->mconfigs.size() - 1];
 		int idxserver;
 		if (-1 == (idxserver = this->GetIdxServer(config.mport)))
 		{
 			// NOTE port별로 서버도 없는 상황, 아예 새롭게 만들면 됨.
+			Server server;
 			server.mport = config.mport;
 			
 			ServerBlock temp;
@@ -27,7 +27,7 @@ int Servers::SetServers(Configs *configs)
 			configs->mconfigs.pop_back();
 			continue;
 		}
-		server = this->mservers[idxserver];
+		Server &server = this->mservers[idxserver];
 		int idxserverblock;
 		if (-1 == (idxserverblock = this->GetIdxServerBlock(server.mserverBlocks, config.mserver_name)))
 		{
@@ -45,9 +45,9 @@ int Servers::SetServers(Configs *configs)
 			configs->mconfigs.pop_back();
 			continue;
 		}
-		ServerBlock serverblock = server.mserverBlocks[idxserverblock];
+		ServerBlock &temp = server.mserverBlocks[idxserverblock];
 		int idxlocationblock;
-		if (-1 == (idxlocationblock = this->GetIdxLocationPath(serverblock.mlocationPaths, config.mlocation_path)))
+		if (-1 == (idxlocationblock = this->GetIdxLocationPath(temp.mlocationPaths, config.mlocation_path)))
 		{
 			// NOTE port도 있고, 서버네임도 있으나, location이 다른 경우
 			LocationPath temp2;
@@ -102,4 +102,34 @@ int Servers::GetIdxLocationPath(std::vector<LocationPath> &locationPaths, Path l
 			return (i);
 	}
 	return (-1);
+}
+
+int Servers::ShowServers()
+{
+	for (size_t i = 0; i < this->mservers.size(); i++)
+	{
+		Server &temp = this->mservers[i];
+		std::cout << "port: " << temp.mport << endl;
+		for (size_t j = 0; j < temp.mserverBlocks.size(); j++)
+		{
+			ServerBlock temp2 = temp.mserverBlocks[j];
+			std::cout << "server_name: " << temp2.mserverName << endl;
+			std::cout << temp2.mserverName << ": " << "locationPathsize: " << temp2.mlocationPaths.size() << endl;
+			for (size_t k = 0; k < temp2.mlocationPaths.size(); k++)
+			{
+				LocationPath temp3 = temp2.mlocationPaths[k];
+				std::cout << "mlocationpath: " << temp3.mlocationPath.getPath() << std::endl;
+				std::cout << "error_page: " << temp3.merror_page.getPath() << std::endl;
+				std::cout << "root: " << temp3.mroot.getPath() << std::endl;
+				for (size_t l = 0; l < temp3.mindex_pages.size(); l++)
+				{
+					std::cout << "index_pages: " << temp3.mindex_pages[l].getPath() << std::endl;	/* code */
+				}
+				std::cout << "------------------------------ locationPath" << std::endl;
+			}
+			std::cout << "============================== server name" << std::endl;
+		}
+		std::cout << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- port" << std::endl;	
+	}
+	return (1);
 }

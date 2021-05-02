@@ -7,11 +7,15 @@ class LocationPath
 {
 public:
 	Path				mlocationPath;		// def = 
-
-	// NOTE - location에서 덮어씌워지는 요소들
 	Path				mroot;				// def = 
 	std::vector<Path>	mindex_pages;		// def = index.html
-	Path				merror_page;			// def = error.html
+	Path				merror_page;		// def = error.html
+
+public:
+	LocationPath();
+	virtual ~LocationPath();
+	LocationPath(const LocationPath &);
+	LocationPath&	operator=(const LocationPath &);
 };
 
 class ServerBlock
@@ -19,6 +23,12 @@ class ServerBlock
 public :
 	std::vector<LocationPath>	mlocationPaths;
 	std::string					mserverName;
+
+public :
+	ServerBlock();
+	virtual ~ServerBlock();
+	ServerBlock(const ServerBlock &);
+	ServerBlock&	operator=(const ServerBlock &);
 };
 
 class Server
@@ -27,7 +37,7 @@ public:
 	Server();
 	virtual ~Server();
 	Server(const Server &);
-	Server&	operator=(const Server &);	
+	Server&	operator=(const Server &);
 
 public :
 	uint16_t					mport; // def = 80;
