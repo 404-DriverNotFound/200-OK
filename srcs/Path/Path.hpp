@@ -12,13 +12,14 @@ public:
 	~Path();
 	const std::string			getPath() const;
 	void						setPath(const std::string&);
-	const int					getSize() const;
+	int					getSize() const;
 	
 	Path&						operator+(Path&);
 	Path&						operator--();     // 전위 prefix "--Path"
 	Path						operator--(int);  // 후위 postfix "Path--"
 	Path&						operator=(const std::string&);
 	Path&						operator=(const Path&);
+	bool						operator==(const Path&);
 	
 private:
 	std::vector<std::string>	segments;

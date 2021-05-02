@@ -6,6 +6,7 @@ SRCS	=	srcs/main.cpp\
 			srcs/Utils/utils.cpp\
 			srcs/ServerParsing/ServerConfigIdx.cpp\
 			srcs/Server/Server.cpp\
+			srcs/Server/Servers.cpp\
 			srcs/Path/Path.cpp\
 			srcs/Config/Config.cpp\
 			srcs/Config/Configs.cpp\
@@ -40,9 +41,9 @@ re		:	fclean all
 
 $(NAME)	:	$(OBJS)
 # $(CC) -c $(SRCS)
-			$(CC) $(CFLAG) -o $(NAME) $(OBJS)
+			# $(CC) $(CFLAG) $(OBJS) -o $(NAME)
+			$(CC) $(SRCS) -o $(NAME)
 			./webserv
-# $(CC) $(CFLAG) -c $(SRCS)
 # $(CC) $(CFLAG) -o $(NAME) $(OBJS)
 
 .PHONY	:	all clean fclean re

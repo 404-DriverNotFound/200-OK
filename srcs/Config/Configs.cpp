@@ -104,7 +104,7 @@ int Configs::SetConfigs()
 		
 		if (parsingServerBlock(this->mgnl, default_location, start, end, configIdx.mserverBracket[i]) == -1)
 		{
-			cout << "parsingBlock error" << endl;
+			std::cout << "parsingBlock error" << std::endl;
 			return (-1);
 		}
 
@@ -118,7 +118,7 @@ int Configs::SetConfigs()
 			temp.mlocation_path = configIdx.mserverBracket[i].mlocationBracket[j].mlocation_path;
 			if (parsingLocationBlock(this->mgnl, temp, start2, end2) == -1)
 			{
-				cout << "parsingBlock error" << endl;
+				std::cout << "parsingBlock error" << std::endl;
 				return (-1);
 			}
 			this->mconfigs.push_back(temp); // NOTE (2)서버의 location block 이 있다면 넣어줌
