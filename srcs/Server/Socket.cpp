@@ -9,7 +9,7 @@ Socket::Socket(uint32_t ip, uint16_t port)
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
 		throw (socket_failed_exception());
-	SetAddr();
+	MemsetAddr();
 	Bind(ip, port);
 	Listen();
 }
@@ -22,15 +22,32 @@ Socket::Socket(int fd)
 		throw (socket_failed_exception());
 }
 
+Socket::Socket() : fd(-1)
+{
+	ft_memset(&(this->sockaddr), 0, sizeof(sockaddr));
+	ft_memset(&(this->socklen), 0, sizeof(socklen));
+}
+
 Socket::~Socket()
 {
 	// std::cout << "~Socket()\n";
 }
 
 /* STUB : sockaddr 을 초기화 시켜줌. */
-void					Socket::SetAddr(void)
+void					Socket::MemsetAddr(void)
 {
 	ft_memset((char*)&sockaddr, 0, sizeof(sockaddr));
+}
+
+int 		Socket::SetSocket(uint32_t ip, uint16_t port)
+{
+	this->fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd == -1)
+		throw (socket_failed_exception());
+	MemsetAddr();
+	Bind(ip, port);
+	Listen();
+	return (-1);
 }
 
 /* STUB : Bind 작업. */

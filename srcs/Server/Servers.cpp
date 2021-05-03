@@ -133,3 +133,29 @@ int Servers::ShowServers()
 	}
 	return (1);
 }
+
+int Servers::SetSockets()
+{
+	for (size_t i = 0; i < this->mservers.size(); i++)
+	{
+		Server &temp = this->mservers[i];
+		temp.SetSocket();
+	}
+	return (1);
+}
+
+void Servers::SetFdMax()
+{
+	for (size_t i = 0; i < this->mservers.size(); i++)
+	{
+		Server &server =this->mservers[i];
+		if (this->mfdMax < server.msocket.GetFd())
+			this->mfdMax = server.msocket.GetFd();
+	}
+}
+
+int Servers::GetFdMax()
+{
+	this->SetFdMax();
+	return (this->mfdMax);
+}

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Path/Path.hpp"
+#include "Socket.hpp"
 #include <iostream>
 #include <vector>
 
@@ -39,7 +40,13 @@ public:
 	Server(const Server &);
 	Server&	operator=(const Server &);
 
+	// ANCHOR new function
+	int SetSocket();
+
 public :
 	uint16_t					mport; // def = 80;
 	std::vector<ServerBlock>	mserverBlocks;
+
+	// NOTE 서버(port)별로 소켓이 하나씩 있으면 되니깐 여기에 socket class를 추가한다.
+	Socket						msocket;
 };

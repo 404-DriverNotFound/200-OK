@@ -16,13 +16,17 @@ int		main(int argc, char** argv, char** env)
 		Configs configs("srcs/ServerParsing/webserv.config");
 		// configss.ShowConfigs();
 		Servers servers;
-		if (-1 == servers.SetServers(&configs)) // NOTE 한번 더 파싱해줌.
+		if (-1 == servers.SetServers(&configs)) // NOTE Configs -> Servers로 파싱하고 옮김
 		{
 			std::cout << "error" << std::endl;
 			return (-1);
 		}
-		// servers.ShowServers(); // NOTE Servers에 담긴 값 확인
+		// NOTE Servers의 socket에 대한 정보를 세팅하는 것이 좋을 것 같음.
+		servers.ShowServers(); // NOTE Servers에 담긴 값 확인
 
+
+
+		
 		s.servers = servers; // REVIEW public으로 값을 할당하는데, soft 할지 deep할지
 		s.start_server();
 	}

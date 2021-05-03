@@ -1,5 +1,6 @@
 #pragma once
 #include "../Server/Socket.hpp"
+#include "../Server/Servers.hpp"
 #include "../HttpMessage/HttpMessageRequest.hpp"
 #include "../HttpMessage/HttpMessageResponse.hpp"
 #include <sys/select.h>

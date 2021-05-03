@@ -74,3 +74,10 @@ Server&	Server::operator=(const Server &ref)
 	this->mserverBlocks = ref.mserverBlocks;
 	return (*this);
 }
+
+//NOTE 그냥 포트 별로 소켓하나씩 만드는 것에 불과함. 
+int Server::SetSocket()
+{
+	this->msocket.SetSocket(INADDR_ANY, this->mport);
+	return (1);
+}
