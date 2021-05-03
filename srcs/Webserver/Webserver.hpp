@@ -22,7 +22,8 @@ public:
 
 public:
 	Webserver(int argc, char** argv, char** envp);
-	void			start_server(void);				// 서버 시작
+	void			start_servers(void);				// 서버 시작
+	void			start_a_server(Server& server, fd_set& cpy_readfds); // 서버 하나 시작
 					// Webserver(const Path&); 	// config 파일의 경로를 받아서 초기화
 	// void			create_server(const std::vector<Config>& config_locations);
 

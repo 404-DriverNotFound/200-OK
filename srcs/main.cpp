@@ -26,7 +26,7 @@ int		main(int argc, char** argv, char** env)
 
 
 		s.mservers = servers; // REVIEW public으로 값을 할당하는데, soft 할지 deep할지
-		s.start_server();
+		s.start_servers();
 	}
 	catch(const std::exception &e) {
 		std::cerr << e.what() << std::endl;
