@@ -11,10 +11,10 @@
 class Configs
 {
 public:
-	void ShowConfigs();
-	int ReadConfigFile(const char *fileName);
-	int SetGnl();
-	int SetConfigs();
+	void	ShowConfigs();
+	int		ReadConfigFile(const char *fileName);
+	int		SetGnl();
+	int		SetConfigs();
 	
 	Configs();
 	Configs(const char *fileName);
@@ -22,8 +22,8 @@ public:
 	Configs(const Configs &);
 	Configs&	operator=(const Configs &);
 public:
-	int config_fd;
-	std::vector<std::string> mgnl;
+	int							mconfigFd;
+	std::vector<std::string>	mgnl;
 	
-	std::vector<Config> mconfigs;
+	std::vector<Config>			mconfigs;
 };

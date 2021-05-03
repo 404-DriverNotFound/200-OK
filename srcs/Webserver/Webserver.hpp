@@ -16,7 +16,7 @@ public:
 	// fd_set					to_be_checked;
 	// fd_set					to_be_checked_read;
 	// fd_set					to_be_checked_write;
-	Servers		servers;
+	Servers			mservers;
 
 public:
 	Webserver(int argc, char** argv, char** envp);

@@ -1,5 +1,9 @@
 #include "./Servers.hpp"
 
+Servers::Servers() : mfdMax(-1) {};
+
+Servers::~Servers(){};
+
 int Servers::SetServers(Configs *configs)
 {
 	while (configs->mconfigs.size() != 0)

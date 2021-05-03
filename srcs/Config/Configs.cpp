@@ -24,11 +24,11 @@ void Configs::ShowConfigs()
 int Configs::ReadConfigFile(const char *fileName)
 {
 	char buffer[BUFSIZ];
-	this->config_fd = open(fileName, O_RDWR);
-	if (this->config_fd < 0)
+	this->mconfigFd = open(fileName, O_RDWR);
+	if (this->mconfigFd < 0)
 	{
 		std::cout << ("fd open error") << std::endl;
-		this->config_fd = -1;
+		this->mconfigFd = -1;
 		return (-1);
 	}
 	return (1);
@@ -37,14 +37,14 @@ int Configs::ReadConfigFile(const char *fileName)
 int Configs::SetGnl()
 {
 	char *line;
-	while (get_next_line(this->config_fd, &line) > 0)
+	while (get_next_line(this->mconfigFd, &line) > 0)
 	{
 		this->mgnl.push_back(line);
 		free(line);
 	}
 	this->mgnl.push_back(line);
 	free(line);
-	close(this->config_fd);
+	close(this->mconfigFd);
 	return (1);
 }
 
@@ -76,7 +76,6 @@ Configs&	Configs::operator=(const Configs &ref)
 		return (*this);
 	return (*this);	
 }
-
 
 int Configs::SetConfigs()
 {

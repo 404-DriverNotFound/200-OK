@@ -1,6 +1,6 @@
 #include "./Config.hpp"
 
-Config::Config() : mserver_name("localhost"), mroot(), mport(80), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
+Config::Config() : mserver_name("localhost"), mroot(), mport(8000), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
 					mbody_length_max(10000), mautoindex(false), mtimeout(5), mauth()
 					{}
 

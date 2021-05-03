@@ -12,8 +12,8 @@ Webserver::Webserver(int argc, char** argv, char** envp)
 
 void Webserver::start_server(void)
 {
-	Servers &servers = this->servers;
-	servers.SetSockets();
+	Servers &servers = this->mservers; // NOTE yunslee
+	servers.SetSockets(); // NOTE yunslee
 
 	
 	// Socket socket_one(INADDR_ANY, 8000); // STUB : Server socket 윤성이의 config 에 따라 ip, port 번호가 주어짐.
@@ -31,15 +31,15 @@ void Webserver::start_server(void)
 	/* STUB 1. clear the socket set */
 	FD_ZERO(&readfds);
 
-	/* STUB 2. add master socket to set */
-	for (size_t i = 0; i < servers.mservers.size(); i++)
+	/* STUB 2. add master socket to set */ 
+	for (size_t i = 0; i < servers.mservers.size(); i++) // NOTE yunslee
 	{
 		Server &server = servers.mservers[i];
 		FD_SET(server.msocket.GetFd(), &readfds);
 	}
 
 	/* STUB 3. 여러개의 socket_fd 중에서 Get 하기 */
-	fd_max = this->servers.GetFdMax();
+	fd_max = this->mservers.GetFdMax(); // NOTE yunslee
 
 	std::cout << "fd_max: " << fd_max << std::endl;
 	while (1)
@@ -64,7 +64,7 @@ void Webserver::start_server(void)
 		}
 
 		/* STUB 4. FD_ISSET 서버 소켓 버퍼 감시 */
-		for (size_t i = 0; i < servers.mservers.size(); i++)
+		for (size_t i = 0; i < servers.mservers.size(); i++) // NOTE yunslee port별로 ISSET 확인하기 위해서 반복문 씀
 		{
 			Server &server = servers.mservers[i];
 			if (FD_ISSET(server.msocket.GetFd(), &cpy_readfds))
@@ -110,8 +110,8 @@ void Webserver::start_server(void)
 		}
 	}
 
-	 // STUB : close all server socket
-	for (size_t i = 0; i < servers.mservers.size(); i++)
+	 // STUB : close all server socket 
+	for (size_t i = 0; i < servers.mservers.size(); i++) // NOTE yunslee 서버 소켓 다 닫아야함.
 	{
 		Server &server = servers.mservers[i];
 		close(server.msocket.GetFd());

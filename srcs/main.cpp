@@ -25,9 +25,7 @@ int		main(int argc, char** argv, char** env)
 		servers.ShowServers(); // NOTE Servers에 담긴 값 확인
 
 
-
-		
-		s.servers = servers; // REVIEW public으로 값을 할당하는데, soft 할지 deep할지
+		s.mservers = servers; // REVIEW public으로 값을 할당하는데, soft 할지 deep할지
 		s.start_server();
 	}
 	catch(const std::exception &e) {
