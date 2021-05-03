@@ -5,6 +5,8 @@
 
 Webserver::Webserver(int argc, char** argv, char** envp)
 {
+	this->timeout.tv_sec = 2;
+	this->timeout.tv_usec = 0;
 	(void)argc;
 	(void)argv;
 	(void)envp;
@@ -15,15 +17,12 @@ void Webserver::start_server(void)
 	Servers &servers = this->mservers; // NOTE yunslee
 	servers.SetSockets(); // NOTE yunslee
 
-
-	// Socket socket_one(INADDR_ANY, 8000); // STUB : Server socket 윤성이의 config 에 따라 ip, port 번호가 주어짐.
 	int client_socket; // STUB : Accept 의 반환값을 받아 만들어지는 통신 소켓
 	char buffer[BUFFER_SIZE]; // STUB : 버퍼. 버퍼사이즈는 위에 define 되어 있음.
 	int bytesRead = BUFFER_SIZE - 1; // STUB : read 를 얼마나 했는 지 받는 변수. read 반복문에 들어가기 위해 초기화를 해준다.
-	fd_set readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
 	int ret; // STUB : select 의 반환 값을 받아. -1: error, 0: timeout, 그외 성공.
 	int fd_max; // STUB : 가장 fd 번호가 늦는 서버 소켓을 저장. select 가 이 값을 참고해 서버 소켓의 변화를 확인한다.
-	timeval	timeout; // STUB : timeout 시간 설정.
+
 
 	/* TEST : 테스트 진행 */
 	bytesRead = BUFFER_SIZE - 1;
@@ -41,11 +40,10 @@ void Webserver::start_server(void)
 	/* STUB 3. 여러개의 socket_fd 중에서 Get 하기 */
 	fd_max = this->mservers.GetFdMax(); // NOTE yunslee
 
-	std::cout << "fd_max: " << fd_max << std::endl;
 	while (1)
 	{
-		timeout.tv_sec = 2; timeout.tv_usec = 0;
 		fd_set cpy_readfds = readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
+
 		/* STUB 4. select */
 		if((ret = select(fd_max + 1, &cpy_readfds, NULL, NULL, &timeout)) == -1)
 		{
@@ -68,7 +66,6 @@ void Webserver::start_server(void)
 			Server &server = servers.mservers[i];
 			if (FD_ISSET(server.msocket.GetFd(), &cpy_readfds))
 			{
-				// std::cerr << "ret is " << ret << std::endl;
 				client_socket = server.msocket.Accept();
 				if (client_socket == -1)
 					std::cerr << "Could not create socket." << std::endl;

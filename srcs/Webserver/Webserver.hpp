@@ -11,11 +11,13 @@
 
 class Webserver
 {
+	timeval	timeout; // STUB : timeout 시간 설정.
 public:
 	// ConfigWebserver			config;
 	// fd_set					to_be_checked;
 	// fd_set					to_be_checked_read;
 	// fd_set					to_be_checked_write;
+	fd_set readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
 	Servers			mservers;
 
 public:
