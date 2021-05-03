@@ -1,29 +1,50 @@
 #pragma once
+#include "../Path/Path.hpp"
+#include "Socket.hpp"
 #include <iostream>
-#include <string>
 #include <vector>
-#include <list>
-// #include "../Client/Client.hpp"
-#include "../Config/Config.hpp"
-// #include "../yunslee_test/server_parsing/ServerConfigIdx.hpp"
-// #include "../yunslee_test/all_header.hpp"
 
-using namespace std;
+class LocationPath
+{
+public:
+	LocationPath();
+	virtual ~LocationPath();
+	LocationPath(const LocationPath &);
+	LocationPath&	operator=(const LocationPath &);
+
+public:
+	Path				mlocationPath;		// def = 
+	Path				mroot;				// def = 
+	std::vector<Path>	mindex_pages;		// def = index.html
+	Path				merror_page;		// def = error.html
+};
+
+class ServerBlock
+{
+public :
+	ServerBlock();
+	virtual ~ServerBlock();
+	ServerBlock(const ServerBlock &);
+	ServerBlock&	operator=(const ServerBlock &);
+
+public :
+	std::vector<LocationPath>	mlocationPaths;
+	std::string					mserverName;
+};
 
 class Server
 {
 public:
-	std::vector<Config>		mconfig_locations;		// REVIEW '&' 삭제함. Server 객체를 만들어놓고 값을 집어넣고싶어서,
-	// std::list<Client>	mclients;			// FIXME client class의 구성요소가 구현되지않아서 주석처리함.
-	std::vector<std::string> gnl;
+	Server();
+	virtual ~Server();
+	Server(const Server &);
+	Server&	operator=(const Server &);
 
+	int SetSocket();
 public :
-	Server(){};
-	void ShowServerConfigs();
-	void ReadConfigFile();
-	int SetServer2();
-	int SetGnl();
-	
-	// FIXME 헤더파일의 상호참조 문제를 해결해야함 #20
-	// int SetServer(Server &servers, std::vector<std::string> &gnl);
+	uint16_t					mport; // def = 8000;
+	std::vector<ServerBlock>	mserverBlocks;
+
+	// NOTE 서버(port)별로 소켓이 하나씩 있으면 되니깐 여기에 socket class를 추가한다.
+	Socket						msocket;
 };

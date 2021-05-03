@@ -3,7 +3,15 @@ SRCS	=	srcs/main.cpp\
 			srcs/HttpMessage/HttpMessageRequest.cpp\
 			srcs/HttpMessage/HttpMessageResponse.cpp\
 			srcs/Webserver/Webserver.cpp\
-			srcs/Utils/utils.cpp
+			srcs/Utils/utils.cpp\
+			srcs/ServerParsing/ServerConfigIdx.cpp\
+			srcs/Server/Server.cpp\
+			srcs/Server/Servers.cpp\
+			srcs/Path/Path.cpp\
+			srcs/Config/Config.cpp\
+			srcs/Config/Configs.cpp\
+			gnl/get_next_line_bonus.cpp\
+			gnl/get_next_line_utils_bonus.cpp
 # $(wildcard ./srcs/*.cpp)\
 
 
@@ -33,9 +41,13 @@ re		:	fclean all
 
 $(NAME)	:	$(OBJS)
 # $(CC) -c $(SRCS)
-			$(CC) $(CFLAG) -o $(NAME) $(OBJS)
+			# $(CC) $(CFLAG) $(OBJS) -o $(NAME)
+			$(CC) $(SRCS) -o $(NAME)
 			./webserv
-# $(CC) $(CFLAG) -c $(SRCS)
 # $(CC) $(CFLAG) -o $(NAME) $(OBJS)
 
 .PHONY	:	all clean fclean re
+
+
+# yunslee 쓰는 복사본
+# srcs/main.cpp srcs/Server/Socket.cpp srcs/HttpMessage/HttpMessageRequest.cpp srcs/HttpMessage/HttpMessageResponse.cpp srcs/Webserver/Webserver.cpp srcs/Utils/utils.cpp srcs/ServerParsing/ServerConfigIdx.cpp srcs/Server/Server.cpp srcs/Server/Servers.cpp srcs/Path/Path.cpp srcs/Config/Config.cpp srcs/Config/Configs.cpp gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp

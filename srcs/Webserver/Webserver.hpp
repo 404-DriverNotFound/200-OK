@@ -1,5 +1,6 @@
 #pragma once
 #include "../Server/Socket.hpp"
+#include "../Server/Servers.hpp"
 #include "../HttpMessage/HttpMessageRequest.hpp"
 #include "../HttpMessage/HttpMessageResponse.hpp"
 #include <sys/select.h>
@@ -10,11 +11,12 @@
 
 class Webserver
 {
+public:
 	// ConfigWebserver			config;
 	// fd_set					to_be_checked;
 	// fd_set					to_be_checked_read;
 	// fd_set					to_be_checked_write;
-	// std::vector<Server>		servers;
+	Servers			mservers;
 
 public:
 	Webserver(int argc, char** argv, char** envp);

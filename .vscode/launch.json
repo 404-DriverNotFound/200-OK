@@ -8,7 +8,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"name": "Debug",
-			"program": "/Users/yunslee/webserv_200/yunslee_test/server_parsing/a.out",
+			"program": "/Users/yunslee/webserv_200/a.out",
 			"args": [],
 			"cwd": "${workspaceFolder}"
 		}

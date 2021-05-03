@@ -1,22 +1,83 @@
-#include "./Server.hpp"
+#include "Server.hpp"
 
-void Server::ShowServerConfigs()
+LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
 {
-	for (size_t i = 0; i < this->mconfig_locations.size(); i++)
-	{
-		cout << "----------------------"<< "Server: " << i <<"----------------------" << endl;
-		cout << "server_name: " << this->mconfig_locations[i].mserver_name << endl;
-		cout << "root: " << this->mconfig_locations[i].mroot.getPath() << endl;
-		cout << "location_path: " << this->mconfig_locations[i].mlocation_path.getPath() << endl;
-		cout << "port: " << this->mconfig_locations[i].mport << endl;
-		
-		cout << "index_pages: ";
-		for (size_t j = 0; j < this->mconfig_locations[i].mindex_pages.size(); j++)
-		{
-			cout << this->mconfig_locations[i].mindex_pages[j].getPath() << " ";
-		}
-		cout << endl;
-		cout << "error_page: " << this->mconfig_locations[i].merror_page.getPath() << endl;
-	}
-	cout << "=========================================================" << endl;
+	Path temp("index.html");
+	this->mindex_pages.push_back(temp);
+}
+
+LocationPath::~LocationPath()
+{
+
+}
+
+LocationPath::LocationPath(const LocationPath &ref)
+{
+	*this = ref;
+}
+
+LocationPath&	LocationPath::operator=(const LocationPath &ref)
+{
+	if (this == &ref)
+		return (*this);
+	this->merror_page = ref.merror_page;
+	this->mindex_pages = ref.mindex_pages;
+	this->mlocationPath = ref.mlocationPath;
+	this->mroot = ref.mroot;
+	return (*this);
+}
+
+ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths()
+{
+
+}
+
+ServerBlock::~ServerBlock()
+{
+
+}
+
+ServerBlock::ServerBlock(const ServerBlock &ref)
+{
+	*this = ref;
+}
+
+ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
+{
+	if (this == &ref)
+		return (*this);
+	this->mlocationPaths = ref.mlocationPaths;
+	this->mserverName = ref.mserverName;
+	return (*this);
+}
+
+Server::Server() : mport(8000), mserverBlocks()
+{
+	
+}
+
+Server::~Server()
+{
+	
+}
+
+Server::Server(const Server &ref)
+{
+	*this = ref;
+}
+
+Server&	Server::operator=(const Server &ref)
+{
+	if (this == &ref)
+		return (*this);
+	this->mport = ref.mport;
+	this->mserverBlocks = ref.mserverBlocks;
+	return (*this);
+}
+
+//NOTE 그냥 포트 별로 소켓하나씩 만드는 것에 불과함. 
+int Server::SetSocket()
+{
+	this->msocket.SetSocket(INADDR_ANY, this->mport);
+	return (1);
 }

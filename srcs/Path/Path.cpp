@@ -97,7 +97,15 @@ Path&				Path::operator=(const Path& path)
 	return (*this);
 }
 
-const int			Path::getSize() const
+bool				Path::operator==(const Path& ref)
+{
+	if (this->segments == ref.segments)
+		return (true);
+	else
+		return (false);
+}
+
+int			Path::getSize() const
 {
 	return (this->segments.size());
 }
