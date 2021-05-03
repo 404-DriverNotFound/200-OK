@@ -8,6 +8,7 @@
 class Socket : public sockaddr // REVIEW sockaddr 구조체는 쓰지않고 sockaddr_in으로 충분하기 때문에 상속관계를 지워도 될 꺼 같다.
 {
 	int			fd;
+	int			client_socket;
 	socklen_t	socklen;
 	sockaddr_in	sockaddr; // <-- 추가함.
 
@@ -23,7 +24,7 @@ class Socket : public sockaddr // REVIEW sockaddr 구조체는 쓰지않고 sock
 	void		Bind(uint32_t ip, uint16_t port);
 	void		Listen(void);
 	// void		Listen(size_t connections); // connection 은 뭘까?
-	size_t		Accept(size_t connections);
+	size_t		Accept(void);
 	// void		Accept(int servSock); // servSock 은 뭘까?
 	int			GetFd(void); // socket fd 를 close 를 main 에서 하기 위한
 

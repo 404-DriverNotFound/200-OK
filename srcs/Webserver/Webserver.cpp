@@ -15,7 +15,7 @@ void Webserver::start_server(void)
 	Servers &servers = this->mservers; // NOTE yunslee
 	servers.SetSockets(); // NOTE yunslee
 
-	
+
 	// Socket socket_one(INADDR_ANY, 8000); // STUB : Server socket 윤성이의 config 에 따라 ip, port 번호가 주어짐.
 	int client_socket; // STUB : Accept 의 반환값을 받아 만들어지는 통신 소켓
 	char buffer[BUFFER_SIZE]; // STUB : 버퍼. 버퍼사이즈는 위에 define 되어 있음.
@@ -31,7 +31,7 @@ void Webserver::start_server(void)
 	/* STUB 1. clear the socket set */
 	FD_ZERO(&readfds);
 
-	/* STUB 2. add master socket to set */ 
+	/* STUB 2. add master socket to set */
 	for (size_t i = 0; i < servers.mservers.size(); i++) // NOTE yunslee
 	{
 		Server &server = servers.mservers[i];
@@ -44,7 +44,7 @@ void Webserver::start_server(void)
 	std::cout << "fd_max: " << fd_max << std::endl;
 	while (1)
 	{
-		timeout.tv_sec = 2; timeout.tv_usec = 0; 
+		timeout.tv_sec = 2; timeout.tv_usec = 0;
 		fd_set cpy_readfds = readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
 		/* STUB 4. select */
 		if((ret = select(fd_max + 1, &cpy_readfds, NULL, NULL, &timeout)) == -1)
@@ -69,7 +69,7 @@ void Webserver::start_server(void)
 			if (FD_ISSET(server.msocket.GetFd(), &cpy_readfds))
 			{
 				// std::cerr << "ret is " << ret << std::endl;
-				client_socket = server.msocket.Accept(client_socket);
+				client_socket = server.msocket.Accept();
 				if (client_socket == -1)
 					std::cerr << "Could not create socket." << std::endl;
 				else
@@ -109,7 +109,7 @@ void Webserver::start_server(void)
 		}
 	}
 
-	 // STUB : close all server socket 
+	 // STUB : close all server socket
 	for (size_t i = 0; i < servers.mservers.size(); i++) // NOTE yunslee 서버 소켓 다 닫아야함.
 	{
 		Server &server = servers.mservers[i];

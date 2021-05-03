@@ -5,6 +5,7 @@
 
 /* STUB : Socket 에 이런식으로 넣으면 binding, listen 작업까지 */
 Socket::Socket(uint32_t ip, uint16_t port)
+	: client_socket(-1)
 {
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
@@ -74,15 +75,15 @@ void					Socket::Listen(void)
 }
 
 /* STUB : Accept 작업. */
-size_t					Socket::Accept(size_t connections)
+size_t					Socket::Accept(void)
 {
 	// Grab a connection from the queue
 	socklen = sizeof(sockaddr);
-	connections = accept(fd, (struct sockaddr*)&sockaddr, (socklen_t*)&socklen);
-	if (connections < 0)
+	client_socket = accept(fd, (struct sockaddr*)&sockaddr, (socklen_t*)&socklen);
+	if (client_socket < 0)
 		throw (accept_failed_exception());
 	// std::cout << "finished accepting\n";
-	return (connections);
+	return (client_socket);
 }
 
 /* STUB : fd 를 반환함. */
