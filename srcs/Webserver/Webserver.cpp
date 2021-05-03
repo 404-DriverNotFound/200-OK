@@ -40,7 +40,7 @@ void Webserver::start_server(void)
 
 	/* STUB 3. 여러개의 socket_fd 중에서 Get 하기 */
 	fd_max = this->servers.GetFdMax();
-	
+
 	std::cout << "fd_max: " << fd_max << std::endl;
 	while (1)
 	{
@@ -67,7 +67,7 @@ void Webserver::start_server(void)
 		for (size_t i = 0; i < servers.mservers.size(); i++)
 		{
 			Server &server = servers.mservers[i];
-			if (FD_ISSET(server.msocket.GetFd(), &readfds))
+			if (FD_ISSET(server.msocket.GetFd(), &cpy_readfds))
 			{
 				// std::cerr << "ret is " << ret << std::endl;
 				client_socket = server.msocket.Accept(client_socket);
@@ -89,20 +89,20 @@ void Webserver::start_server(void)
 						if (bytesRead == -1)
 							std::cerr << "Could not read request." << std::endl;
 					}
-					// if (bytesRead != -1)
-					// {
-					// 	//	STUB : HttpMessageRequest
-					// 	HttpMessageRequest	request(buffer);
-					// 	request.Parser(); // request 를 parsing 한 후,
+					if (bytesRead != -1)
+					{
+						//	STUB : HttpMessageRequest
+						HttpMessageRequest	request(buffer);
+						request.Parser(); // request 를 parsing 한 후,
 
-					// 	//	STUB : HttpMessageResponse
-					// 	HttpMessageResponse	response(request); // reponse 를 정리한다.
-					// 	response.SetMessage();
+						//	STUB : HttpMessageResponse
+						HttpMessageResponse	response(request); // reponse 를 정리한다.
+						response.SetMessage();
 
-					// 	//	STUB : Send a message to the connection
-					// 	int len = response.GetMessage().size();
-					// 	int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
-					// }
+						//	STUB : Send a message to the connection
+						int len = response.GetMessage().size();
+						int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
+					}
 				}
 				// STUB Close the connections
 				close(client_socket);
