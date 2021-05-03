@@ -44,9 +44,8 @@ void Webserver::start_server(void)
 	std::cout << "fd_max: " << fd_max << std::endl;
 	while (1)
 	{
-		timeout.tv_sec = 2;
-		timeout.tv_usec = 0;
-		fd_set cpy_readfds = readfds;
+		timeout.tv_sec = 2; timeout.tv_usec = 0; 
+		fd_set cpy_readfds = readfds; // STUB : 서버 소켓들을 보관할 fd_set 변수
 		/* STUB 4. select */
 		if((ret = select(fd_max + 1, &cpy_readfds, NULL, NULL, &timeout)) == -1)
 		{
