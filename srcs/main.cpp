@@ -13,7 +13,7 @@ int		main(int argc, char** argv, char** env)
 {
 	try {
 		Webserver	s(argc, argv, env);
-		Configs configs("srcs/ServerParsing/webserv.config");
+		Configs configs("./webserv.config");
 		// configss.ShowConfigs();
 		Servers servers;
 		if (-1 == servers.SetServers(&configs)) // NOTE Configs -> Servers로 파싱하고 옮김
