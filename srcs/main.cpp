@@ -30,13 +30,13 @@ int		main(int argc, char* argv[], char* envp[])
 		}
 	}
 
-	// try
-	// {
-	// 	manager.runServer();
-	// }
-	// catch (std::exception& e)
-	// {
-	// 	manager.exitServer(e.what());
-	// }
+	try
+	{
+		manager.runServer();
+	}
+	catch (std::exception& e)
+	{
+		manager.exitServer(e.what());
+	}
 	return (0);
 }

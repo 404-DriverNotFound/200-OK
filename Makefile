@@ -29,12 +29,9 @@ fclean	:	clean
 
 re		:	fclean all
 
-$(NAME)	:	$(OBJS)
-# $(CC) -c $(SRCS)
-			# $(CC) $(CFLAG) $(OBJS) -o $(NAME)
-			$(CC) $(SRCS) -o $(NAME)
-			./webserv
-# $(CC) $(CFLAG) -o $(NAME) $(OBJS)
+$(NAME)		:	$(OBJS)
+				$(CC) $(CFLAGS) $^ -o $@
+				./webserv
 
 .PHONY	:	all clean fclean re
 

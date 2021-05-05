@@ -3,15 +3,17 @@
 
 ServerManager::ServerManager(void)
 {
+	FD_ZERO(&m_read_set);
+	FD_ZERO(&m_write_set);
 }
 
-void					ServerManager::exitServer(const std::string& msg) const
+void		ServerManager::exitServer(const std::string& msg) const
 {
 	std::cerr << msg << std::endl;
 	exit(1);
 }
 
-void	ServerManager::createServer(const std::string& configuration_file_path, char** envp)
+void		ServerManager::createServer(const std::string& configuration_file_path, char** envp)
 {
 	// // std::string					config_string = ft::getStringFromFile(configuration_file_path);
 	std::string					config_block;
@@ -53,7 +55,96 @@ void	ServerManager::createServer(const std::string& configuration_file_path, cha
 	// // writeCreateServerLog();
 }
 
-void					ServerManager::runServer(void)
+void		ServerManager::runServer(void)
 {
+	// signal(SIGINT, changeSignal);
 
+	struct timeval	timeout; memset(&timeout, 0, sizeof(struct timeval));
+
+	// g_live = true;
+	resetMaxFd(512);
+	for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
+	{
+		FD_SET(it->get_m_fd(), &m_read_set);
+	}
+	while (true	/* g_live */)
+	{
+		fdCopy(ALL_SET);
+		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+		if (cnt > 0)
+		{
+			// writeServerHealthLog();
+			for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
+			{
+			// 	it->run();
+			// 	closeOldConnection(it);
+			}
+			resetMaxFd(-1	/* cnt */);	// FIXME: cnt가 맞을지 -1이 맞을지 잘 모르겠음.
+		}
+		else if (cnt < 0)
+		{
+			// perror("Server select error: ");
+			// ft::log(ServerManager::log_fd, "[Failed][Function]Select function failed(return -1)");
+			throw std::runtime_error("select error");
+		}
+		else
+		{
+			continue ;
+		}
+	}
+	exitServer("server exited.\n");
+}
+
+void		ServerManager::set_m_max_fd(const int& fd)
+{
+	m_max_fd = fd;
+}
+
+void		ServerManager::resetMaxFd(int new_max_fd)
+{
+	if (new_max_fd != -1)
+	{
+		set_m_max_fd(new_max_fd);
+	}
+	else
+	{
+		for (int i = 512; i >= 0; --i)
+		{
+			if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
+			{
+				m_max_fd = i;
+				break ;
+			}
+		}
+	}
+}
+
+void		ServerManager::fdCopy(SetType fdset)
+{
+	if (fdset == WRITE_SET || fdset == ALL_SET)
+	{
+		FD_ZERO(&m_write_copy_set);
+		m_write_copy_set = m_write_set;
+	}
+	if (fdset == READ_SET || fdset == ALL_SET)
+	{
+		FD_ZERO(&m_read_copy_set);
+		m_read_copy_set = m_read_set;
+	}
+}
+
+bool		ServerManager::fdIsset(int fd, SetType fdset)
+{
+	if (fdset == WRITE_SET)
+	{
+		return (FD_ISSET(fd, &m_write_copy_set));
+	}
+	else if (fdset == READ_SET)
+	{
+		return (FD_ISSET(fd, &m_read_copy_set));
+	}
+	else
+	{
+		return (false);
+	}
 }
