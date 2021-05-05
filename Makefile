@@ -1,6 +1,7 @@
-SRCS	=
-# $(wildcard ./srcs/*.cpp)\
+SRCS	=	srcs/main.cpp\
+			srcs/ServerManager.cpp
 
+# $(wildcard ./srcs/*.cpp)
 
 
 
@@ -18,7 +19,6 @@ RM		=	-rm -rf
 all		:	$(NAME)
 
 clean	:
-			$(RM) *.o
 			$(RM) $(OBJS)
 
 fclean	:	clean
