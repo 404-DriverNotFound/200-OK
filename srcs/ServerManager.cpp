@@ -48,7 +48,7 @@ void	ServerManager::createServer(const std::string& configuration_file_path, cha
 	// 	// 	}
 	// 	// }
 		m_servers.push_back(Server(this, server_block, location_blocks, &this->m_config));
-		m_server_fdset.insert(m_servers.back().get_m_fd());
+		m_server_fdset.insert(m_servers.back().get_m_fd()); // REVIEW: 이유가 있으니 이런 코드가 있겠지만 의미하는 바를 파악하지 못했음
 	}
 	// // writeCreateServerLog();
 }
