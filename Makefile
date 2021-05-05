@@ -1,5 +1,8 @@
 SRCS	=	srcs/main.cpp\
-			srcs/ServerManager.cpp
+			srcs/ServerManager.cpp\
+			srcs/Server.cpp\
+			srcs/Config.cpp\
+			srcs/Location.cpp
 
 # $(wildcard ./srcs/*.cpp)
 
