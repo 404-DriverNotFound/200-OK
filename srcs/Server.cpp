@@ -24,8 +24,8 @@ Server::Server(ServerManager* server_manager, const std::string& server_block, s
 	memset(&server_addr, 0, sizeof(struct sockaddr_in));
 	server_addr.sin_family = AF_INET;
 	// NOTE: 임시로 localhost:80으로 설정
-	m_host = "localhost";
-	m_port = 80;
+	m_host = "127.0.0.1";
+	m_port = 8080;
 	server_addr.sin_addr.s_addr = inet_addr(m_host.c_str());
 	server_addr.sin_port = htons(m_port);
 	
