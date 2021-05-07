@@ -1,5 +1,8 @@
 SRCS	=	srcs/main.cpp\
-			srcs/ServerManager.cpp
+			srcs/ServerManager.cpp\
+			srcs/Server.cpp\
+			srcs/Config.cpp\
+			srcs/Location.cpp
 
 # $(wildcard ./srcs/*.cpp)
 
@@ -26,12 +29,9 @@ fclean	:	clean
 
 re		:	fclean all
 
-$(NAME)	:	$(OBJS)
-# $(CC) -c $(SRCS)
-			# $(CC) $(CFLAG) $(OBJS) -o $(NAME)
-			$(CC) $(SRCS) -o $(NAME)
-			./webserv
-# $(CC) $(CFLAG) -o $(NAME) $(OBJS)
+$(NAME)		:	$(OBJS)
+				$(CC) $(CFLAGS) $^ -o $@
+				./webserv
 
 .PHONY	:	all clean fclean re
 

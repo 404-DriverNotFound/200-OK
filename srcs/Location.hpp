@@ -7,7 +7,7 @@
 class Location
 {
 public:
-	Location(location_block);
+	Location(std::string location_block);
 
 	const std::string&							get_m_uri(void) const;
 	const std::string&							get_m_root_path(void) const;
