@@ -42,7 +42,7 @@ void		ServerManager::runServer(void)
 	{
 		timeout.tv_sec = 2;
 		fdCopy(ALL_SET);
-		initMaxFd();	// FIXME: cnt가 맞을지 -1이 맞을지 잘 모르겠음.
+		resetMaxFd();
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
 		if (cnt < 0)
 		{
