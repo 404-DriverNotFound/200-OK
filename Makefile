@@ -1,8 +1,16 @@
-SRCS	=	srcs/main.cpp\
+SRCS	=	gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp \
+			srcs/main.cpp\
 			srcs/ServerManager.cpp\
 			srcs/Server.cpp\
 			srcs/Config.cpp\
-			srcs/Location.cpp
+			srcs/Location.cpp \
+			\
+			srcs/ConfigFile/ConfigFile.cpp \
+			srcs/ConfigFile/ConfigFiles.cpp \
+			srcs/Path/Path.cpp \
+			srcs/ServerConfigIdx/ServerConfigIdx.cpp \
+			srcs/Utils/utils.cpp
+
 
 # $(wildcard ./srcs/*.cpp)
 
@@ -15,7 +23,9 @@ NAME	=	webserv
 CC		=	clang++
 
 # CFLAG	=	-Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
-CFLAG	=	-Wall -Wextra -Werror -std=c++98 -g3
+# CFLAG	=	-Wall -Wextra -Werror -std=c++98 -g3
+CFLAG	=	-std=c++98 -v
+
 
 RM		=	-rm -rf
 
@@ -29,12 +39,13 @@ fclean	:	clean
 
 re		:	fclean all
 
-$(NAME)		:	$(OBJS)
+$(NAME)		:	$(SRCS)
 				$(CC) $(CFLAGS) $^ -o $@
-				./webserv
+				# ./webserv
 
 .PHONY	:	all clean fclean re
 
 
-# yunslee 쓰는 복사본
-# srcs/main.cpp srcs/Server/Socket.cpp srcs/HttpMessage/HttpMessageRequest.cpp srcs/HttpMessage/HttpMessageResponse.cpp srcs/Webserver/Webserver.cpp srcs/Utils/utils.cpp srcs/ServerParsing/ServerConfigIdx.cpp srcs/Server/Server.cpp srcs/Server/Servers.cpp srcs/Path/Path.cpp srcs/Config/Config.cpp srcs/Config/Configs.cpp gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp
+
+# yunslee가 쓰는 소스코드모음
+# clang++ gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp srcs/main.cpp srcs/ServerManager.cpp srcs/Server.cpp srcs/Config.cpp srcs/Location.cpp   srcs/ConfigFile/ConfigFile.cpp  srcs/ConfigFile/ConfigFiles.cpp  srcs/Path/Path.cpp  srcs/ServerConfigIdx/ServerConfigIdx.cpp srcs/Utils/utils.cpp
