@@ -16,6 +16,8 @@
 #include "Config.hpp"
 #include "Path/Path.hpp"
 #include "Utils/utils.hpp"
+#include "Connection.hpp"
+// #include "ServerManager.hpp"
 
 using namespace std;
 
@@ -53,6 +55,7 @@ class Server // NOTE port별로 나뉘는 블록
 {
 public:
 	Server();
+	Server(ServerManager *);
 	virtual ~Server();
 	Server(const Server &);
 	Server&	operator=(const Server &);
@@ -66,8 +69,8 @@ public:
 	// Request						recvRequest(int client_fd);
 	// void						sendResponse(Response response);
 	// char**						createCGIEnv(void);
-	// bool						hasNewConnection(void);
-	// void						acceptNewConnection(void);
+	bool						hasNewConnection(void);
+	bool						acceptNewConnection(void);
 
 
 	// int							getUnuseConnectionFd();
@@ -82,7 +85,7 @@ public:
 	// bool						hasSendWork(Connection& connection);
 	// bool						runSend(Connection& connection);
 
-	// void						run(void);
+	void						run(void);
 	// void						solveRequest(Connection& connection, const Request& request);
 	// void						executeAutoindex(Connection& connection, const Request& request);
 	// void						executeGet(Connection& connection, const Request& request);
@@ -98,6 +101,7 @@ public:
 	const int&					get_m_fd(void) const;
 
 public :
+	ServerManager*				m_manager;
 	uint16_t					mport; // def = 8000;
 	std::vector<ServerBlock>	mserverBlocks;
 
@@ -105,7 +109,7 @@ public :
 
 	// ANCHOR 은율
 	// REVIEW 어떻게 적용될지 생각해봐야함
-	// std::map<int, Connection>	m_connections;
+	std::map<int, Connection>	m_connections;
 	// std::queue<Response>		m_responses;
 	// Config*						m_config;
 };

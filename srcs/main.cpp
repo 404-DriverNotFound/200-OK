@@ -1,11 +1,12 @@
 #include "ServerManager.hpp"
 
 // bool	g_live; // REVIEW: g_live 를 쓰길래, 전역변수 느낌인 것같아서 여기에 선언함.
+ServerManager *g_servermanager;
 
 int		main(int argc, char* argv[], char* envp[])
 {
 	ServerManager	manager;
-
+	g_servermanager = &manager;
 	// manager.openLog();
 	if (argc > 2)
 	{

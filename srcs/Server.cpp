@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 
 LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
 {
@@ -51,9 +52,13 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
 	return (*this);
 }
 
-Server::Server() : mport(8000), mserverBlocks()
+Server::Server() : mport(8000), mserverBlocks(), m_manager(NULL), msocket(0)
 {
-	
+}
+
+Server::Server(ServerManager *servermanager) : mport(8000), mserverBlocks(), m_manager(servermanager)
+{
+
 }
 
 Server::~Server()
@@ -83,7 +88,7 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 	sockaddr_in sockaddr;
 	ft::memset((sockaddr_in *)&sockaddr, 0, sizeof(sockaddr_in));
 	sockaddr.sin_family = AF_INET;
-	// sockaddr.sin_addr.s_addr = inet_addr(ip.c_str());
+	// sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
 	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
@@ -100,3 +105,133 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 }
 
 const int&	Server::get_m_fd(void) const{return (this->msocket);}
+
+void	Server::run()
+{
+	std::map<int, Connection>::iterator it = m_connections.begin();
+	cout << "connection size: "<< m_connections.size() << endl; 
+	while (it != m_connections.end())
+	{
+		std::map<int, Connection>::iterator it2 = it++;
+		int fd = it2->first;
+
+		if (it2->second.get_m_fd() == fd)
+			continue ;
+		// try {
+			// if (hasSendWork(it2->second))
+			// {
+			// 	runSend(it2->second);
+			// 	continue ;
+			// }
+		// 	if (hasExecuteWork(it2->second))
+		// 	{
+		// 		runExecute(it2->second);
+		// 		continue ;
+		// 	}
+		// cout << "here" << endl;
+		// 	if (hasRequest(it2->second))
+		// 	{	
+		// 		cout << "3" << endl;
+
+		// 		runRecvAndSolve(it2->second);
+		// 	}
+		// } catch (Server::IOError& e) {
+		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
+		// 	closeConnection(fd);
+		// } catch (...) {
+		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
+		// 	closeConnection(fd);				
+		// }
+		// catch {
+		// }
+	}
+	if (hasNewConnection())
+	{
+		if (m_connections.size() >= (INIT_FD_MAX / m_manager->GetServers().size()))
+		{
+			// int fd = getUnuseConnectionFd();
+			// if (fd == -1)
+			// 	return ;
+			// closeConnection(fd);
+		}
+		else
+		{
+			if (!acceptNewConnection())
+			{
+				// reportCreateNewConnectionLog();
+			}
+		}
+	}
+}
+
+
+
+bool						Server::hasNewConnection()
+{
+	// fd_set temp; FD_ZERO(&temp);
+	// temp = this->m_manager->m_read_copy_set;
+	cout << "&(this->m_manager->m_read_copy_set)" << &(this->m_manager->m_read_copy_set) << endl;
+	// cout << "(this->m_manager->m_read_copy_set)" << (this->m_manager->m_read_copy_set) << endl;
+	cout << "this: " << (this) << endl;
+	cout << "this->m_manager" << (this->m_manager) << endl;
+	// if (FD_ISSET(this->msocket, &(temp)))
+	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadCopySet())))
+	{
+		cout << "this->msocket: " << this->msocket << endl;
+		return (true);
+	}
+	return (false);
+}
+
+bool						Server::acceptNewConnection()
+{
+	int client_socket;
+	sockaddr_in sockaddr;
+	socklen_t socketlen;
+	socketlen = sizeof(struct sockaddr);
+	client_socket = accept(this->msocket, (struct sockaddr*)&sockaddr, (socklen_t*)&socketlen);
+	if (client_socket == -1)
+	{
+		std::cerr << "Could not create socket." << std::endl;
+		return (false);
+	}
+	else
+	{
+		int bytesRead;
+		bytesRead = BUFFER_SIZE - 1;
+		std::cout << "connected client fd: " << client_socket << std::endl;
+		char buffer[BUFFER_SIZE * 10];
+		char *buffer_pointer = buffer;
+
+		while (bytesRead == BUFFER_SIZE - 1)
+		{
+			bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE - 1); // request 를 여기서 받아서..
+			/***************************************************
+			 * 영환이가 버퍼를 받아 코드에서 적용시키는 영역
+			 ***************************************************/
+			if (bytesRead == -1)
+				std::cerr << "Could not read request." << std::endl;
+			buffer_pointer += bytesRead;
+		}
+		buffer_pointer[bytesRead] = '\0';
+		cout << buffer << endl;
+
+		// NOTE Http 파싱 파트
+		// if (bytesRead != -1)
+		// {
+		// 	//	STUB : HttpMessageRequest
+		// 	HttpMessageRequest	request(buffer);
+		// 	request.Parser(); // request 를 parsing 한 후,
+
+		// 	//	STUB : HttpMessageResponse
+		// 	HttpMessageResponse	response(request); // reponse 를 정리한다.
+		// 	response.SetMessage();
+
+		// 	//	STUB : Send a message to the connection
+		// 	int len = response.GetMessage().size();
+		// 	int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
+		// }
+	}
+	close(client_socket);
+	return (true);
+}
