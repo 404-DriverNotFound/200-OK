@@ -43,6 +43,7 @@ void		ServerManager::runServer(void)
 		timeout.tv_sec = 2;
 		fdCopy(ALL_SET);
 		resetMaxFd();
+		cout << "m_max_fd: " << m_max_fd << endl;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
 		if (cnt < 0)
 		{
@@ -150,11 +151,11 @@ void		ServerManager::resetMaxFd()
 	// }
 
 	// STUB 상향식. 연결된 fd가 적으면, 이 방법이 더 효율적임
-	for (int i = 0; i <= 512; i++)
+	for (int i = 3; i <= 512; i++)
 	{
 		if (fdIsset(i, READ_SET) == false && fdIsset(i, WRITE_SET) == false)
 		{
-			m_max_fd = i;
+			m_max_fd = i - 1;
 			break ;
 		}
 	}
