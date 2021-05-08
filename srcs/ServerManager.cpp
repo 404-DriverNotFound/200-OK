@@ -33,7 +33,7 @@ void		ServerManager::runServer(void)
 	cout << "Start runServer" << endl;
 	struct timeval	timeout; memset(&timeout, 0, sizeof(struct timeval));
 	// g_live = true;
-	resetMaxFd(512);
+	initMaxFd();
 	for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
 	{
 		FD_SET(it->get_m_fd(), &m_read_set);
@@ -42,7 +42,7 @@ void		ServerManager::runServer(void)
 	{
 		timeout.tv_sec = 2;
 		fdCopy(ALL_SET);
-		resetMaxFd(-1	/* cnt */);	// FIXME: cnt가 맞을지 -1이 맞을지 잘 모르겠음.
+		initMaxFd();	// FIXME: cnt가 맞을지 -1이 맞을지 잘 모르겠음.
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
 		if (cnt < 0)
 		{
@@ -132,21 +132,30 @@ void		ServerManager::set_m_max_fd(const int& fd)
 	m_max_fd = fd;
 }
 
-void		ServerManager::resetMaxFd(int new_max_fd)
+void		ServerManager::initMaxFd()
 {
-	if (new_max_fd != -1)
+	set_m_max_fd(INIT_FD_MAX);
+}
+
+void		ServerManager::resetMaxFd()
+{
+	// STUB 하향식. 연결된 fd가 많으면, 이 방법이 더 효율적임
+	// for (int i = 512; i >= 0; --i)
+	// {
+	// 	if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
+	// 	{
+	// 		m_max_fd = i;
+	// 		break ;
+	// 	}
+	// }
+
+	// STUB 상향식. 연결된 fd가 적으면, 이 방법이 더 효율적임
+	for (int i = 0; i <= 512; i++)
 	{
-		set_m_max_fd(new_max_fd);
-	}
-	else
-	{
-		for (int i = 512; i >= 0; --i)
+		if (fdIsset(i, READ_SET) == false && fdIsset(i, WRITE_SET) == false)
 		{
-			if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
-			{
-				m_max_fd = i + 1;
-				break ;
-			}
+			m_max_fd = i;
+			break ;
 		}
 	}
 }
