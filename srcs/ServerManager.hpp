@@ -3,6 +3,7 @@
 
 #define DEFAULT_CONFIG_FILE_PATH "default.config"
 #define BUFFER_SIZE 1024
+#define INIT_FD_MAX 512
 
 #include <iostream>
 #include <vector>
@@ -40,7 +41,8 @@ class ServerManager
 		bool				fdIsset(int fd, SetType fdset);
 		void				fdCopy(SetType fdset);
 
-		void				resetMaxFd(int new_max_fd);
+		void				initMaxFd();
+		void				resetMaxFd();
 
 		void				exitServer(const std::string& msg) const; // NOTE: 에러 메시지 출력 후 프로그램 종료
 		void				createServer(const std::string& configuration_file_path, char** envp); // NOTE: 서버 객체 생성
