@@ -18,7 +18,7 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configuration_file_path.c_str());
 	// ANCHOR 2단계 parsing
-	this->SetServers(&configfiles); // NOTE 값을 확인하고싶으면, this->ShowServers(); 
+	this->SetServers(&configfiles);
 
 	// ANCHOR 3단계 parsing -> port에 대해서 listen 함수까지 호출함.
 	this->SetServers();
@@ -41,24 +41,25 @@ void		ServerManager::runServer(void)
 	int flag = 0;
 	while (true	/* g_live */)
 	{
-		timeout.tv_sec = 2;
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
 		fdCopy(ALL_SET);
 
 		// STUB 3. read로 recv 버퍼를 비워주면, 다시 패킷데이터로 채워지면서 select에서 판단 할 줄 알았음
 		if (flag == 1)
 		{
-			// char buffer2[141072];
-			// // sysctl -a => net.inet.tcp.recvspace: 131072
-			// // int ret2 = read(5, buffer2, 141072);
-
-			// int ret2 = read(6, buffer2, 141072);
+			char buffer2[141076];
+			// sysctl -a => net.inet.tcp.recvspace: 131072
+			// int ret2 = read(5, buffer2, 141072); // TODO 2. 5번은 서버 소켓으로 값이 담기지않는다. 따라서 -1을 반환하고 무한루프
+			// int ret2 = read(6, buffer2, 141076); // TODO 3. 6번은 클라이언트 소켓으로 값이 담긴다. 버퍼가 비워진다.
 			// std::cout << ret2 << std::endl;
+
 			FD_SET(6, &m_read_copy_set);
 		}
 		flag = 1;
-		cout << "m_max_fd: " << m_max_fd << endl;
 		resetMaxFd();
-		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+		cout << "m_max_fd: " << m_max_fd << endl;
+		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout); // TODO 1. NULL 값이면, select에서 열려있지 않음 포트를 관찰해야하므로 에러가 발생함.
 		if (cnt < 0)
 		{
 			std::cout << "Select error\n";
@@ -77,7 +78,7 @@ void		ServerManager::runServer(void)
 		}
 
 		// writeServerHealthLog();
-		for (size_t i = 0; i < this->m_servers.size(); i++) // NOTE yunslee port별로 ISSET 확인하기 위해서 반복문 씀
+		for (size_t i = 0; i < this->m_servers.size(); i++)
 		{
 			Server &server = this->m_servers[i];
 			if (FD_ISSET(server.msocket, &m_read_copy_set))
@@ -158,11 +159,11 @@ void		ServerManager::resetMaxFd()
 	// }
 
 	// STUB 상향식. 연결된 fd가 적으면, 이 방법이 더 효율적임
-	for (int i = 0; i <= 512; i++)
+	for (int i = 3; i <= 512; i++)
 	{
 		if (fdIsset(i, READ_SET) == false && fdIsset(i, WRITE_SET) == false)
 		{
-			m_max_fd = i;
+			m_max_fd = i - 1;
 			break ;
 		}
 	}
