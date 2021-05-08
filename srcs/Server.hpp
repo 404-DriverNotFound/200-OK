@@ -101,6 +101,8 @@ public :
 	uint16_t					mport; // def = 8000;
 	std::vector<ServerBlock>	mserverBlocks;
 
+	int							msocket;
+
 	// ANCHOR 은율
 	// REVIEW 어떻게 적용될지 생각해봐야함
 	// std::map<int, Connection>	m_connections;
