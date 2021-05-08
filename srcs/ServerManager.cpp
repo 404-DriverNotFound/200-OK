@@ -38,15 +38,31 @@ void		ServerManager::runServer(void)
 	{
 		FD_SET(it->get_m_fd(), &m_read_set);
 	}
+	int flag = 0;
 	while (true	/* g_live */)
 	{
 		timeout.tv_sec = 2;
 		fdCopy(ALL_SET);
 		resetMaxFd(-1	/* cnt */);	// FIXME: cnt가 맞을지 -1이 맞을지 잘 모르겠음.
-		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+
+		// STUB 3. read로 recv 버퍼를 비워주면, 다시 패킷데이터로 채워지면서 select에서 판단 할 줄 알았음
+		if (flag == 1)
+		{
+			// char buffer2[141072];
+			// // sysctl -a => net.inet.tcp.recvspace: 131072
+			// // int ret2 = read(5, buffer2, 141072);
+
+			// int ret2 = read(6, buffer2, 141072);
+			// std::cout << ret2 << std::endl;
+			FD_SET(6, &m_read_copy_set);
+		}
+		flag = 1;
+		cout << "m_max_fd: " << m_max_fd << endl;
+		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, NULL);
 		if (cnt < 0)
 		{
 			std::cout << "Select error\n";
+			perror("ss:");
 			throw std::runtime_error("select error");
 			break ;
 		}
@@ -66,7 +82,7 @@ void		ServerManager::runServer(void)
 			Server &server = this->m_servers[i];
 			if (FD_ISSET(server.msocket, &m_read_copy_set))
 			{
-				// std::cerr << "ret is " << ret << std::endl;
+				std::cerr << "server.msocket: " << server.msocket << std::endl;
 				int client_socket;
 				sockaddr_in sockaddr;
 				socklen_t socketlen;
@@ -77,42 +93,34 @@ void		ServerManager::runServer(void)
 				else
 				{
 					int bytesRead;
+					char *buffer_pointer;
 					bytesRead = BUFFER_SIZE - 1;
 					std::cout << "connected client fd: " << client_socket << std::endl;
-					char buffer[BUFFER_SIZE * 10];
-					char *buffer_pointer = buffer;
+					// char buffer[BUFFER_SIZE * 100];
 
-					while (bytesRead == BUFFER_SIZE - 1)
-					{
-						bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE - 1); // request 를 여기서 받아서..
-						/***************************************************
-						 * 영환이가 버퍼를 받아 코드에서 적용시키는 영역
-						 ***************************************************/
-						if (bytesRead == -1)
-							std::cerr << "Could not read request." << std::endl;
-						buffer_pointer += bytesRead;
-					}
-					buffer_pointer[bytesRead] = '\0';
-					cout << buffer << endl;
+					int buf_size = 300005000; //300MB
+					char *buff_rcv = (char *)malloc(buf_size * sizeof(char));
+					buffer_pointer = buff_rcv;
 
-					// NOTE Http 파싱 파트
-					// if (bytesRead != -1)
+
+					// STUB 1. select에서 여러번 감지하는지
+					bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE * 100 - 1);
+					cout << "bytesRead: " << bytesRead << endl;
+					// STUB 2. 한번의 select으로 다 읽을 수 있는지
+					// while (bytesRead == BUFFER_SIZE - 1)
 					// {
-					// 	//	STUB : HttpMessageRequest
-					// 	HttpMessageRequest	request(buffer);
-					// 	request.Parser(); // request 를 parsing 한 후,
-
-					// 	//	STUB : HttpMessageResponse
-					// 	HttpMessageResponse	response(request); // reponse 를 정리한다.
-					// 	response.SetMessage();
-
-					// 	//	STUB : Send a message to the connection
-					// 	int len = response.GetMessage().size();
-					// 	int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
+					// 	bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE - 1);
+					// 	if (bytesRead == -1)
+					// 		std::cerr << "Could not read requesct." << std::endl;
+					// 	cout << "read" << endl;
+					// 	buffer_pointer += bytesRead;
 					// }
+					buffer_pointer[bytesRead] = '\0';
+					cout << buff_rcv << endl;
 				}
-				// STUB Close the connections
-				close(client_socket);
+				// STUB 1. 을 실험할꺼면 close하지말고 열어놔야함.
+				// close(client_socket);
+				cout << "close" << endl;
 			}
 		}
 
