@@ -6,7 +6,7 @@
 class Connection
 {
 public:
-	Connection(client_fd, client_ip, client_port);
+	Connection(int client_fd,std::string client_ip,int client_port);
 
 	const int&				get_m_fd(void) const;
 	const struct timeval&	get_m_last_request_at(void) const;
