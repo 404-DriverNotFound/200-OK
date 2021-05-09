@@ -64,7 +64,7 @@ public:
 
 	int SetSocket(std::string ip, uint16_t port);
 
-	// ANCHOR 은휼 코드
+	// ANCHOR 참고 코드
 	// bool						hasException(int client_fd);
 	// void						isSendable(int client_fd);
 	// Request						recvRequest(int client_fd);
@@ -109,7 +109,7 @@ public :
 
 	int							msocket; // NOTE m_connections의 첫번째 값이 모두 서버소켓의 fd임!
 
-	// ANCHOR 은율
+	// ANCHOR 참고코드
 	// REVIEW 어떻게 적용될지 생각해봐야함
 	std::map<int, Connection>	m_connections;
 	// std::queue<Response>		m_responses;

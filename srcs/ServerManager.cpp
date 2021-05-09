@@ -60,7 +60,7 @@ void		ServerManager::runServer(void)
 			std::cout << "Received connection\n";
 		}
 
-		// ANCHOR 은율
+		// ANCHOR 참고코드
 		// writeServerHealthLog();
 		for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
 		{
