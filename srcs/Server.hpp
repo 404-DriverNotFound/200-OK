@@ -80,7 +80,7 @@ public:
 	// bool						parseHeader(Connection& connection, Request& request);
 	// bool						parseBody(Connection& connection, Request& request);
 
-	bool						hasRequest(Connection& connection);
+	bool						hasRequest(const Connection& connection);
 	// bool						runRecvAndSolve(Connection& connection);
 	// bool						hasExecuteWork(Connection& connection);
 	// bool						runExecute(Connection& connection);

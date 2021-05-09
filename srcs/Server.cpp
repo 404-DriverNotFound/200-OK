@@ -169,9 +169,9 @@ void	Server::run()
 	cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
 }
 
-bool					Server::hasRequest(Connection& connection)
+bool					Server::hasRequest(const Connection& connection)
 {
-	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet())))
+	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
 		std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
 		return (true);
