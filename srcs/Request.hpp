@@ -1,12 +1,13 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
+#include "Define.hpp"
+
 #include <string>
 #include <map>
 #include "Connection.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
-
 
 class Request
 {

@@ -1,6 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "Define.hpp"
+
 #include <string>
 #include <vector>
 #include <queue>
@@ -16,6 +18,8 @@
 #include "Config.hpp"
 #include "Path/Path.hpp"
 #include "Utils/utils.hpp"
+#include "Connection.hpp"
+// #include "ServerManager.hpp"
 
 using namespace std;
 
@@ -53,24 +57,25 @@ class Server // NOTE port별로 나뉘는 블록
 {
 public:
 	Server();
+	Server(ServerManager *);
 	virtual ~Server();
 	Server(const Server &);
 	Server&	operator=(const Server &);
 
 	int SetSocket(std::string ip, uint16_t port);
 
-	// ANCHOR 은휼 코드
+	// ANCHOR 참고 코드
 	// bool						hasException(int client_fd);
-	// void						closeConnection(int client_fd);
 	// void						isSendable(int client_fd);
 	// Request						recvRequest(int client_fd);
 	// void						sendResponse(Response response);
 	// char**						createCGIEnv(void);
-	// bool						hasNewConnection(void);
-	// void						acceptNewConnection(void);
+	bool						hasNewConnection(void);
+	bool						acceptNewConnection(void);
+	int							getUnuseConnectionFd();
+	void						closeConnection(int client_fd);
 
 
-	// int							getUnuseConnectionFd();
 	// bool						parseStartLine(Connection& connection, Request& request);
 	// bool						parseHeader(Connection& connection, Request& request);
 	// bool						parseBody(Connection& connection, Request& request);
@@ -82,7 +87,7 @@ public:
 	// bool						hasSendWork(Connection& connection);
 	// bool						runSend(Connection& connection);
 
-	// void						run(void);
+	void						run(void);
 	// void						solveRequest(Connection& connection, const Request& request);
 	// void						executeAutoindex(Connection& connection, const Request& request);
 	// void						executeGet(Connection& connection, const Request& request);
@@ -98,14 +103,15 @@ public:
 	const int&					get_m_fd(void) const;
 
 public :
+	ServerManager*				m_manager;
 	uint16_t					mport; // def = 8000;
 	std::vector<ServerBlock>	mserverBlocks;
 
-	int							msocket;
+	int							msocket; // NOTE m_connections의 첫번째 값이 모두 서버소켓의 fd임!
 
-	// ANCHOR 은율
+	// ANCHOR 참고코드
 	// REVIEW 어떻게 적용될지 생각해봐야함
-	// std::map<int, Connection>	m_connections;
+	std::map<int, Connection>	m_connections;
 	// std::queue<Response>		m_responses;
 	// Config*						m_config;
 };

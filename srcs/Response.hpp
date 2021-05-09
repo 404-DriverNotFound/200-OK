@@ -1,6 +1,8 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+#include "Define.hpp"
+
 #include <string>
 #include <map>
 #include "Connection.hpp"
