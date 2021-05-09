@@ -104,7 +104,7 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 	return (-1);
 }
 
-const int&	Server::get_m_fd(void) const{return (this->msocket);}
+const int&	Server::get_m_fd(void) const{ return (this->msocket); }
 
 void	Server::run()
 {
@@ -115,34 +115,36 @@ void	Server::run()
 		int fd = this->msocket;
 
 		if (it2->second.get_m_fd() == fd)
+		{
 			continue ;
-		// try {
-		// 	if (hasSendWork(it2->second))
-		// 	{
-		// 		runSend(it2->second);
-		// 		continue ;
-		// 	}
-		// 	if (hasExecuteWork(it2->second))
-		// 	{
-		// 		runExecute(it2->second);
-		// 		continue ;
-		// 	}
-		// cout << "here" << endl;
-		// 	if (hasRequest(it2->second))
-		// 	{	
-		// 		cout << "3" << endl;
-
-		// 		runRecvAndSolve(it2->second);
-		// 	}
-		// } catch (Server::IOError& e) {
+		}
+		try
+		{
+			// if (hasSendWork(it2->second))
+			// {
+			// 	runSend(it2->second);
+			// 	continue ;
+			// }
+			// if (hasExecuteWork(it2->second))
+			// {
+			// 	runExecute(it2->second);
+			// 	continue ;
+			// }
+			if (hasRequest(it2->second))
+			{
+				// runRecvAndSolve(it2->second);
+			}
+		}
+		// catch (Server::IOError& e)
+		// {
 		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
 		// 	closeConnection(fd);
-		// } catch (...) {
-		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
-		// 	closeConnection(fd);				
 		// }
-		// catch {
-		// }
+		catch (const std::exception& e)
+		{
+			// ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
+			closeConnection(fd);				
+		}
 	}
 	if (hasNewConnection())
 	{
@@ -167,7 +169,18 @@ void	Server::run()
 	cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
 }
 
-
+bool					Server::hasRequest(Connection& connection)
+{
+	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet())))
+	{
+		std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
+}
 
 bool						Server::hasNewConnection()
 {
@@ -176,7 +189,10 @@ bool						Server::hasNewConnection()
 		cout << "this->msocket: " << this->msocket << endl;
 		return (true);
 	}
-	return (false);
+	else
+	{
+		return (false);
+	}
 }
 
 bool						Server::acceptNewConnection()
@@ -193,49 +209,50 @@ bool						Server::acceptNewConnection()
 	}
 	else
 	{
-		// STUB nc localhost 8000 BLOCK 처리 방지
-		int flags = 0;
-		// flags = fcntl(client_socket, F_GETFL, 0);
-		// flags |= O_NONBLOCK;
-		// fcntl(client_socket, F_SETFL, flags);
+		return (true);
+		// // STUB nc localhost 8000 BLOCK 처리 방지
+		// int flags = 0;
+		// // flags = fcntl(client_socket, F_GETFL, 0);
+		// // flags |= O_NONBLOCK;
+		// // fcntl(client_socket, F_SETFL, flags);
 
-		int bytesRead;
-		bytesRead = BUFFER_SIZE - 1;
-		std::cout << "connected client fd: " << client_socket << std::endl;
-		char buffer[BUFFER_SIZE * 10];
-		char *buffer_pointer = buffer;
+		// int bytesRead;
+		// bytesRead = BUFFER_SIZE - 1;
+		// std::cout << "connected client fd: " << client_socket << std::endl;
+		// char buffer[BUFFER_SIZE * 10];
+		// char *buffer_pointer = buffer;
 
-		while (bytesRead == BUFFER_SIZE - 1)
-		{
-			bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE - 1); // request 를 여기서 받아서..
-			/***************************************************
-			 * 영환이가 버퍼를 받아 코드에서 적용시키는 영역
-			 ***************************************************/
-			if (bytesRead == -1)
-				std::cerr << "Could not read request." << std::endl;
-			buffer_pointer += bytesRead;
-		}
-		if ((flags & O_NONBLOCK) != O_NONBLOCK)
-		{
-			buffer_pointer[bytesRead] = '\0';
-			cout << buffer << endl;
-		}
-
-		// NOTE Http 파싱 파트
-		// if (bytesRead != -1)
+		// while (bytesRead == BUFFER_SIZE - 1)
 		// {
-		// 	//	STUB : HttpMessageRequest
-		// 	HttpMessageRequest	request(buffer);
-		// 	request.Parser(); // request 를 parsing 한 후,
-
-		// 	//	STUB : HttpMessageResponse
-		// 	HttpMessageResponse	response(request); // reponse 를 정리한다.
-		// 	response.SetMessage();
-
-		// 	//	STUB : Send a message to the connection
-		// 	int len = response.GetMessage().size();
-		// 	int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
+		// 	bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE - 1); // request 를 여기서 받아서..
+		// 	/***************************************************
+		// 	 * 영환이가 버퍼를 받아 코드에서 적용시키는 영역
+		// 	 ***************************************************/
+		// 	if (bytesRead == -1)
+		// 		std::cerr << "Could not read request." << std::endl;
+		// 	buffer_pointer += bytesRead;
 		// }
+		// if ((flags & O_NONBLOCK) != O_NONBLOCK)
+		// {
+		// 	buffer_pointer[bytesRead] = '\0';
+		// 	cout << buffer << endl;
+		// }
+
+		// // NOTE Http 파싱 파트
+		// // if (bytesRead != -1)
+		// // {
+		// // 	//	STUB : HttpMessageRequest
+		// // 	HttpMessageRequest	request(buffer);
+		// // 	request.Parser(); // request 를 parsing 한 후,
+
+		// // 	//	STUB : HttpMessageResponse
+		// // 	HttpMessageResponse	response(request); // reponse 를 정리한다.
+		// // 	response.SetMessage();
+
+		// // 	//	STUB : Send a message to the connection
+		// // 	int len = response.GetMessage().size();
+		// // 	int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
+		// // }
 	}
 	FD_SET(client_socket, &(this->m_manager->GetReadSet()));
 	this->m_connections[client_socket] = Connection(client_socket, "", this->mport);
