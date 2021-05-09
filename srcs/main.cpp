@@ -5,7 +5,6 @@
 int		main(int argc, char* argv[], char* envp[])
 {
 	ServerManager	manager;
-
 	// manager.openLog();
 	if (argc > 2)
 	{
