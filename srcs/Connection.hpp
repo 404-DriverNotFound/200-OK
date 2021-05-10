@@ -1,10 +1,12 @@
 #ifndef CONNECTION_HPP
 #define CONNECTION_HPP
 
-#include "Define.hpp"
-
 #include <string>
 #include <sys/time.h>
+
+#include "Define.hpp"
+#include "Request.hpp"
+
 // #include "ServerManager.hpp"
 
 class Connection
@@ -28,6 +30,7 @@ private:
 	std::string		m_client_ip;
 	int				m_client_port;
 	
+	Request*		mRequest;
 
 };
 
