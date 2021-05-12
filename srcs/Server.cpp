@@ -328,6 +328,8 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	catch (int status_code)
 	{
 		// createResponse(connection, status_code);
+		delete connection.get_m_request();
+		connection.set_m_request(NULL);
 		std::cout << "status code : " << status_code << std::endl;
 		return (true);
 	}
@@ -339,6 +341,8 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	{
 		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());
 		// createResponse(connection, 50001);
+		delete connection.get_m_request();
+		connection.set_m_request(NULL);
 		return (true);
 	}
 
