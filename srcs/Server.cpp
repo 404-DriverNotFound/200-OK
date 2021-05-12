@@ -127,10 +127,6 @@ void	Server::run(void)
 	{
 		std::map<int, Connection>::iterator it2 = it++;
 		int fd = this->msocket;
-		std::cout << endl;
-		std::cout << "server socket : " << fd << std::endl;
-		std::cout << "connec socket : " << it2->second.get_m_fd() << std::endl;
-		std::cout << endl;
 		if (it2->second.get_m_fd() == fd)
 		{
 			continue ;
@@ -228,53 +224,9 @@ bool						Server::acceptNewConnection()
 		std::cerr << "Could not create socket." << std::endl;
 		return (false);
 	}
-	// else
-	// {
-	// 	// STUB nc localhost 8000 BLOCK 처리 방지
-	// 	int flags = 0;
-	// 	// flags = fcntl(client_socket, F_GETFL, 0);
-	// 	// flags |= O_NONBLOCK;
-		fcntl(client_socket, F_SETFL, O_NONBLOCK);
-
-	// 	int bytesRead;
-	// 	bytesRead = BUFFER_SIZE - 1;
-	// 	std::cout << "connected client fd: " << client_socket << std::endl;
-	// 	char buffer[BUFFER_SIZE * 10];
-	// 	char *buffer_pointer = buffer;
-
-	// 	while (bytesRead == BUFFER_SIZE - 1)
-	// 	{
-	// 		bytesRead = read(client_socket, buffer_pointer, BUFFER_SIZE - 1); // request 를 여기서 받아서..
-	// 		/***************************************************
-	// 		 * 영환이가 버퍼를 받아 코드에서 적용시키는 영역
-	// 		 ***************************************************/
-	// 		if (bytesRead == -1)
-	// 			std::cerr << "Could not read request." << std::endl;
-	// 		buffer_pointer += bytesRead;
-	// 	}
-	// 	if ((flags & O_NONBLOCK) != O_NONBLOCK)
-	// 	{
-	// 		buffer_pointer[bytesRead] = '\0';
-	// 		cout << buffer << endl;
-	// 	}
-
-	// 	// NOTE Http 파싱 파트
-	// 	// if (bytesRead != -1)
-	// 	// {
-	// 	// 	//	STUB : HttpMessageRequest
-	// 	// 	HttpMessageRequest	request(buffer);
-	// 	// 	request.Parser(); // request 를 parsing 한 후,
-
-	// 	// 	//	STUB : HttpMessageResponse
-	// 	// 	HttpMessageResponse	response(request); // reponse 를 정리한다.
-	// 	// 	response.SetMessage();
-
-	// 	// 	//	STUB : Send a message to the connection
-	// 	// 	int len = response.GetMessage().size();
-	// 	// 	int ret = send(client_socket, response.GetMessage().c_str(), len, 0);
-	// 	// }
-	// }
+	fcntl(client_socket, F_SETFL, O_NONBLOCK);
 	FD_SET(client_socket, &(this->m_manager->GetReadSet()));
+	FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
 	this->m_connections[client_socket] = Connection(client_socket, "", this->mport);
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
 	return (true);
@@ -312,6 +264,7 @@ void			Server::closeConnection(int client_fd)
 		if (it2->second.get_m_fd() == client_fd)
 		{
 			FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
+			FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
 			m_connections.erase(it2);
 			return ;
 		}
@@ -364,7 +317,7 @@ void						Server::recvRequest(Connection& connection)
 	char		buf[BUFFER_SIZE] = { 0, };
 	Request*	request = connection.get_m_request();
 
-	if (request->GetPhase() == Request::READY && (int)hasRequest(connection) && (count = recvWithoutBody(connection, buf, sizeof(buf))) > 0)
+	if (request->GetPhase() == Request::READY && hasRequest(connection) && (count = recvWithoutBody(connection, buf, sizeof(buf))) > 0)
 	{
 	// 	// FIXME 헤더까지 한번에 들어온다는 가정이라서 나중에 수정이 필요할 듯
 	// 	// REVIEW 한번 읽을때 바디까지 들어온다는 가정이 아니면 read를 header들어올때까지 계속받는다는 이야기가되는데 그러면 select당 read 1번 룰에 위배됨.
