@@ -1,13 +1,19 @@
 #include "Connection.hpp"
 
-Connection::Connection(int client_fd, std::string client_ip, int client_port) :
-	m_client_ip(client_ip), m_client_port(client_port), m_fd(client_fd)
+Connection::Connection(int client_fd, std::string client_ip, int client_port)
+	: m_client_ip(client_ip)
+	, m_client_port(client_port)
+	, m_fd(client_fd)
+	, mRequest(0)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
 
-Connection::Connection() :
-	m_client_ip(""), m_client_port(0), m_fd(0)
+Connection::Connection(void)
+	: m_client_ip("")
+	, m_client_port(0)
+	, m_fd(0)
+	, mRequest(0)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
@@ -36,4 +42,19 @@ bool					Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_reque
 		return (false);
 	else
 		return (true);
+}
+
+Request*				Connection::get_m_request(void) const
+{
+	return (mRequest);
+}
+
+void					Connection::set_m_request(Request* request)
+{
+	mRequest = request;
+}
+
+void					Connection::addRbufFromClient(char* buf, size_t count)
+{
+	mRequest->addOrigin(std::string(buf, count));
 }
