@@ -281,7 +281,7 @@ int ServerManager::SetServers()
 	for (size_t i = 0; i < this->m_servers.size(); i++)
 	{
 		Server &server = this->m_servers[i];
-		server.SetSocket("INADDR_ANY", server.mport);
+		server.SetSocket("0.0.0.0", server.mport);
 		server.m_manager = this; 
 		server.m_connections[server.msocket] = Connection(server.msocket, "INADDR_ANY", server.mport);
 	}
