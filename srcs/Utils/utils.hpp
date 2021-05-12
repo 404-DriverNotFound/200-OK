@@ -5,6 +5,8 @@
 #include <vector>
 #include <sys/stat.h>
 #include <limits.h> // FIXME atoi 쓸꺼면 필요함.
+#include <dirent.h>
+#include <unistd.h>
 
 namespace ft
 {
@@ -18,6 +20,9 @@ namespace ft
 
 	bool isFilePath(const std::string &path);
 	bool isDirPath(const std::string &path);
+	std::string makeAutoindexHTML(std::string root);
+
+	// 서브젝트 허용 매크로함수로 변경됨.
 	u_int32_t ft_htonl(u_int32_t ip_addr);
 	u_int16_t ft_htons(u_int16_t port);
 	in_addr_t ft_inet_addr(const char * ip_address);

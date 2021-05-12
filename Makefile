@@ -6,6 +6,10 @@ SRCS	=	gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp \
 			srcs/Location.cpp \
 			srcs/Connection.cpp \
 			srcs/Response.cpp \
+			srcs/Location.cpp\
+			srcs/Connection.cpp\
+			srcs/Request.cpp\
+			srcs/Response.cpp \
 			\
 			srcs/ConfigFile/ConfigFile.cpp \
 			srcs/ConfigFile/ConfigFiles.cpp \
@@ -27,6 +31,7 @@ CC		=	clang++
 # CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 # CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3
 CFLAGS	=	-std=c++98 -g3 -fsanitize=address
+# CFLAGS	=	-std=c++98 
 
 
 RM		=	-rm -rf

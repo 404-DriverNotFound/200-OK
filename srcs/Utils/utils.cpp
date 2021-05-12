@@ -234,3 +234,40 @@ u_int16_t ft::ft_htons(u_int16_t addr)
 		return ((u_int16_t)addr);
 	}
 }
+
+
+std::string ft::makeAutoindexHTML(std::string url)
+{
+	DIR *dir;
+	struct dirent *curr;
+	std::string res;
+	std::string root_string;
+
+	char root_char[100];
+	if (NULL == getcwd(root_char, 100))
+		return (res);
+	root_string = root_char;
+	root_string += url;
+	// url = this->_request.getHeaderValue("Host") + this->_request.getStartLine().path;
+	dir = opendir(root_string.c_str());
+	res += "<html>\n";
+	res += "<head><title>Index of /</title></head>";
+	res += "<body>\n";
+	res += "<h1>Directory listing</h1>\n";
+	while ((curr = readdir(dir)) != NULL)
+	{
+		if (curr->d_name[0] != '.')
+		{
+			res += "<a href=\"http://";
+			res += "localhost:8080/";
+			res += curr->d_name;
+			res += "\">";
+			res += curr->d_name;
+			res += "</a><br>\n";
+		}
+		// cout << "1" << endl;
+	}
+	closedir(dir);
+	res += "</body>\n</html>\n";
+	return (res);
+}

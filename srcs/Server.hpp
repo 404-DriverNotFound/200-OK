@@ -4,6 +4,7 @@
 #include "Define.hpp"
 
 #include <string>
+#include <cstring>
 #include <vector>
 #include <queue>
 #include <map>
@@ -12,13 +13,14 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <iostream>
-#include <vector>
 
 #include "Location.hpp"
 #include "Config.hpp"
 #include "Path/Path.hpp"
 #include "Utils/utils.hpp"
 #include "Connection.hpp"
+
+
 // #include "ServerManager.hpp"
 
 using namespace std;
@@ -56,7 +58,7 @@ public :
 class Server // NOTE port별로 나뉘는 블록
 {
 public:
-	Server();
+	Server(void);
 	Server(ServerManager *);
 	virtual ~Server();
 	Server(const Server &);
@@ -67,7 +69,9 @@ public:
 	// ANCHOR 참고 코드
 	// bool						hasException(int client_fd);
 	// void						isSendable(int client_fd);
-	// Request						recvRequest(int client_fd);
+	void						recvRequest(Connection& connection);
+	ssize_t						recvWithoutBody(Connection& connection, void* buf, size_t nbyte);
+	ssize_t						recvBody(Connection& connection, void* buf, size_t nbyte);
 	// void						sendResponse(Response response);
 	// char**						createCGIEnv(void);
 	bool						hasNewConnection(void);
@@ -76,12 +80,12 @@ public:
 	void						closeConnection(int client_fd);
 
 
-	// bool						parseStartLine(Connection& connection, Request& request);
-	// bool						parseHeader(Connection& connection, Request& request);
-	// bool						parseBody(Connection& connection, Request& request);
+	bool						parseStartLine(Connection& connection);
+	bool						parseHeader(Connection& connection);
+	bool						parseBody(Connection& connection);
 
-	// bool						hasRequest(Connection& connection);
-	// bool						runRecvAndSolve(Connection& connection);
+	bool						hasRequest(const Connection& connection);
+	bool						runRecvAndSolve(Connection& connection);
 	// bool						hasExecuteWork(Connection& connection);
 	// bool						runExecute(Connection& connection);
 	// bool						hasSendWork(Connection& connection);
