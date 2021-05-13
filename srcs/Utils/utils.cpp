@@ -235,7 +235,7 @@ u_int16_t ft::ft_htons(u_int16_t addr)
 	}
 }
 
-
+// NOTE nginx에서 autoindex로 나오는 페이지의 html을 베껴썼다.
 std::string ft::makeAutoindexHTML(std::string url)
 {
 	DIR *dir;
@@ -251,23 +251,56 @@ std::string ft::makeAutoindexHTML(std::string url)
 	// url = this->_request.getHeaderValue("Host") + this->_request.getStartLine().path;
 	dir = opendir(root_string.c_str());
 	res += "<html>\n";
-	res += "<head><title>Index of /</title></head>";
+	res += "<head><title>Index of /"; res+= url; res+= "</title></head>";
 	res += "<body>\n";
-	res += "<h1>Directory listing</h1>\n";
+	res += "<h1>Index of /"; res+= url; res+= "</h1><hr><pre>\n";
 	while ((curr = readdir(dir)) != NULL)
 	{
 		if (curr->d_name[0] != '.')
 		{
 			res += "<a href=\"http://";
-			res += "localhost:8080/";
-			res += curr->d_name;
-			res += "\">";
-			res += curr->d_name;
-			res += "</a><br>\n";
+			res += "localhost:8000/"; res += curr->d_name; res += "\">";
+			res += curr->d_name; res += "</a><br>\n";
 		}
 		// cout << "1" << endl;
 	}
 	closedir(dir);
-	res += "</body>\n</html>\n";
+	res += "</pre></hr></body>\n</html>\n";
 	return (res);
+}
+
+
+std::vector<int> ft::getVector_changedFD(fd_set *fdset, size_t fdset_size)
+{
+	std::vector<int> ret;
+	for (size_t i = 0; i < fdset_size; i++)
+	{
+		if (FD_ISSET(i, fdset) > 0)
+		{
+			ret.push_back((int)i);
+			std::cout << i << " ";
+		}
+	}
+	if (ret.size() == 0)
+		std::cout << "empty | size: 0" << std::endl;
+	else
+		std::cout << "| size: " << ret.size() << std::endl;
+	return (ret);
+}
+
+
+std::string ft::getHTTPTimeFormat(time_t time)
+{
+	char s[150];
+	struct tm *tm_time = std::gmtime(&time);
+
+	strftime(s, sizeof(s), "%a, %d %b %Y %T GMT", tm_time);
+    return (s);
+}
+
+std::string ft::getCurrentTime()
+{
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	return (getHTTPTimeFormat(time.tv_sec));
 }

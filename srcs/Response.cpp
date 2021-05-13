@@ -17,7 +17,7 @@ Response::Response(Connection* connection, int status_code, std::string body)
 	if (this->m_status_map.find(status_code) == this->m_status_map.end())
 	{
 		this->m_status_description = this->m_status_map[status_code];
-		this->addHeader(ft::itoa(this->m_status_code), this->m_status_description);
+		this->addHeader(std::to_string(this->m_status_code), this->m_status_description);
 	}
 	else
 	{
@@ -51,7 +51,7 @@ const std::string								Response::getResponse(void)
 	std::string all;
 	
 	std::string firstline;
-	firstline += "HTTP/1.1 "; firstline += ft::itoa(m_status_code); firstline += " "; firstline += this->m_status_map[m_status_code]; firstline += "\r\n";
+	firstline += "HTTP/1.1 "; firstline += std::to_string(m_status_code); firstline += " "; firstline += this->m_status_map[m_status_code]; firstline += "\r\n";
 	all += "\r\n";
 	std::map<std::string, std::string>::iterator it = m_headers.begin();
 	while(it != m_headers.end())
@@ -72,9 +72,9 @@ std::string										Response::makeErrorPage(int status_code)
 	errorpage = "<html><head><title>STATUS_CODE STATUS_DESCRIPTION</title></head><body bgcolor=\"white\"><center> \
 					<h1>STATUS_CODE STATUS_DESCRIPTION</h1></center><hr><center>YKK_Webserver</center></body></html>";
 	
-	std::string status_str = ft::itoa(status_code);
+	std::string status_str = std::to_string(status_code);
 	ft::ReplaceAll(errorpage, "STATUS_CODE", status_str);
-	ft::ReplaceAll(errorpage, "STATUS_DESCRIPTION", this->m_status_description);
+	ft::ReplaceAll(errorpage, "STATUS_DESCRIPTION", Response::m_status_map[status_code]);
 	return (errorpage);
 }
 

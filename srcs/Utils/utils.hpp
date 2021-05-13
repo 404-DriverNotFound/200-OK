@@ -4,9 +4,10 @@
 #include <iostream>
 #include <vector>
 #include <sys/stat.h>
-#include <limits.h> // FIXME atoi 쓸꺼면 필요함.
+#include <limits.h> // FIXME atoi 쓸꺼면 필요함, stoi => c++11
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 namespace ft
 {
@@ -15,12 +16,17 @@ namespace ft
 	void			split_vector(std::vector<std::string> &vec, const std::string& str, const char *delim);
 	std::string		ReplaceAll(std::string &str, const std::string& from, const std::string& to);
 	// int				atoi(const char *str);
-	char*			itoa(int n);
+	char*			itoa(int n); // FIXME std::to_string으로 대체가능 <string>
 	int				atoi(const char *str);
 
 	bool isFilePath(const std::string &path);
 	bool isDirPath(const std::string &path);
 	std::string makeAutoindexHTML(std::string root);
+
+	std::string getHTTPTimeFormat(time_t time);
+	std::string getCurrentTime();
+
+	std::vector<int> getVector_changedFD(fd_set *fdset, size_t fdset_size);
 
 	// 서브젝트 허용 매크로함수로 변경됨.
 	u_int32_t ft_htonl(u_int32_t ip_addr);

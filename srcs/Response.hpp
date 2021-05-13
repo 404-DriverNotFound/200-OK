@@ -28,11 +28,11 @@ public:
 	const std::string&								get_m_body(void) const;
 
 	void											addHeader(std::string header_key, std::string header_value);
-	const std::string								getResponse(void);
+	const std::string									getResponse(void);
 
 	// ANCHOR yunslee
-	std::string										makeErrorPage(int status_code);
-	
+	static std::string								makeErrorPage(int status_code);
+	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
 	{
 		m_status_map[100] = "Continue";
@@ -92,7 +92,6 @@ public:
 	}
 
 private:
-	static std::map<int, std::string >				m_status_map;
 	// std::string										m_firstline; 사용하지 않아도 될 것 같음.
 	Connection*										m_connection;
 	int												m_status_code;
