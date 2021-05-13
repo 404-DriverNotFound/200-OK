@@ -137,17 +137,24 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 	if (fdset == WRITE_SET)
 	{
 		if (FD_ISSET(fd, &m_write_copy_set))
+    {
 			return (true);
+    }
+		else
+    {
+			return (false);
+		}
 	}
 	else if (fdset == READ_SET)
 	{
-		if (FD_ISSET(fd, &m_read_copy_set)) 
+		if (FD_ISSET(fd, &m_read_copy_set))
+		{
 			return (true);
-	}
-	else
-	{
-		return (false);
-	}
+		}
+	  else
+	  {
+		  return (false);
+	  }
 }
 
 
@@ -338,6 +345,7 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 			close (it2->second.get_m_fd());
 			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
 			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
+			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
 			server_it->m_connections.erase(it2);
 			return ;
 		}

@@ -334,8 +334,6 @@ void						Server::recvRequest(Connection& connection)
 	char		buf[BUFFER_SIZE] = { 0, };
 	Request*	request = connection.get_m_request();
 
-	throw (404);
-
 	if (request->GetPhase() == Request::READY && hasRequest(connection) && (count = recvWithoutBody(connection, buf, sizeof(buf))) > 0)
 	{
 	// 	// FIXME 헤더까지 한번에 들어온다는 가정이라서 나중에 수정이 필요할 듯
