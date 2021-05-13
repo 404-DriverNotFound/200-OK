@@ -58,6 +58,13 @@ void		ServerManager::runServer(void)
 		}
 		else if (cnt > 0)
 		{
+			std::vector<int> read_set;
+			read_set = ft::getVector_changedFD(&m_read_copy_set, m_max_fd + 1);
+			std::vector<int> write_set;
+			write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
+
+			// cout << "read_set size: " << read_set.size() << endl;
+			// cout << "write_set size: " << write_set.size() << endl;
 			std::cout << "Received connection\n";
 		}
 
@@ -74,6 +81,8 @@ void		ServerManager::runServer(void)
 	}
 	exitServer("server exited.\n");
 }
+
+const int&	ServerManager::get_m_max_fd(void) const{return (this->m_max_fd);}
 
 void		ServerManager::set_m_max_fd(const int& fd)
 {
@@ -128,8 +137,12 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 	if (fdset == WRITE_SET)
 	{
 		if (FD_ISSET(fd, &m_write_copy_set))
-		{
+    {
 			return (true);
+    }
+		else
+    {
+			return (false);
 		}
 	}
 	else if (fdset == READ_SET)
@@ -138,10 +151,10 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 		{
 			return (true);
 		}
-	}
-	else
-	{
-		return (false);
+		else
+		{
+		  return (false);
+		}
 	}
 }
 
@@ -288,7 +301,7 @@ int ServerManager::SetServers()
 	for (size_t i = 0; i < this->m_servers.size(); i++)
 	{
 		Server &server = this->m_servers[i];
-		server.SetSocket("INADDR_ANY", server.mport);
+		server.SetSocket("0.0.0.0", server.mport);
 		server.m_manager = this; 
 		server.m_connections[server.msocket] = Connection(server.msocket, "INADDR_ANY", server.mport);
 	}
@@ -331,6 +344,7 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		{
 			cout << "closeOldConnection: " << it2->second.get_m_fd() << endl;
 			close (it2->second.get_m_fd());
+			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
 			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
 			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
 			server_it->m_connections.erase(it2);

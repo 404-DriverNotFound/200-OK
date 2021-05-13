@@ -18,6 +18,12 @@ Connection::Connection(void)
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
 
+Connection::~Connection(void)
+{
+	// TODO mRequest에 대한 처리가 필요함.
+}
+
+
 const int&				Connection::get_m_fd(void) const{return (this->m_fd);}
 
 const struct timeval&	Connection::get_m_last_request_at(void) const{	return (this->m_last_request_at);}

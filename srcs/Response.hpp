@@ -5,37 +5,102 @@
 
 #include <string>
 #include <map>
-#include "Connection.hpp"
+// #include "Connection.hpp"
+#include "Utils/utils.hpp"
+
+class Connection;
+
+enum TransferType								{ GENERAL, CHUNKED };
 
 class Response
 {
 public:
-	Response(Connection* connection, int status_code, std::string body="");
+	Response();
+	virtual ~Response();
+	Response(Connection* connection, int status_code, std::string body);
 
 	const Connection*								get_m_connection(void) const;
 	const int&										get_m_status_code(void) const;
 	const std::string&								get_m_status_description(void) const;
+	const std::string&								get_m_firstline(void) const;
 	const std::map<std::string, std::string>		get_m_headers(void) const;
 	const enum TransferType&						get_m_transfer_type(void) const;
-	const std::string&								get_m_content(void) const;
+	const std::string&								get_m_body(void) const;
 
 	void											addHeader(std::string header_key, std::string header_value);
-	char*											c_str(void);
-	std::map<int, std::vector<std::string> >		make_status(void);
+	const std::string									getResponse(void);
 
+	// ANCHOR yunslee
+	static std::string								makeErrorPage(int status_code);
+	static std::map<int, std::string >				m_status_map;
+	static void				init_status_map(void)
+	{
+		m_status_map[100] = "Continue";
+		m_status_map[101] = "Switching Protocols";
+		m_status_map[103] = "Early Hints";
+		m_status_map[200] = "OK";
+		m_status_map[201] = "Created";
+		m_status_map[202] = "Accepted";
+		m_status_map[203] = "Non-Authoritative Information";
+		m_status_map[204] = "No Content";
+		m_status_map[205] = "Reset Content";
+		m_status_map[206] = "Partial Content";
+		m_status_map[301] = "Moved Permanently";
+		m_status_map[300] = "Multiple Choices";
+		m_status_map[303] = "See Other";
+		m_status_map[302] = "Found";
+		m_status_map[307] = "Temporary Redirect";
+		m_status_map[304] = "Not Modified";
+		m_status_map[400] = "Bad Request";
+		m_status_map[308] = "Permanent Redirect";
+		m_status_map[402] = "Payment Required";
+		m_status_map[401] = "Unauthorized";
+		m_status_map[404] = "Not Found";
+		m_status_map[403] = "Forbidden";
+		m_status_map[406] = "Not Acceptable";
+		m_status_map[405] = "Method Not Allowed";
+		m_status_map[408] = "Request Timeout";
+		m_status_map[407] = "Proxy Authentication Required";
+		m_status_map[410] = "Gone";
+		m_status_map[409] = "Conflict";
+		m_status_map[412] = "Precondition Failed";
+		m_status_map[411] = "Length Required";
+		m_status_map[414] = "URI Too Long";
+		m_status_map[413] = "Payload Too Large";
+		m_status_map[416] = "Range Not Satisfiable";
+		m_status_map[415] = "Unsupported Media Type";
+		m_status_map[418] = "I'm a teapot";
+		m_status_map[417] = "Expectation Failed";
+		m_status_map[425] = "Too Early";
+		m_status_map[422] = "Unprocessable Entity";
+		m_status_map[428] = "Precondition Required";
+		m_status_map[426] = "Upgrade Required";
+		m_status_map[431] = "Request Header Fields Too Large";
+		m_status_map[429] = "Too Many Requests";
+		m_status_map[500] = "Internal Server Error";
+		m_status_map[451] = "Unavailable For Legal Reasons";
+		m_status_map[502] = "Bad Gateway";
+		m_status_map[501] = "Not Implemented";
+		m_status_map[504] = "Gateway Timeout";
+		m_status_map[503] = "Service Unavailable";
+		m_status_map[506] = "Variant Also Negotiates";
+		m_status_map[505] = "HTTP Version Not Supported";
+		m_status_map[508] = "Loop Detected";
+		m_status_map[507] = "Insufficient Storage";
+		m_status_map[511] = "Network Authentication Required";
+		m_status_map[510] = "Not Extended";
+	}
 
 private:
-	enum TransferType								{ GENERAL, CHUNKED };
-
-	static std::map<int, std::vector<std::string> >	status;
+	// std::string										m_firstline; 사용하지 않아도 될 것 같음.
 	Connection*										m_connection;
 	int												m_status_code;
 	std::string										m_status_description;
 	std::map<std::string, std::string>				m_headers;
 	enum TransferType								m_transfer_type;
-	std::string										m_content;
-
+	std::string										m_body;
+	
+	
 };
-
 
 #endif

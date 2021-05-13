@@ -1,5 +1,7 @@
 #include "Server.hpp"
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
+#include "Response.hpp"
+
 
 LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
 {
@@ -96,9 +98,9 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 	sockaddr_in sockaddr;
 	ft::memset((sockaddr_in *)&sockaddr, 0, sizeof(sockaddr_in));
 	sockaddr.sin_family = AF_INET;
-	// sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
-	sockaddr.sin_addr.s_addr = INADDR_ANY;
-	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
+	sockaddr.sin_addr.s_addr = ft::ft_inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
+	// sockaddr.sin_addr.s_addr = INADDR_ANY;
+	sockaddr.sin_port = ft::ft_htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
 	setsockopt(this->msocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -133,11 +135,11 @@ void	Server::run(void)
 		}
 		try
 		{
-			// if (hasSendWork(it2->second))
-			// {
-			// 	runSend(it2->second);
-			// 	continue ;
-			// }
+			if (hasSendWork(it2->second))
+			{
+				runSend(it2->second);
+				continue ; // FIXME 어떻게 처리할지...
+			}
 			// if (hasExecuteWork(it2->second))
 			// {
 			// 	runExecute(it2->second);
@@ -159,8 +161,10 @@ void	Server::run(void)
 		// }
 		catch (const std::exception& e)
 		{
+			cout << e.what() << endl;
 			// ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
-			closeConnection(fd);				
+			closeConnection(it2->second.get_m_fd());
+
 		}
 	}
 	if (hasNewConnection())
@@ -284,6 +288,19 @@ bool			Server::runRecvAndSolve(Connection& connection)
 		delete connection.get_m_request();
 		connection.set_m_request(NULL);
 		std::cout << "status code : " << status_code << std::endl;
+
+		//STUB status_code(404, 400)에러를 여기서 캐치해서 클라이언트에게 보낸다.
+		std::string errorpage;
+		errorpage.append("HTTP/1.1 " + std::to_string(status_code) + " " + Response::m_status_map[status_code] + "\r\n");
+		errorpage.append("Server: webserv\r\n");
+		errorpage.append("Date: " + ft::getCurrentTime() + "\r\n");
+		std::string errorpage_body = Response::makeErrorPage(status_code);
+		errorpage.append("Content-Length: " + std::to_string(errorpage_body.size())+ "\r\n");
+		errorpage.append("\r\n");
+		errorpage += errorpage_body;
+		cout << errorpage << endl;
+		write(connection.get_m_fd(), errorpage.c_str(), errorpage.size());
+		closeConnection(connection.get_m_fd());
 		return (true);
 	}
 	// catch (const Server::IOError& e)
@@ -331,8 +348,11 @@ void						Server::recvRequest(Connection& connection)
 	if (request->GetPhase() == Request::ON_HEADER && parseHeader(connection))
 	{
 		request->SetPhase(Request::ON_BODY);
-	// 	if (isRequestHasBody(request))
-	// 		return ;
+		if (isRequestHasBody(request) == false)
+		{
+			request->SetPhase(Request::COMPLETE);
+		}
+		return ;
 	}
 	if (request->GetPhase() == Request::ON_BODY && (count = recvBody(connection, buf, sizeof(buf))) > 0)
 	{
@@ -345,11 +365,25 @@ void						Server::recvRequest(Connection& connection)
 
 }
 
+bool Server::isRequestHasBody(Request *request)
+{
+	if (request->get_m_method() == Request::POST || request->get_m_method() == Request::PUT)
+		return (true);
+	else
+		return (false);
+}
+
+
 ssize_t						Server::recvWithoutBody(Connection& connection, void* buf, size_t nbyte)
 {
 	// REVIEW 한번 읽을때 바디까지 들어온다는 가정이 아니면 read를 header들어올때까지 계속받는다는 이야기가되는데 그러면 select당 read 1번 룰에 위배됨.
 	// 별도함수로 작성한 것을 보면 header가 다읽힐때까지 read를 여러번한것이 아닐까 생각 듦.
+	cout << "recvWithoutBody" << endl;
 	int	count = read(connection.get_m_fd(), buf, nbyte);
+	if (count == 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
+	{
+		throw Server::ClientServerClose();
+	}
 	return (count);
 }
 
@@ -470,3 +504,76 @@ bool						Server::parseBody(Connection& connection)
 
 	return (true);
 }
+
+bool						Server::hasSendWork(Connection& connection)
+{
+	// value = connection.get_m_request()->GetPhase();
+	// TODO COMPLETE로 가정하였으나, 실제로는 request의 진행상황에 따라서 { READY, ON_HEADER, ON_BODY, COMPLETE }; 단계로 나뉨.
+	if (connection.get_m_request() == NULL)
+		return (false);
+	Request::ePhase value;
+	value = connection.get_m_request()->COMPLETE;
+	
+	// char buffer[200];
+	// int ret = read(connection.get_m_fd(), buffer, 200); // FIXME read는 단 한번...
+	// cout <<  connection.get_m_fd() << endl;
+	// cout << "ret: " << ret << endl; 
+	// if (ret == 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
+	// {
+	// 	throw Server::ClientServerClose();
+	// }
+	//
+	if (value == connection.get_m_request()->COMPLETE)
+	{
+		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
+		{
+			closeConnection(connection.get_m_fd());
+			return (false);
+		}
+		return (true);
+	}
+	else
+		return (false);
+}
+
+bool						Server::runSend(Connection& connection)
+{
+	int clinet_socket = connection.get_m_fd();
+	Request *request = connection.get_m_request();
+	char buffer[100];
+
+	bool auto_index = true;
+	if (ft::isDirPath(request->get_m_uri()) && auto_index == true)
+	{
+		executeAutoindex(connection, *connection.get_m_request());
+		return (true);
+	}
+}
+
+
+void	Server::executeAutoindex(Connection& connection, const Request& request)
+{
+	int clinet_socket = connection.get_m_fd();
+	std::string total;
+	std::string header;
+	std::string body;
+
+	//STUB header는 파싱된 결과로 구성할 수 있어야한다. 우선은 nginx의 autoindex request header를 보고 베낌
+	header.append("HTTP/1.1 200 OK\r\n");
+	header.append("Server: webserv\r\n");
+	header.append("Content-Type: text/html\r\n");
+	header.append("Connection: keep-alive\r\n");
+	// header.append("Transfer-Encoding: chunked\r\n"); // REVIEW 시도하면 postman에서 body를 못 받음
+	header.append("Date: " + ft::getCurrentTime() + "\r\n");
+	header.append("\r\n");
+	body = ft::makeAutoindexHTML(request.get_m_uri());
+	total = header + body;
+	int ret = write(clinet_socket, total.c_str(), total.size());
+	cout << "write return: " << ret << endl;
+	closeConnection(clinet_socket);
+}
+
+
+
+
+const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }

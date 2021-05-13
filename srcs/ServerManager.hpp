@@ -18,6 +18,7 @@ class Server;
 #include "Utils/utils.hpp"
 #include "Path/Path.hpp"
 #include "ConfigFile/ConfigFiles.hpp"
+#include "Response.hpp"
 
 using namespace std;
 

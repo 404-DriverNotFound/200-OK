@@ -26,6 +26,7 @@
 using namespace std;
 
 class ServerManager;
+class Request;
 
 class LocationPath
 {
@@ -79,21 +80,21 @@ public:
 	int							getUnuseConnectionFd();
 	void						closeConnection(int client_fd);
 
-
 	bool						parseStartLine(Connection& connection);
 	bool						parseHeader(Connection& connection);
 	bool						parseBody(Connection& connection);
 
+	bool						isRequestHasBody(Request *);
 	bool						hasRequest(const Connection& connection);
 	bool						runRecvAndSolve(Connection& connection);
 	// bool						hasExecuteWork(Connection& connection);
 	// bool						runExecute(Connection& connection);
-	// bool						hasSendWork(Connection& connection);
-	// bool						runSend(Connection& connection);
+	bool						hasSendWork(Connection& connection);
+	bool						runSend(Connection& connection);
 
 	void						run(void);
 	// void						solveRequest(Connection& connection, const Request& request);
-	// void						executeAutoindex(Connection& connection, const Request& request);
+	void						executeAutoindex(Connection& connection, const Request& request);
 	// void						executeGet(Connection& connection, const Request& request);
 	// void						executeHead(Connection& connection, const Request& request);
 	// void						executePost(Connection& connection, const Request& request);
@@ -105,6 +106,13 @@ public:
 	// void						createResponse(Connection& connection, int status, headers_t headers = headers_t(), std::string body = "");
 
 	const int&					get_m_fd(void) const;
+
+
+	class ClientServerClose : public std::exception
+	{
+		public:
+			const char* what() const throw();
+	};
 
 public :
 	ServerManager*				m_manager;
