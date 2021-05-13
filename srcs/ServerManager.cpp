@@ -151,10 +151,11 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 		{
 			return (true);
 		}
-	  else
-	  {
+		else
+		{
 		  return (false);
-	  }
+		}
+	}
 }
 
 
