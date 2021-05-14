@@ -32,6 +32,8 @@ namespace ft
 	u_int32_t ft_htonl(u_int32_t ip_addr);
 	u_int16_t ft_htons(u_int16_t port);
 	in_addr_t ft_inet_addr(const char * ip_address);
+
+	unsigned long	stohex(const std::string &str);
 }
 
 #endif

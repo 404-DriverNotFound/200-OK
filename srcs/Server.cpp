@@ -187,14 +187,14 @@ void	Server::run(void)
 			cout << "accpetNewconnection(): Success" << endl;
 		}
 	}
-	cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
+	// cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
 }
 
 bool					Server::hasRequest(const Connection& connection)
 {
 	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
-		std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
+		// std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
 		return (true);
 	}
 	else
@@ -275,7 +275,6 @@ void			Server::closeConnection(int client_fd)
 	}
 }
 
-
 bool			Server::runRecvAndSolve(Connection& connection)
 {
 	try
@@ -316,71 +315,77 @@ bool			Server::runRecvAndSolve(Connection& connection)
 		return (true);
 	}
 
-	// const Request& request = connection.get_m_request();
-	// if (request.get_m_phase() == Request::COMPLETE)
+	// const Request* request = connection.get_m_request();
+	// if (request->GetPhase() == Request::COMPLETE)
 	// {
 	// 	writeCreateNewRequestLog(request);
 	// 	connection.set_m_status(Connection::ON_EXECUTE);
 	// 	solveRequest(connection, connection.get_m_request());
-	// 	return (true);
+		// std::cout << request->get_m_content() << std::endl;
+		// return (true);
 	// }
 	return (false);
 }
 
 void						Server::recvRequest(Connection& connection)
 {
-	std::cout << "recvRequest() called" << std::endl;
-	int			count = 0;
-	char		buf[BUFFER_SIZE] = { 0, };
 	Request*	request = connection.get_m_request();
-
-	if (request->GetPhase() == Request::READY && hasRequest(connection) && (count = recvWithoutBody(connection, buf, sizeof(buf))) > 0)
-	{
-	// 	// FIXME 헤더까지 한번에 들어온다는 가정이라서 나중에 수정이 필요할 듯
-		connection.addRbufFromClient(buf, count);
-	}
-	if (request->GetPhase() == Request::READY && parseStartLine(connection))
-	{
-		request->SetPhase(Request::ON_HEADER);
-	}
-	if (request->GetPhase() == Request::ON_HEADER && parseHeader(connection))
-	{
-		request->SetPhase(Request::ON_BODY);
-		// if (isRequestHasBody(request) == false)
-		// {
-		// 	request->SetPhase(Request::COMPLETE);
-		// }
-		// return ;
-	}
-	if (request->GetPhase() == Request::ON_BODY && (count = recvBody(connection, buf, sizeof(buf))) > 0)
+	char		buf[BUFFER_SIZE] = { 0, };
+	
+	ssize_t		count = read(connection.get_m_fd(), buf, sizeof(buf));
+	if (count > 0)
 	{
 		connection.addRbufFromClient(buf, count);
+		if (request->GetPhase() == Request::READY)
+		{
+			if (parseStartLine(connection))
+			{
+				request->SetPhase(Request::ON_HEADER);
+			}
+		}
+		if (request->GetPhase() == Request::ON_HEADER)
+		{
+			if (parseHeader(connection))
+			{
+				request->SetPhase(Request::ON_BODY);
+			}
+		}
+		if (request->GetPhase() == Request::ON_BODY)
+		{
+			if (isRequestHasBody(request))
+			{
+				if (parseBody(connection))
+				{
+					request->SetPhase(Request::COMPLETE);
+					std::cout << "|" << request->get_m_content() << "|" << std::endl;
+					exit(7);
+				}
+			}
+			else
+			{
+				request->SetPhase(Request::COMPLETE);
+			}
+		}
 	}
-	if (request->GetPhase() == Request::ON_BODY && parseBody(connection))
+	else
 	{
-		request->SetPhase(Request::COMPLETE);
+		throw Server::ClientServerClose();
 	}
-
 }
 
 bool Server::isRequestHasBody(Request* request)
 {
-	std::cout << "isRequestHasBody() called" << std::endl;
-	std::cout << request->get_m_content() << std::endl;
 	if (request->get_m_method() == Request::POST || request->get_m_method() == Request::PUT)
 		return (true);
 	else
 		return (false);
 }
 
-
 ssize_t						Server::recvWithoutBody(Connection& connection, void* buf, size_t nbyte)
 {
-	// REVIEW 한번 읽을때 바디까지 들어온다는 가정이 아니면 read를 header들어올때까지 계속받는다는 이야기가되는데 그러면 select당 read 1번 룰에 위배됨.
-	// 별도함수로 작성한 것을 보면 header가 다읽힐때까지 read를 여러번한것이 아닐까 생각 듦.
 	int	count = read(connection.get_m_fd(), buf, nbyte);
 	cout << "recvWithoutBody() called : " << count << endl;
-	if (count == 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
+	if (count <= 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
 	{
 		throw Server::ClientServerClose();
 	}
@@ -391,17 +396,26 @@ ssize_t						Server::recvBody(Connection& connection, void* buf, size_t nbyte)
 {
 	int	count = read(connection.get_m_fd(), buf, nbyte);
 	std::cout << "recvBody() called : " << count << endl;
+	if (count <= 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
+	{
+		throw Server::ClientServerClose();
+	}
 	return (count);
 }
 
 bool						Server::parseStartLine(Connection& connection)
 {
-	std::cout << "parseStartLine() called" << std::endl;
 	Request*			request = connection.get_m_request();
-	const std::string&	requestLine = connection.get_m_request()->get_m_origin();
+	const std::string&	requestLine = request->get_m_origin();
 	std::size_t			found;
 	std::string			tmp;
 	
+
+	if (requestLine.find("\r\n") == std::string::npos)
+	{
+		return (false);
+	}
+	std::cout << "parseStartLine() called" << std::endl;
 	// method 파싱
 	found = requestLine.find(' ');
 	if (found == std::string::npos)
@@ -462,9 +476,14 @@ bool						Server::parseStartLine(Connection& connection)
 
 bool						Server::parseHeader(Connection& connection)
 {
-	std::cout << "parseHeader() called" << std::endl;
 	Request*		request = connection.get_m_request();
+	std::size_t		found = request->get_m_origin().find("\r\n\r\n", request->GetSeek());
+	if (found == std::string::npos)
+	{
+		return (false);
+	}
 
+	std::cout << "parseHeader() called" << std::endl;
 	while (true)
 	{
 		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
@@ -476,7 +495,6 @@ bool						Server::parseHeader(Connection& connection)
 		if (line.empty())
 		{
 			request->SetSeek(found + 2);
-			request->SetContent(request->get_m_origin().substr(request->GetSeek()));
 			break ;
 		}
 		std::cout << "\t|" << line << "|" << std::endl;
@@ -485,9 +503,7 @@ bool						Server::parseHeader(Connection& connection)
 		{
 			request->addHeader(line);
 		}
-
 		request->SetSeek(found + 2);
-
 	}
 	return (true);
 }
@@ -496,18 +512,77 @@ bool						Server::parseBody(Connection& connection)
 {
 	std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
-	std::size_t		seek = request->get_m_origin().find("\r\n\r\n") + 4;
 
-
-	if (seek >= request->get_m_origin().length())
+	// NOTE chunked parsing
 	{
-		std::cout << "바디 없음" << std::endl;
-		return (true);
+		std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("transfer-encoding");
+
+		if (it != request->get_m_headers().end())
+		{
+			if (it->second.find("chunked") != std::string::npos)
+			{
+				while (true)
+				{
+					// hex 기다림
+					std::size_t		foundHex = request->get_m_origin().find("\r\n", request->GetSeek());
+					if (foundHex == std::string::npos)
+					{
+						return (false);
+					}
+					else
+					{
+						// 바디 기다림
+						std::size_t	foundBody = request->get_m_origin().find("\r\n", foundHex + 2);
+						if (foundBody == std::string::npos)
+						{
+							return (false);
+						}
+						else
+						{
+							std::string		hex = request->get_m_origin().substr(request->GetSeek(), foundHex - request->GetSeek());
+							unsigned long	hexValue = ft::stohex(hex);
+							request->SetSeek(foundHex + 2);
+							std::string		body = request->get_m_origin().substr(request->GetSeek(), foundBody - request->GetSeek());
+							if (hexValue != body.length())
+							{
+								throw 413; // REVIEW payload too large 이거 맞는지 모르겠음
+							}
+							else
+							{
+								request->addContent(body);
+								if (hexValue == 0)
+								{
+									return (true);
+								}
+							}
+							request->SetSeek(request->GetSeek() + hexValue + 2);
+						}
+					}
+				}
+			}
+		}
 	}
-	request->SetContent(request->get_m_origin().substr(seek));
-	std::cout << "\t|" << request->get_m_content() << "|" << std::endl;
-	// TODO chunked parsing
-	return (true);
+
+	// NOTE contents-length parsing
+	{
+		std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("content-length");
+		int												contentLength = std::atoi(it->second.c_str());
+		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
+		std::cout << contentLength << " " << bodyLength << std::endl;
+		if (contentLength > bodyLength)
+		{
+			return (false);
+		}
+		else if (contentLength < bodyLength)
+		{
+			throw 414;
+		}
+		else
+		{
+			request->SetContent(request->get_m_origin().substr(request->GetSeek()));
+			return (true);
+		}
+	}
 }
 
 bool						Server::hasSendWork(Connection& connection)
@@ -517,7 +592,7 @@ bool						Server::hasSendWork(Connection& connection)
 	if (connection.get_m_request() == NULL)
 		return (false);
 	Request::ePhase value;
-	value = connection.get_m_request()->COMPLETE;
+	// value = connection.get_m_request()->COMPLETE;
 	
 	// char buffer[200];
 	// int ret = read(connection.get_m_fd(), buffer, 200); // FIXME read는 단 한번...

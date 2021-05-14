@@ -43,18 +43,18 @@ void		ServerManager::runServer(void)
 		timeout.tv_sec = SELECT_TIMEOUT_SEC; timeout.tv_usec = SELECT_TIMEOUT_USEC;
 		fdCopy(ALL_SET);
 		resetMaxFd();
-		cout << "m_max_fd: " << m_max_fd << endl;
+		// cout << "m_max_fd: " << m_max_fd << endl;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
-		cout << "cnt : " << cnt << endl;
+		// cout << "cnt : " << cnt << endl;
 		if (cnt < 0)
 		{
-			std::cout << "Select error\n";
+			// std::cout << "Select error\n";
 			throw std::runtime_error("select error");
 			break ;
 		}
 		else if (cnt == 0)
 		{
-			std::cout << "timeout\n";
+			// std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
@@ -65,7 +65,7 @@ void		ServerManager::runServer(void)
 
 			// cout << "read_set size: " << read_set.size() << endl;
 			// cout << "write_set size: " << write_set.size() << endl;
-			std::cout << "Received connection\n";
+			// std::cout << "Received connection\n";
 		}
 
 		// ANCHOR 참고코드
@@ -74,10 +74,10 @@ void		ServerManager::runServer(void)
 		{
 			// cout << "loop_run?" << endl;
 			it->run();
-			closeOldConnection(it);
+			// closeOldConnection(it);
 		}
 		// resetMaxFd();
-		cout << "-------------------------------" << endl;
+		// cout << "-------------------------------" << endl;
 	}
 	exitServer("server exited.\n");
 }

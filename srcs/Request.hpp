@@ -30,8 +30,7 @@ public:
 	const eMethod&								get_m_method(void) const;
 	const std::string&							get_m_uri(void) const;
 	// const eURIType&								get_m_uri_type(void) const;
-	// const std::map<std::string, std::string>&	get_m_headers(void) const;
-	std::string&								GetHeaderValue(std::string& header) const;
+	std::map<std::string, std::string>&	get_m_headers(void);
 	// const eTransferType&						get_m_transfer_type(void) const;
 	const std::string&							get_m_content(void) const;
 	void										SetContent(const std::string& content);
@@ -48,8 +47,11 @@ public:
 	const std::size_t&							GetSeek(void) const;
 	void										SetSeek(const std::size_t& seek);
 
+	const std::string&							GetVersion(void) const;
+	void										SetVersion(const std::string& version);
+
 	// const struct timeval&						isOverTime(void) const;
-	// void										addContent(std::string added_content);
+	void										addContent(const std::string& added_content);
 	void										addOrigin(const std::string& added_origin);
 	void										addHeader(const std::string& header);
 	bool										isValidHeader(const std::string& header);
@@ -69,6 +71,7 @@ private:
 	std::string									m_origin;
 	ePhase										mPhase;
 	std::size_t									mSeek;
+	std::string									mVersion;
 
 };
 
