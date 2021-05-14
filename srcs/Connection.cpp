@@ -5,6 +5,8 @@ Connection::Connection(int client_fd, std::string client_ip, int client_port)
 	, m_client_port(client_port)
 	, m_fd(client_fd)
 	, mRequest(0)
+	, mResponse(0)
+	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
@@ -14,13 +16,24 @@ Connection::Connection(void)
 	, m_client_port(0)
 	, m_fd(0)
 	, mRequest(0)
+	, mResponse(0)
+	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
 
 Connection::~Connection(void)
 {
-	// TODO mRequest에 대한 처리가 필요함.
+	if (this->mRequest != NULL)
+	{
+		delete (this->mRequest);
+		this->mRequest = NULL;
+	}
+	if (this->mResponse != NULL)
+	{
+		delete (this->mResponse);
+		this->mResponse = NULL;
+	}
 }
 
 
@@ -63,4 +76,15 @@ void					Connection::set_m_request(Request* request)
 void					Connection::addRbufFromClient(char* buf, size_t count)
 {
 	mRequest->addOrigin(std::string(buf, count));
+}
+
+
+Response*				Connection::get_m_response(void) const
+{
+	return (this->mResponse);
+}
+
+void					Connection::set_m_response(Response* response)
+{
+	this->mResponse = response;
 }

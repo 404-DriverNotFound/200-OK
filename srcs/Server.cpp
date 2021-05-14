@@ -284,23 +284,12 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		// createResponse(connection, status_code);
-		delete connection.get_m_request();
-		connection.set_m_request(NULL);
 		std::cout << "status code : " << status_code << std::endl;
-
-		//STUB status_code(404, 400)에러를 여기서 캐치해서 클라이언트에게 보낸다.
-		std::string errorpage;
-		errorpage.append("HTTP/1.1 " + std::to_string(status_code) + " " + Response::m_status_map[status_code] + "\r\n");
-		errorpage.append("Server: webserv\r\n");
-		errorpage.append("Date: " + ft::getCurrentTime() + "\r\n");
-		std::string errorpage_body = Response::makeErrorPage(status_code);
-		errorpage.append("Content-Length: " + std::to_string(errorpage_body.size())+ "\r\n");
-		errorpage.append("\r\n");
-		errorpage += errorpage_body;
-		cout << errorpage << endl;
-		write(connection.get_m_fd(), errorpage.c_str(), errorpage.size());
-		closeConnection(connection.get_m_fd());
+		create_errorpage_Response(connection, status_code);
+		connection.mStatus = Connection::SEND_READY;
+		// REVIEW 합의가 필요한 부분
+		// delete connection.get_m_request();
+		// connection.set_m_request(NULL);
 		return (true);
 	}
 	// catch (const Server::IOError& e)
@@ -333,6 +322,7 @@ void						Server::recvRequest(Connection& connection)
 	int			count = 0;
 	char		buf[BUFFER_SIZE] = { 0, };
 	Request*	request = connection.get_m_request();
+
 
 	if (request->GetPhase() == Request::READY && hasRequest(connection) && (count = recvWithoutBody(connection, buf, sizeof(buf))) > 0)
 	{
@@ -542,12 +532,22 @@ bool						Server::runSend(Connection& connection)
 	Request *request = connection.get_m_request();
 	char buffer[100];
 
-	bool auto_index = true;
-	if (ft::isDirPath(request->get_m_uri()) && auto_index == true)
+	bool send_complete = false;
+	if (connection.mStatus == Connection::SEND_READY)
 	{
-		executeAutoindex(connection, *connection.get_m_request());
-		return (true);
+		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
+		cout << connection.get_m_response()->getResponse() << endl;
+		send_complete = true;
 	}
+	// TODO solveRequest에서 진행되어야하는 부분
+	// bool auto_index = true;
+	// if (ft::isDirPath(request->get_m_uri()) && auto_index == true)
+	// {
+	// 	executeAutoindex(connection, *connection.get_m_request());
+	// 	return (true);
+	// }
+	closeConnection(connection.get_m_fd());
+	return (send_complete);
 }
 
 
@@ -574,6 +574,26 @@ void	Server::executeAutoindex(Connection& connection, const Request& request)
 }
 
 
+void		Server::create_errorpage_Response(Connection &connection, int status_code)
+{
+		// NOTE connection의 response에 갖다 붙이기.
+		if (connection.get_m_response() != NULL)
+		{
+			cout << "말이 안되는 상황" << endl;
+		}
+		else
+		{
+			connection.set_m_response(new Response(&connection, status_code));
+			Response *response = connection.get_m_response();
+			response->set_m_headers("Server", "YKK_webserv");
+			response->set_m_headers("Date", ft::getCurrentTime());
+			response->set_m_headers("Content-Type", "text/html");
+			std::string errorpage_body = Response::makeErrorPage(status_code);
+			response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
+			response->set_m_body(errorpage_body);
+		}
+}
 
 
 const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }
+
