@@ -27,6 +27,7 @@ using namespace std;
 
 class ServerManager;
 class Request;
+class Response;
 
 class LocationPath
 {
@@ -103,7 +104,7 @@ public:
 	// void						executeOptions(Connection& connection, const Request& request);
 	// void						executeTrace(Connection& connection, const Request& request);
 	// void						executeCGI(Connection& connection, const Request& request);
-	// void						createResponse(Connection& connection, int status, headers_t headers = headers_t(), std::string body = "");
+	void						create_errorpage_Response(Connection& connection, int status_code);
 
 	const int&					get_m_fd(void) const;
 

@@ -14,10 +14,11 @@ enum TransferType								{ GENERAL, CHUNKED };
 
 class Response
 {
+private:
+	Response(); // NOTE 인자 없이 생성되어 Connection class에 연결되는 일이 없도록 하자.
 public:
-	Response();
 	virtual ~Response();
-	Response(Connection* connection, int status_code, std::string body);
+	Response(Connection* connection, int status_code, std::string body = "");
 
 	const Connection*								get_m_connection(void) const;
 	const int&										get_m_status_code(void) const;
@@ -27,10 +28,20 @@ public:
 	const enum TransferType&						get_m_transfer_type(void) const;
 	const std::string&								get_m_body(void) const;
 
-	void											addHeader(std::string header_key, std::string header_value);
-	const std::string									getResponse(void);
 
-	// ANCHOR yunslee
+	void		set_m_connection(Connection *connect);
+	void		set_m_status_code(int status_code);
+	void		set_m_status_description(std::string &status_description);
+	void		set_m_headers(std::string header_key, std::string header_value);
+	void		set_m_transfer_type(enum TransferType);
+	void		set_m_body(std::string &body);
+	
+	void		make_m_firstline();
+
+	// NOTE runSend 에서 보낼 것은 getResponse()이 함수 내용을 보내면 끝!!!!
+	const std::string								getResponse(void);
+
+	// ANCHOR yunslee static 함수(error page 관련 함수)
 	static std::string								makeErrorPage(int status_code);
 	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
@@ -92,14 +103,14 @@ public:
 	}
 
 private:
-	// std::string										m_firstline; 사용하지 않아도 될 것 같음.
 	Connection*										m_connection;
+	
+	std::string										m_firstline;
 	int												m_status_code;
 	std::string										m_status_description;
 	std::map<std::string, std::string>				m_headers;
 	enum TransferType								m_transfer_type;
 	std::string										m_body;
-	
 	
 };
 

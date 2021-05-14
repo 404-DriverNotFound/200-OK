@@ -45,46 +45,6 @@ std::string ft::ReplaceAll(std::string &str, const std::string& from, const std:
     return str;
 }
 
-// FIXME 최종적으로 안쓰면 지우기.
-static int	atoi_while(const char *str, int i, int sign)
-{
-	unsigned long long int	sum;
-
-	sum = 0;
-	while (str[i] >= 48 && str[i] <= 57)
-	{
-		sum *= 10;
-		sum += str[i] - 48;
-		i++;
-	}
-	if (sum > LLONG_MAX && sign == -1)
-		return (0);
-	if (sum > LLONG_MAX && sign == 1)
-		return (-1);
-	return ((int)sum);
-}
-
-int			ft::atoi(const char *str)
-{
-	int i;
-	int sign;
-
-	sign = 1;
-	i = 0;
-	while (str[i] == 32 || (str[i] >= 9 && str[i] <= 13))
-		i++;
-	if (str[i] == '-')
-	{
-		sign *= -1;
-		i++;
-	}
-	else if (str[i] == '+')
-		i++;
-	if (!(str[i] >= 48 && str[i] <= 57))
-		return (0);
-	return (sign * atoi_while(str, i, sign));
-}
-
 static int		ft_itoa_len(int v)
 {
 	int i;
@@ -210,10 +170,10 @@ in_addr_t	 ft::ft_inet_addr(const char *ip_addr)
 	if (ip_dot_divid.size() != 4)
 		return (0);
 	u_int32_t ip_host = 0;
-	ip_host += ft::atoi(ip_dot_divid[0].c_str()) << 24;
-	ip_host += ft::atoi(ip_dot_divid[1].c_str()) << 16;
-	ip_host += ft::atoi(ip_dot_divid[2].c_str()) << 8;
-	ip_host += ft::atoi(ip_dot_divid[3].c_str());
+	ip_host += std::atoi(ip_dot_divid[0].c_str()) << 24;
+	ip_host += std::atoi(ip_dot_divid[1].c_str()) << 16;
+	ip_host += std::atoi(ip_dot_divid[2].c_str()) << 8;
+	ip_host += std::atoi(ip_dot_divid[3].c_str());
 	u_int32_t ip_network = ft_htonl(ip_host);
 	return (ip_network);
 }

@@ -219,7 +219,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 		{
 			if (split_vector.size() != 2)
 				return (-1);
-			default_location.mport = atoi(split_vector[1].c_str());
+			default_location.mport = std::atoi(split_vector[1].c_str());
 		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
@@ -275,7 +275,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 		{
 			if (split_vector.size() != 2)
 				return (-1);
-			default_location.mport = atoi(split_vector[1].c_str());
+			default_location.mport = std::atoi(split_vector[1].c_str());
 		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
