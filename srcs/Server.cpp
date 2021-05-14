@@ -337,8 +337,6 @@ void						Server::recvRequest(Connection& connection)
 	if (request->GetPhase() == Request::READY && hasRequest(connection) && (count = recvWithoutBody(connection, buf, sizeof(buf))) > 0)
 	{
 	// 	// FIXME 헤더까지 한번에 들어온다는 가정이라서 나중에 수정이 필요할 듯
-	// 	// REVIEW 한번 읽을때 바디까지 들어온다는 가정이 아니면 read를 header들어올때까지 계속받는다는 이야기가되는데 그러면 select당 read 1번 룰에 위배됨.
-	// 	// 별도함수로 작성한 것을 보면 header가 다읽힐때까지 read를 여러번한것이 아닐까 생각 듦.
 		connection.addRbufFromClient(buf, count);
 	}
 	if (request->GetPhase() == Request::READY && parseStartLine(connection))
@@ -348,11 +346,11 @@ void						Server::recvRequest(Connection& connection)
 	if (request->GetPhase() == Request::ON_HEADER && parseHeader(connection))
 	{
 		request->SetPhase(Request::ON_BODY);
-		if (isRequestHasBody(request) == false)
-		{
-			request->SetPhase(Request::COMPLETE);
-		}
-		return ;
+		// if (isRequestHasBody(request) == false)
+		// {
+		// 	request->SetPhase(Request::COMPLETE);
+		// }
+		// return ;
 	}
 	if (request->GetPhase() == Request::ON_BODY && (count = recvBody(connection, buf, sizeof(buf))) > 0)
 	{
@@ -365,8 +363,10 @@ void						Server::recvRequest(Connection& connection)
 
 }
 
-bool Server::isRequestHasBody(Request *request)
+bool Server::isRequestHasBody(Request* request)
 {
+	std::cout << "isRequestHasBody() called" << std::endl;
+	std::cout << request->get_m_content() << std::endl;
 	if (request->get_m_method() == Request::POST || request->get_m_method() == Request::PUT)
 		return (true);
 	else
@@ -378,8 +378,8 @@ ssize_t						Server::recvWithoutBody(Connection& connection, void* buf, size_t n
 {
 	// REVIEW 한번 읽을때 바디까지 들어온다는 가정이 아니면 read를 header들어올때까지 계속받는다는 이야기가되는데 그러면 select당 read 1번 룰에 위배됨.
 	// 별도함수로 작성한 것을 보면 header가 다읽힐때까지 read를 여러번한것이 아닐까 생각 듦.
-	cout << "recvWithoutBody" << endl;
 	int	count = read(connection.get_m_fd(), buf, nbyte);
+	cout << "recvWithoutBody() called : " << count << endl;
 	if (count == 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
 	{
 		throw Server::ClientServerClose();
@@ -389,17 +389,16 @@ ssize_t						Server::recvWithoutBody(Connection& connection, void* buf, size_t n
 
 ssize_t						Server::recvBody(Connection& connection, void* buf, size_t nbyte)
 {
-	std::cout << "recvBody() called" << std::endl;
 	int	count = read(connection.get_m_fd(), buf, nbyte);
+	std::cout << "recvBody() called : " << count << endl;
 	return (count);
 }
 
-bool						Server::parseStartLine(Connection& connection/*, Request& request*/)
+bool						Server::parseStartLine(Connection& connection)
 {
 	std::cout << "parseStartLine() called" << std::endl;
 	Request*			request = connection.get_m_request();
 	const std::string&	requestLine = connection.get_m_request()->get_m_origin();
-	std::size_t			seek = 0;
 	std::size_t			found;
 	std::string			tmp;
 	
@@ -409,7 +408,7 @@ bool						Server::parseStartLine(Connection& connection/*, Request& request*/)
 	{
 		throw 400;
 	}
-	tmp = requestLine.substr(seek, found - seek);
+	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
 	std::string			methodSet[8] = { "DEFAULT", "GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "TRACE" };
 
@@ -427,39 +426,37 @@ bool						Server::parseStartLine(Connection& connection/*, Request& request*/)
 		throw 400;
 	}
 	// std::cout << "\tmethod : " << request->get_m_method() << std::endl;
-	seek = found + 1;
+	request->SetSeek(found + 1);
 
 	// URI 파싱
-	found = requestLine.find(' ', seek);
+	found = requestLine.find(' ', request->GetSeek());
 	if (found == std::string::npos)
 	{
 		throw 414;
 	}
-	tmp = requestLine.substr(seek, found - seek);
+	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
 
 	request->set_m_uri(tmp);
 	// TODO URI 분석 (URI 구조를 몰라서 아직 못함)
 	// TODO uri 타입도 설정해주어야함
 	// std::cout << "\turi : " << request->get_m_uri() << std::endl;
-	seek = found + 1;
+	request->SetSeek(found + 1);
 
 	// http version 파싱
-	found = requestLine.find("\r\n", seek);
+	found = requestLine.find("\r\n", request->GetSeek());
 	if (found == std::string::npos)
 	{
 		throw 505;
 	}
-	tmp = requestLine.substr(seek, found - seek);
+	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
 	// TODO 지원하지 않는 버전 관련 부분 추가해야함
 	// if (isUnsopportingVersion())
 	// {
 	// 	throw 505;
 	// }
-	seek = found + 2;
-
-	request->SetOrigin(requestLine.substr(seek));
+	request->SetSeek(found + 2);
 	return (true);
 }
 
@@ -467,19 +464,19 @@ bool						Server::parseHeader(Connection& connection)
 {
 	std::cout << "parseHeader() called" << std::endl;
 	Request*		request = connection.get_m_request();
-	std::size_t		seek = 0;
 
 	while (true)
 	{
-		std::size_t		found = request->get_m_origin().find("\r\n", seek);
+		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
 		if (found == std::string::npos)
 		{
 			throw 400;
 		}
-		std::string	line = request->get_m_origin().substr(seek, found - seek);
+		std::string	line = request->get_m_origin().substr(request->GetSeek(), found - request->GetSeek());
 		if (line.empty())
 		{
-			request->SetOrigin(request->get_m_origin().substr(found + 2));
+			request->SetSeek(found + 2);
+			request->SetContent(request->get_m_origin().substr(request->GetSeek()));
 			break ;
 		}
 		std::cout << "\t|" << line << "|" << std::endl;
@@ -489,7 +486,8 @@ bool						Server::parseHeader(Connection& connection)
 			request->addHeader(line);
 		}
 
-		seek = found + 2;
+		request->SetSeek(found + 2);
+
 	}
 	return (true);
 }
@@ -498,10 +496,17 @@ bool						Server::parseBody(Connection& connection)
 {
 	std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
+	std::size_t		seek = request->get_m_origin().find("\r\n\r\n") + 4;
 
-	std::cout << "\t" << request->get_m_origin() << std::endl;
+
+	if (seek >= request->get_m_origin().length())
+	{
+		std::cout << "바디 없음" << std::endl;
+		return (true);
+	}
+	request->SetContent(request->get_m_origin().substr(seek));
+	std::cout << "\t|" << request->get_m_content() << "|" << std::endl;
 	// TODO chunked parsing
-
 	return (true);
 }
 

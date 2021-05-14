@@ -2,6 +2,7 @@
 
 Request::Request(void)
 	: mPhase(READY)
+	, mSeek(0)
 {
 }
 
@@ -86,3 +87,24 @@ void					Request::addHeader(const std::string& header)
 	std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 	m_headers.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
+
+const std::string&		Request::get_m_content(void) const
+{
+	return (m_content);
+}
+
+void					Request::SetContent(const std::string& content)
+{
+	m_content = content;
+}
+
+const std::size_t&		Request::GetSeek(void) const
+{
+	return (mSeek);
+}
+
+void					Request::SetSeek(const std::size_t& seek)
+{
+	mSeek = seek;
+}
+
