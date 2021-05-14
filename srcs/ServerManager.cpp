@@ -137,11 +137,11 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 	if (fdset == WRITE_SET)
 	{
 		if (FD_ISSET(fd, &m_write_copy_set))
-    {
+	{
 			return (true);
-    }
+	}
 		else
-    {
+	{
 			return (false);
 		}
 	}
@@ -153,9 +153,10 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 		}
 		else
 		{
-		  return (false);
+			return (false);
 		}
 	}
+	return (false);
 }
 
 

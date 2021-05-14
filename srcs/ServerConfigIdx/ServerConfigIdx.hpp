@@ -6,7 +6,6 @@
 # include "../Server.hpp"
 # include "../ConfigFile/ConfigFile.hpp"
 # include <iostream>
-# include <stdlib.h> // FIXME atoi 때문에 추가
 # include <sys/types.h> // FIXME 확인해봐야함
 # include <fcntl.h> // FIXME 확인해봐야함
 
