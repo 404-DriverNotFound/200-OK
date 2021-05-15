@@ -177,6 +177,9 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
+			temp.mauto_index = config.mauto_index;
+			temp.mtimeout = config.mtimeout;
+			temp.mauto_index = config.mauto_index;
 			server.mserverBlocks.push_back(temp);
 
 			LocationPath temp2;
@@ -197,6 +200,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			// NOTE port는 있으나 다른 서버네임을 가지고 있음
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
+			temp.mtimeout = config.mtimeout;
+			temp.mauto_index = config.mauto_index;
 			server.mserverBlocks.push_back(temp);
 			
 			LocationPath temp2;

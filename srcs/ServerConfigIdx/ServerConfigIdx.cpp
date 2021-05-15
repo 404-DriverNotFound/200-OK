@@ -196,10 +196,14 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			i++;
 			continue;
 		}
-		
 		oneline = gnl[i];
 		split_vector.clear();
 		ft::split_vector(split_vector, oneline, " ");
+		if (split_vector.size() <= 1)
+		{
+			i++;
+			continue;
+		}
 		
 		// STUB if문 비교하기
 		if (split_vector[0].compare("server_name") == 0)
@@ -208,7 +212,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				return (-1);
 			default_location.mserver_name = split_vector[1];
 		}
-		else if (split_vector[0].compare("root") == 0)
+		if (split_vector[0].compare("root") == 0)
 		{
 			if (split_vector.size() != 2)
 				return (-1);
@@ -239,6 +243,23 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				return (-1);
 			Path error_page(split_vector[1]);
 			default_location.merror_page = error_page;
+		}
+		else if (split_vector[0].compare("auto_index") == 0)
+		{
+			bool value;
+			if (split_vector.size() != 2)
+				return (-1);
+			if (split_vector[1].compare("false") == 0)
+				value = false;
+			if (split_vector[1].compare("true") == 0)
+				value = true;
+			default_location.mauto_index = value;
+		}
+		else if (split_vector[0].compare("timeout") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			default_location.mtimeout = std::atoi(split_vector[1].c_str());
 		}
 		i++;
 	}

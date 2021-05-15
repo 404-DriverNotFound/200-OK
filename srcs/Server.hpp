@@ -55,6 +55,8 @@ public :
 public :
 	std::vector<LocationPath>	mlocationPaths;
 	std::string					mserverName;
+	int							mtimeout;
+	bool						mauto_index;
 };
 
 class Server // NOTE port별로 나뉘는 블록
