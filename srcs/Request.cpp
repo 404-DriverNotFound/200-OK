@@ -97,12 +97,24 @@ void					Request::addHeader(const std::string& header)
 	}
 
 	std::string	value = header.substr(found + 2);
-	std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 
-	if (value.find("chunked") != std::string::npos)
+	if (key.compare("transfer-encoding") == 0)
 	{
-		SetTransferType(CHUNKED);
+		if (value.find("chunked") != std::string::npos)
+		{
+			SetTransferType(CHUNKED);
+		}
 	}
+
+	if (key.compare("host") == 0)
+	{
+		std::size_t	found = value.find(":");
+		if (found != std::string::npos)
+		{
+			value = value.substr(0, found);
+		}
+	}
+	std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 	m_headers.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
