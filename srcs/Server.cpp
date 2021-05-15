@@ -503,57 +503,50 @@ bool						Server::parseBody(Connection& connection)
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing
+	if (request->get_m_transfer_type() == Request::CHUNKED)
 	{
-		std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("transfer-encoding");
-
-		if (it != request->get_m_headers().end())
+		while (true)
 		{
-			if (it->second.find("chunked") != std::string::npos)
+			// hex 기다림
+			std::size_t		foundHex = request->get_m_origin().find("\r\n", request->GetSeek());
+			if (foundHex == std::string::npos)
 			{
-				while (true)
+				return (false);
+			}
+			else
+			{
+				// 바디 기다림
+				std::size_t	foundBody = request->get_m_origin().find("\r\n", foundHex + 2);
+				if (foundBody == std::string::npos)
 				{
-					// hex 기다림
-					std::size_t		foundHex = request->get_m_origin().find("\r\n", request->GetSeek());
-					if (foundHex == std::string::npos)
+					return (false);
+				}
+				else
+				{
+					std::string		hex = request->get_m_origin().substr(request->GetSeek(), foundHex - request->GetSeek());
+					unsigned long	hexValue = ft::stohex(hex);
+					request->SetSeek(foundHex + 2);
+					std::string		body = request->get_m_origin().substr(request->GetSeek(), foundBody - request->GetSeek());
+					if (hexValue != body.length())
 					{
-						return (false);
+						throw 413; // REVIEW payload too large 이거 맞는지 모르겠음
 					}
 					else
 					{
-						// 바디 기다림
-						std::size_t	foundBody = request->get_m_origin().find("\r\n", foundHex + 2);
-						if (foundBody == std::string::npos)
+						request->addContent(body);
+						if (hexValue == 0)
 						{
-							return (false);
-						}
-						else
-						{
-							std::string		hex = request->get_m_origin().substr(request->GetSeek(), foundHex - request->GetSeek());
-							unsigned long	hexValue = ft::stohex(hex);
-							request->SetSeek(foundHex + 2);
-							std::string		body = request->get_m_origin().substr(request->GetSeek(), foundBody - request->GetSeek());
-							if (hexValue != body.length())
-							{
-								throw 413; // REVIEW payload too large 이거 맞는지 모르겠음
-							}
-							else
-							{
-								request->addContent(body);
-								if (hexValue == 0)
-								{
-									return (true);
-								}
-							}
-							request->SetSeek(request->GetSeek() + hexValue + 2);
+							return (true);
 						}
 					}
+					request->SetSeek(request->GetSeek() + hexValue + 2);
 				}
 			}
 		}
 	}
-
-	// NOTE contents-length parsing
+	else
 	{
+		// NOTE contents-length parsing
 		std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("content-length");
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();

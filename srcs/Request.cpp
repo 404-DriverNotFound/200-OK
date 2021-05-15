@@ -2,6 +2,7 @@
 
 Request::Request(void)
 	: mPhase(READY)
+	, m_trasfer_type(GENERAL)
 	, mSeek(0)
 {
 }
@@ -97,6 +98,11 @@ void					Request::addHeader(const std::string& header)
 
 	std::string	value = header.substr(found + 2);
 	std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
+
+	if (value.find("chunked") != std::string::npos)
+	{
+		SetTransferType(CHUNKED);
+	}
 	m_headers.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
@@ -137,4 +143,14 @@ const std::string&					Request::GetVersion(void) const
 void								Request::SetVersion(const std::string& version)
 {
 	mVersion = version;
+}
+
+const Request::eTransferType&		Request::get_m_transfer_type(void) const
+{
+	return (m_trasfer_type);
+}
+
+void								Request::SetTransferType(const eTransferType& trasferType)
+{
+	m_trasfer_type = trasferType;
 }
