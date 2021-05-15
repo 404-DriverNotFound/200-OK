@@ -285,7 +285,7 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	{
 		std::cout << "status code : " << status_code << std::endl;
 		create_errorpage_Response(connection, status_code);
-		connection.mStatus = Connection::SEND_READY;
+		connection.SetStatus(Connection::SEND_READY);
 		// REVIEW 합의가 필요한 부분
 		// delete connection.get_m_request();
 		// connection.set_m_request(NULL);
@@ -324,6 +324,7 @@ void						Server::recvRequest(Connection& connection)
 	ssize_t		count = read(connection.get_m_fd(), buf, sizeof(buf));
 	if (count > 0)
 	{
+		// REVIEW 파싱단계에서 count 변수를 사용해서 탐색 범위를 좁힐 수 있을까?
 		connection.addRbufFromClient(buf, count);
 		if (request->GetPhase() == Request::READY)
 		{
@@ -346,13 +347,14 @@ void						Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
+					connection.SetStatus(Connection::SEND_READY);
 					std::cout << "|" << request->get_m_content() << "|" << std::endl;
-					exit(7);
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
+				connection.SetStatus(Connection::SEND_READY);
 			}
 		}
 	}
@@ -368,28 +370,6 @@ bool Server::isRequestHasBody(Request* request)
 		return (true);
 	else
 		return (false);
-}
-
-ssize_t						Server::recvWithoutBody(Connection& connection, void* buf, size_t nbyte)
-{
-	int	count = read(connection.get_m_fd(), buf, nbyte);
-	cout << "recvWithoutBody() called : " << count << endl;
-	if (count <= 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
-	{
-		throw Server::ClientServerClose();
-	}
-	return (count);
-}
-
-ssize_t						Server::recvBody(Connection& connection, void* buf, size_t nbyte)
-{
-	int	count = read(connection.get_m_fd(), buf, nbyte);
-	std::cout << "recvBody() called : " << count << endl;
-	if (count <= 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
-	{
-		throw Server::ClientServerClose();
-	}
-	return (count);
 }
 
 bool						Server::parseStartLine(Connection& connection)
@@ -605,7 +585,7 @@ bool						Server::runSend(Connection& connection)
 	char buffer[100];
 
 	bool send_complete = false;
-	if (connection.mStatus == Connection::SEND_READY)
+	if (connection.GetStatus() == Connection::SEND_READY)
 	{
 		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
 		cout << connection.get_m_response()->getResponse() << endl;

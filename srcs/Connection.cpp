@@ -37,21 +37,21 @@ Connection::~Connection(void)
 }
 
 
-const int&				Connection::get_m_fd(void) const{return (this->m_fd);}
+const int&					Connection::get_m_fd(void) const{return (this->m_fd);}
 
-const struct timeval&	Connection::get_m_last_request_at(void) const{	return (this->m_last_request_at);}
+const struct timeval&		Connection::get_m_last_request_at(void) const{	return (this->m_last_request_at);}
 
-const std::string&		Connection::get_m_client_ip(void) const{	return (this->m_client_ip);}
+const std::string&			Connection::get_m_client_ip(void) const{	return (this->m_client_ip);}
 
-const int&				Connection::get_m_client_port(void) const{	return (this->m_client_port);}
+const int&					Connection::get_m_client_port(void) const{	return (this->m_client_port);}
 
-void					Connection::set_m_last_reqeust_at(void)
+void						Connection::set_m_last_reqeust_at(void)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 	return ;
 }
 
-bool					Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_request를 갱신해야함.
+bool						Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_request를 갱신해야함.
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
@@ -63,28 +63,38 @@ bool					Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_reque
 		return (true);
 }
 
-Request*				Connection::get_m_request(void) const
+Request*					Connection::get_m_request(void) const
 {
 	return (mRequest);
 }
 
-void					Connection::set_m_request(Request* request)
+void						Connection::set_m_request(Request* request)
 {
 	mRequest = request;
 }
 
-void					Connection::addRbufFromClient(char* buf, size_t count)
+void						Connection::addRbufFromClient(char* buf, size_t count)
 {
 	mRequest->addOrigin(std::string(buf, count));
 }
 
 
-Response*				Connection::get_m_response(void) const
+Response*					Connection::get_m_response(void) const
 {
 	return (this->mResponse);
 }
 
-void					Connection::set_m_response(Response* response)
+void						Connection::set_m_response(Response* response)
 {
 	this->mResponse = response;
+}
+
+const Connection::eStatus&	Connection::GetStatus(void) const
+{
+	return (mStatus);
+}
+
+void						Connection::SetStatus(const eStatus& status)
+{
+	mStatus = status;
 }

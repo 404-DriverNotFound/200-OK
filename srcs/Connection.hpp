@@ -17,7 +17,7 @@ public:
 	// REVIEW 영어 명칭이 잘 와닿지 않아서 영어 명칭을 수정하였는데, 이에 대해서 합의를 봐야할 것 같음.
 	// enum Status { ON_WAIT, ON_RECV, TO_EXECUTE, ON_EXECUTE, TO_SEND, ON_SEND};
 	// 커넥션은 리퀘스트 대기, 리퀘스트 읽기, CGI 프로그램과 입출력 시작 전, 입출력 시작 중, 응답 전송 전, 응답 전송 중이라는
-	enum Status { REQUEST_READY, REQUEST_ING, CGI_READY, CGI_ING, SEND_READY, SEND_ING};
+	enum eStatus { REQUEST_READY, REQUEST_ING, CGI_READY, CGI_ING, SEND_READY, SEND_ING};
 	Connection(int client_fd, std::string client_ip, int client_port);
 	Connection(void);
 	
@@ -37,13 +37,15 @@ public:
 	Response*				get_m_response(void) const;
 	void					set_m_response(Response* response);
 
+	const eStatus&			GetStatus(void) const;
+	void					SetStatus(const eStatus& status);
 
 	void					addRbufFromClient(char* buf, size_t count);
 
 	//ANCHOR yunslee
 	bool					isKeepConnection(void);
-	enum Status				mStatus;
 private:
+	eStatus					mStatus;
 	int						m_fd;
 	struct timeval			m_last_request_at;
 	std::string				m_client_ip;
