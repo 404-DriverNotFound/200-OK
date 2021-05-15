@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <iostream>
+#include <cstring>
 
 #include "Location.hpp"
 #include "Config.hpp"
