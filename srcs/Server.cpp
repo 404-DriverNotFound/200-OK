@@ -140,11 +140,11 @@ void	Server::run(void)
 				runSend(it2->second);
 				continue ; // FIXME 어떻게 처리할지...
 			}
-			// if (hasExecuteWork(it2->second))
-			// {
+			if (hasExecuteWork(it2->second))
+			{
 			// 	runExecute(it2->second);
 			// 	continue ;
-			// }
+			}
 			if (hasRequest(it2->second))
 			{
 				if (it2->second.get_m_request() == NULL)
@@ -649,3 +649,15 @@ void		Server::create_errorpage_Response(Connection &connection, int status_code)
 
 const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }
 
+bool		Server::hasExecuteWork(const Connection& connection) const
+{
+	if (connection.GetStatus() == Connection::CGI_READY ||
+		connection.GetStatus() == Connection::CGI_ING)
+	{
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
+}

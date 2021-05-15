@@ -89,7 +89,7 @@ public:
 	bool						isRequestHasBody(Request *);
 	bool						hasRequest(const Connection& connection);
 	bool						runRecvAndSolve(Connection& connection);
-	// bool						hasExecuteWork(Connection& connection);
+	bool						hasExecuteWork(const Connection& connection) const;
 	// bool						runExecute(Connection& connection);
 	bool						hasSendWork(Connection& connection);
 	bool						runSend(Connection& connection);
