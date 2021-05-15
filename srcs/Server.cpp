@@ -30,7 +30,7 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 	return (*this);
 }
 
-ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths()
+ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths(), mauto_index(false), mtimeout(0)
 {
 
 }
@@ -51,12 +51,14 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
 		return (*this);
 	this->mlocationPaths = ref.mlocationPaths;
 	this->mserverName = ref.mserverName;
+	this->mtimeout = ref.mtimeout;
+	this->mauto_index = ref.mauto_index;
 	return (*this);
 }
 
 Server::Server(void)
 	: mport(8000)
-	, mserverBlocks()
+	// , mserverBlocks()
 	, m_manager(NULL)
 	, msocket(0)
 	// , mPhase(READY)
@@ -65,8 +67,9 @@ Server::Server(void)
 
 Server::Server(ServerManager *serverManager)
 	: mport(8000)
-	, mserverBlocks()
+	// , mserverBlocks()
 	, m_manager(serverManager)
+	, msocket(0)
 	// , mPhase(READY)
 {
 }
@@ -87,6 +90,8 @@ Server&	Server::operator=(const Server &ref)
 		return (*this);
 	this->mport = ref.mport;
 	this->mserverBlocks = ref.mserverBlocks;
+	this->msocket = ref.msocket;
+	this->m_connections = ref.m_connections;
 	return (*this);
 }
 
@@ -121,6 +126,8 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 
 
 const int&	Server::get_m_fd(void) const{ return (this->msocket); }
+
+std::vector<ServerBlock>&	Server::get_m_serverBlocks(void){ return (this->mserverBlocks);}
 
 void	Server::run(void)
 {
@@ -574,42 +581,133 @@ void		Server::create_errorpage_Response(Connection &connection, int status_code)
 
 void	Server::solveRequest(Connection& connection, const Request& request)
 {
-	std::string uri;
-	char root_uri[255];
-	getcwd(root_uri, 255);
-	uri = root_uri;
-	uri += request.get_m_uri();
-	// cout << uri << endl;
+	cout << "solveRequest()" << endl;
+	char absolute_path[255];
+	getcwd(absolute_path, 255);
+	std::string target_uri(absolute_path);
 
-	bool index_html = true; // serverconfig와 합쳐야 함.
-	bool auto_index = true;
-	if (ft::isDirPath(uri))
+	std::string hostname = "hello";
+	// FIXME @ykoh 이런 뉘앙스가 들어가야함.
+	// hostname = request.get_m_host();
+
+	// NOTE 무작위 값이 들어감
+	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
+	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.get_m_uri());
+
+	target_uri += locationPath->mroot.getPath();
+	target_uri += request.get_m_uri();
+	// 여기까지 왔으면, 내가 요청하고자하는 자원의 위치는 정해짐. -> 폴더이면, autoindex와 index_page를 찾거나, 파일이면, Method를 적용함.
+	cout << "target_uri: " << target_uri << endl;
+
+	DIR *dir = opendir(target_uri.c_str()); closedir(dir);
+	if (ft::isDirPath(target_uri) && (NULL != dir))
 	{
-		if (index_html == true)
+		for (int i = 0; i < locationPath->mindex_pages.size(); i++)
 		{
-			// TODO 파일 찾아서 열어주기
-			create_errorpage_Response(connection, 200); // 임시 response를 만들어주는 상황
-			connection.mStatus = Connection::SEND_READY;
+			std::string uri_copy(target_uri);
+			uri_copy += locationPath->mindex_pages[i].getPath();
+			cout << "uri_copy: " << uri_copy << endl;
+			if (ft::isFilePath(uri_copy) == true)
+			{
+				create_errorpage_Response(connection, 200); // 임시 response를 만들어주는 상황
+				connection.mStatus = Connection::SEND_READY;
+				return ;
+			}
+		}
+
+
+		// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
+		cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
+		bool auto_index = serverblock->mauto_index;
+		int timeout = serverblock->mtimeout;
+		if (serverblock->mauto_index == true)
+		{
+			executeAutoindex(connection, *connection.get_m_request(), target_uri);
 			return ;
 		}
 		else
 		{
-			if (auto_index == true)
-			{
-				executeAutoindex(connection, *connection.get_m_request());
-				return ;
-			}
-			else
-			{
-				throw 404;
-			}
+			throw 404;
 		}
+	}
+	if (dir == NULL)
+	{
+		std::string uri_copy(target_uri);
+		connection.set_m_response(new Response(&connection, 0));
+		Response *response = connection.get_m_response();
+		response->set_m_headers("Server", "webserv");
+		response->set_m_headers("Content-Type", "text/html");
+		response->set_m_headers("Connection", "keep-alive");
+		response->set_m_headers("Date", ft::getCurrentTime().c_str());
+		uri_copy += locationPath->merror_page.getPath();
+		cout << "errorpage :" << uri_copy << endl;
+		char buffer[300];
+		int fd = open(uri_copy.c_str(), O_RDONLY);
+		if (fd == -1)
+		{
+			int fd = open("./error.html", O_RDONLY);
+		}
+		int ret = read(fd, buffer, 300);
+		buffer[ret] = '\0';
+		std::string body = buffer;
+		response->set_m_body(body);
+		close(fd);
+	}
+	else
+	{
+		// TODO flle -> not found or can open (open 함수로 열어보면 될 듯), 메소드별로 실행
+		cout << "file & method" << endl;
+		connection.set_m_response(new Response(&connection, 200));
 	}
 }
 
-void	Server::executeAutoindex(Connection& connection, const Request& request)
+std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname)
 {
-	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(request.get_m_uri())));
+	std::vector<ServerBlock>::iterator it = serverblocks.begin();
+	while (it != serverblocks.end())
+	{
+		if (hostname == it->mserverName)
+		{
+			return (it);
+		}
+		it++;
+	}
+	it--; // NOTE 맨 뒤에 있는 serverBlock을 default로 잡음
+	return (it);
+}
+
+std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str)
+{
+	std::vector<LocationPath>::iterator it = locationpaths.begin();
+	while (it != locationpaths.end())
+	{
+		if (locationpath_str == it->mlocationPath.getPath())
+		{
+			return (it);
+		}
+		it++;
+	}
+	it--; // NOTE 맨 뒤에 있는 locationPath을 default로 잡음
+	return (it);
+}
+
+// bool Server::isHostname_IN_server_name(std::vector<ServerBlock> &serverblocks, std::string hostname)
+// {
+// 	std::vector<ServerBlock>::iterator it = serverblocks.begin();
+// 	while (it != serverblocks.end())
+// 	{
+// 		if (hostname == it->mserverName)
+// 			return (true);
+// 		it++;
+// 	}
+// 	return (false);
+// }
+
+
+
+void	Server::executeAutoindex(Connection& connection, const Request& request, std::string uri_copy)
+{
+	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(uri_copy)));
 	Response *response = connection.get_m_response();
 	response->set_m_headers("Server", "webserv");
 	response->set_m_headers("Content-Type", "text/html");

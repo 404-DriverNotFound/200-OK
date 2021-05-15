@@ -97,7 +97,8 @@ public:
 
 	void						run(void);
 	void						solveRequest(Connection& connection, const Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
-	void						executeAutoindex(Connection& connection, const Request& request);
+	// void						executeAutoindex(Connection& connection, const Request& request);
+	void						executeAutoindex(Connection& connection, const Request& request, std::string uri_copy); // NOTE 살짝 변형함.
 	void						executeGet(Connection& connection, const Request& request);
 	void						executeHead(Connection& connection, const Request& request);
 	void						executePost(Connection& connection, const Request& request);
@@ -109,6 +110,14 @@ public:
 	void						create_errorpage_Response(Connection& connection, int status_code);
 
 	const int&					get_m_fd(void) const;
+
+	//ANCHOR yunslee
+	std::vector<ServerBlock>&	get_m_serverBlocks(void);
+	// bool						isHostname_IN_server_name(std::vector<ServerBlock> &serverblocks, std::string hostname);
+
+	// std::vector<Server>::iterator return_iterator_server(std::vector<Server> servers);
+	std::vector<ServerBlock>::iterator return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname);
+	std::vector<LocationPath>::iterator return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str);
 
 
 	class ClientServerClose : public std::exception
