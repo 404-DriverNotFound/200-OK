@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <iostream>
+#include <cstring>
 
 #include "Location.hpp"
 #include "Config.hpp"
@@ -96,7 +97,7 @@ public:
 	bool						runSend(Connection& connection);
 
 	void						run(void);
-	void						solveRequest(Connection& connection, const Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
+	void						solveRequest(Connection& connection, Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
 	// void						executeAutoindex(Connection& connection, const Request& request);
 	void						executeAutoindex(Connection& connection, const Request& request, std::string uri_copy); // NOTE 살짝 변형함.
 	void						executeGet(Connection& connection, const Request& request);
@@ -107,7 +108,8 @@ public:
 	void						executeOptions(Connection& connection, const Request& request);
 	void						executeTrace(Connection& connection, const Request& request);
 	// void						executeCGI(Connection& connection, const Request& request);
-	void						create_errorpage_Response(Connection& connection, int status_code);
+	void						create_statuspage_Response(Connection& connection, int status_code);
+	void						get_htmlpage_Response(Connection &connection, std::string uri_file, TYPE_HTML type);
 
 	const int&					get_m_fd(void) const;
 

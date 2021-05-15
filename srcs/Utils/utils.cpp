@@ -241,13 +241,17 @@ std::vector<int> ft::getVector_changedFD(fd_set *fdset, size_t fdset_size)
 		if (FD_ISSET(i, fdset) > 0)
 		{
 			ret.push_back((int)i);
-			std::cout << i << " ";
+			// std::cout << i << " ";
 		}
 	}
 	if (ret.size() == 0)
-		std::cout << "empty | size: 0" << std::endl;
+	{
+		// std::cout << "empty | size: 0" << std::endl;
+	}
 	else
-		std::cout << "| size: " << ret.size() << std::endl;
+	{
+		// std::cout << "| size: " << ret.size() << std::endl;
+	}
 	return (ret);
 }
 
@@ -290,3 +294,25 @@ bool ft::access(std::string absolute_path)
 	}
 	return (false);
 }
+
+unsigned long	ft::stohex(const std::string &str)
+{
+	unsigned long	result = 0;
+	int				index = 0;
+
+	while ((('0' <= str[index] && str[index] <= '9') ||
+			('A' <= str[index] && str[index] <= 'F') ||
+			('a' <= str[index] && str[index] <= 'f')) && static_cast<int>(str.length()) > index )
+	{
+		result *= 16;
+		if (str[index] <= '9')
+			result += (str[index] - '0');
+		else if (str[index] <= 'F')
+			result += (str[index] - 'A' + 10);
+		else
+			result += (str[index] - 'a' + 10);
+		index++;
+	}
+	return result;
+}
+
