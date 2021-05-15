@@ -68,7 +68,7 @@ class ServerManager
 		fd_set &GetErrorSet();
 
 
-		const std::vector<Server> &GetServers() const;
+		std::vector<Server> &GetServers();
 
 
 	private:
