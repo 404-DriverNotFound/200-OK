@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <fcntl.h>
 
 namespace ft
 {
@@ -18,6 +19,7 @@ namespace ft
 	char*			itoa(int n);
 	// int				atoi(const char *str); // NOTE std::atoi으로 대체가능 <iostream>
 
+	bool access(std::string absolute_path);
 	bool isFilePath(const std::string &path);
 	bool isDirPath(const std::string &path);
 	std::string makeAutoindexHTML(std::string root);

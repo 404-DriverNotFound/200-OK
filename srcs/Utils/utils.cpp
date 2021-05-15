@@ -203,13 +203,16 @@ std::string ft::makeAutoindexHTML(std::string url)
 	std::string res;
 	std::string root_string;
 
-	char root_char[100];
-	if (NULL == getcwd(root_char, 100))
+	char root_str[100];
+	if (NULL == getcwd(root_str, 100))
 		return (res);
-	root_string = root_char;
+	root_string = root_str;
 	root_string += url;
 	// url = this->_request.getHeaderValue("Host") + this->_request.getStartLine().path;
-	dir = opendir(root_string.c_str());
+	// dir = opendir(root_string.c_str());
+
+	dir = opendir(url.c_str());
+	std::cout << "rootstring: " << url << std::endl;
 	res += "<html>\n";
 	res += "<head><title>Index of "; res+= url; res+= "</title></head>";
 	res += "<body>\n";
@@ -263,4 +266,27 @@ std::string ft::getCurrentTime()
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	return (getHTTPTimeFormat(time.tv_sec));
+}
+
+bool ft::access(std::string absolute_path)
+{
+	if (ft::isDirPath(absolute_path) == true)
+	{
+		DIR *dir;
+		dir = opendir(absolute_path.c_str());
+		if (dir == NULL)
+			return (false);
+		else
+			return (true);
+	}
+	else if (ft::isFilePath(absolute_path) == true)
+	{
+		int fd = open(absolute_path.c_str(), 0);
+		close(fd);
+		if (fd == -1)
+			return (false);
+		else
+			return (true);
+	}
+	return (false);
 }
