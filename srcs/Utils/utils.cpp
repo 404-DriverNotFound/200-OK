@@ -211,9 +211,9 @@ std::string ft::makeAutoindexHTML(std::string url)
 	// url = this->_request.getHeaderValue("Host") + this->_request.getStartLine().path;
 	dir = opendir(root_string.c_str());
 	res += "<html>\n";
-	res += "<head><title>Index of /"; res+= url; res+= "</title></head>";
+	res += "<head><title>Index of "; res+= url; res+= "</title></head>";
 	res += "<body>\n";
-	res += "<h1>Index of /"; res+= url; res+= "</h1><hr><pre>\n";
+	res += "<h1>Index of "; res+= url; res+= "</h1><hr><pre>\n";
 	while ((curr = readdir(dir)) != NULL)
 	{
 		if (curr->d_name[0] != '.')

@@ -94,15 +94,15 @@ public:
 	bool						runSend(Connection& connection);
 
 	void						run(void);
-	// void						solveRequest(Connection& connection, const Request& request);
+	void						solveRequest(Connection& connection, const Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
 	void						executeAutoindex(Connection& connection, const Request& request);
-	// void						executeGet(Connection& connection, const Request& request);
-	// void						executeHead(Connection& connection, const Request& request);
-	// void						executePost(Connection& connection, const Request& request);
-	// void						executePut(Connection& connection, const Request& request);
-	// void						executeDelete(Connection& connection, const Request& request);
-	// void						executeOptions(Connection& connection, const Request& request);
-	// void						executeTrace(Connection& connection, const Request& request);
+	void						executeGet(Connection& connection, const Request& request);
+	void						executeHead(Connection& connection, const Request& request);
+	void						executePost(Connection& connection, const Request& request);
+	void						executePut(Connection& connection, const Request& request);
+	void						executeDelete(Connection& connection, const Request& request);
+	void						executeOptions(Connection& connection, const Request& request);
+	void						executeTrace(Connection& connection, const Request& request);
 	// void						executeCGI(Connection& connection, const Request& request);
 	void						create_errorpage_Response(Connection& connection, int status_code);
 

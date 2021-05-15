@@ -287,10 +287,6 @@ bool			Server::runRecvAndSolve(Connection& connection)
 		std::cout << "status code : " << status_code << std::endl;
 		create_errorpage_Response(connection, status_code);
 		connection.mStatus = Connection::SEND_READY;
-		// REVIEW 합의가 필요한 부분
-		// delete connection.get_m_request();
-		// connection.set_m_request(NULL);
-		return (true);
 	}
 	// catch (const Server::IOError& e)
 	// {
@@ -300,20 +296,32 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	{
 		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());
 		// createResponse(connection, 50001);
-		delete connection.get_m_request();
-		connection.set_m_request(NULL);
-		return (true);
 	}
 
-	// const Request& request = connection.get_m_request();
-	// if (request.get_m_phase() == Request::COMPLETE)
-	// {
-	// 	writeCreateNewRequestLog(request);
-	// 	connection.set_m_status(Connection::ON_EXECUTE);
-	// 	solveRequest(connection, connection.get_m_request());
-	// 	return (true);
-	// }
-	return (false);
+
+	try
+	{
+		Request& request = *connection.get_m_request();
+		if (request.GetPhase() == Request::COMPLETE)
+		{
+		// 	writeCreateNewRequestLog(request);
+		// 	connection.set_m_status(Connection::ON_EXECUTE); //REVIEW 이게 맞나?
+			solveRequest(connection, *connection.get_m_request());
+			return (true);
+		}
+		return (false);
+	}
+	catch (int status_code)
+	{
+		std::cout << "status code : " << status_code << std::endl;
+		create_errorpage_Response(connection, status_code);
+		connection.mStatus = Connection::SEND_READY;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
 }
 
 void						Server::recvRequest(Connection& connection)
@@ -536,43 +544,12 @@ bool						Server::runSend(Connection& connection)
 	if (connection.mStatus == Connection::SEND_READY)
 	{
 		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
-		cout << connection.get_m_response()->getResponse() << endl;
+		// cout << connection.get_m_response()->getResponse() << endl;
 		send_complete = true;
 	}
-	// TODO solveRequest에서 진행되어야하는 부분
-	// bool auto_index = true;
-	// if (ft::isDirPath(request->get_m_uri()) && auto_index == true)
-	// {
-	// 	executeAutoindex(connection, *connection.get_m_request());
-	// 	return (true);
-	// }
 	closeConnection(connection.get_m_fd());
 	return (send_complete);
 }
-
-
-void	Server::executeAutoindex(Connection& connection, const Request& request)
-{
-	int clinet_socket = connection.get_m_fd();
-	std::string total;
-	std::string header;
-	std::string body;
-
-	//STUB header는 파싱된 결과로 구성할 수 있어야한다. 우선은 nginx의 autoindex request header를 보고 베낌
-	header.append("HTTP/1.1 200 OK\r\n");
-	header.append("Server: webserv\r\n");
-	header.append("Content-Type: text/html\r\n");
-	header.append("Connection: keep-alive\r\n");
-	// header.append("Transfer-Encoding: chunked\r\n"); // REVIEW 시도하면 postman에서 body를 못 받음
-	header.append("Date: " + ft::getCurrentTime() + "\r\n");
-	header.append("\r\n");
-	body = ft::makeAutoindexHTML(request.get_m_uri());
-	total = header + body;
-	int ret = write(clinet_socket, total.c_str(), total.size());
-	cout << "write return: " << ret << endl;
-	closeConnection(clinet_socket);
-}
-
 
 void		Server::create_errorpage_Response(Connection &connection, int status_code)
 {
@@ -593,6 +570,91 @@ void		Server::create_errorpage_Response(Connection &connection, int status_code)
 			response->set_m_body(errorpage_body);
 		}
 }
+
+
+void	Server::solveRequest(Connection& connection, const Request& request)
+{
+	std::string uri;
+	char root_uri[255];
+	getcwd(root_uri, 255);
+	uri = root_uri;
+	uri += request.get_m_uri();
+	// cout << uri << endl;
+
+	bool index_html = true; // serverconfig와 합쳐야 함.
+	bool auto_index = true;
+	if (ft::isDirPath(uri))
+	{
+		if (index_html == true)
+		{
+			// TODO 파일 찾아서 열어주기
+			create_errorpage_Response(connection, 200); // 임시 response를 만들어주는 상황
+			connection.mStatus = Connection::SEND_READY;
+			return ;
+		}
+		else
+		{
+			if (auto_index == true)
+			{
+				executeAutoindex(connection, *connection.get_m_request());
+				return ;
+			}
+			else
+			{
+				throw 404;
+			}
+		}
+	}
+}
+
+void	Server::executeAutoindex(Connection& connection, const Request& request)
+{
+	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(request.get_m_uri())));
+	Response *response = connection.get_m_response();
+	response->set_m_headers("Server", "webserv");
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Connection", "keep-alive");
+	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+
+	connection.mStatus = Connection::SEND_READY;
+}
+
+
+void		Server::executeGet(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeHead(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executePost(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executePut(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeDelete(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeOptions(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeTrace(Connection& connection, const Request& request)
+{
+
+}
+
 
 
 const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }
