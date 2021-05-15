@@ -348,7 +348,7 @@ void						Server::recvRequest(Connection& connection)
 				{
 					request->SetPhase(Request::COMPLETE);
 					connection.SetStatus(Connection::SEND_READY);
-					std::cout << "|" << request->get_m_content() << "|" << std::endl;
+					std::cout << "|" << request->getBody() << "|" << std::endl;
 				}
 			}
 			else
@@ -513,7 +513,7 @@ bool						Server::parseBody(Connection& connection)
 					}
 					else
 					{
-						request->addContent(body);
+						request->addBody(body);
 						if (hexValue == 0)
 						{
 							return (true);
@@ -541,7 +541,7 @@ bool						Server::parseBody(Connection& connection)
 		}
 		else
 		{
-			request->SetContent(request->get_m_origin().substr(request->GetSeek()));
+			request->SetBody(request->get_m_origin().substr(request->GetSeek()));
 			return (true);
 		}
 	}

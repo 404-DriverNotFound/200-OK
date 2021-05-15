@@ -33,8 +33,8 @@ public:
 	std::map<std::string, std::string>&			get_m_headers(void);
 	const eTransferType&						get_m_transfer_type(void) const;
 	void										SetTransferType(const eTransferType& trasferType);
-	const std::string&							get_m_content(void) const;
-	void										SetContent(const std::string& content);
+	const std::string&							getBody(void) const;
+	void										SetBody(const std::string& body);
 	
 	const std::string&							get_m_origin(void) const;
 	void										SetOrigin(const std::string& origin);
@@ -52,7 +52,7 @@ public:
 	void										SetVersion(const std::string& version);
 
 	// const struct timeval&						isOverTime(void) const;
-	void										addContent(const std::string& added_content);
+	void										addBody(const std::string& body);
 	void										addOrigin(const std::string& added_origin);
 	void										addHeader(const std::string& header);
 	bool										isValidHeader(const std::string& header);
@@ -69,7 +69,7 @@ private:
 	// eURIType									m_uri_type;
 	std::map<std::string, std::string>			m_headers;
 	eTransferType								m_trasfer_type;
-	std::string									m_content;
+	std::string									mBody;
 	std::string									m_origin;
 	ePhase										mPhase;
 	std::size_t									mSeek;

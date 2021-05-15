@@ -118,19 +118,19 @@ void					Request::addHeader(const std::string& header)
 	m_headers.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
-const std::string&		Request::get_m_content(void) const
+const std::string&		Request::getBody(void) const
 {
-	return (m_content);
+	return (mBody);
 }
 
-void					Request::SetContent(const std::string& content)
+void					Request::SetBody(const std::string& body)
 {
-	m_content = content;
+	mBody = body;
 }
 
-void					Request::addContent(const std::string& content)
+void					Request::addBody(const std::string& body)
 {
-	m_content.append(content);
+	mBody.append(body);
 }
 
 const std::size_t&		Request::GetSeek(void) const
