@@ -1,7 +1,7 @@
 #include "./ConfigFile.hpp"
 
 ConfigFile::ConfigFile() : mserver_name("localhost"), mroot(), mport(8000), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
-					mbody_length_max(10000), mautoindex(false), mtimeout(5), mauth()
+					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0)
 					{}
 
 ConfigFile::~ConfigFile(){}
@@ -23,8 +23,9 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->merror_page = ref.merror_page;
 	this->mhead_length_max = ref.mhead_length_max;
 	this->mbody_length_max = ref.mbody_length_max;
-	this->mautoindex = ref.mautoindex;
-	this->mtimeout = ref.mtimeout;
 	this->mauth = ref.mauth;
+
+	this->mauto_index = ref.mauto_index;
+	this->mtimeout = ref.mtimeout;
 	return (*this);
 }

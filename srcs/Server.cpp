@@ -30,7 +30,7 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 	return (*this);
 }
 
-ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths()
+ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths(), mauto_index(false), mtimeout(0)
 {
 
 }
@@ -51,12 +51,14 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
 		return (*this);
 	this->mlocationPaths = ref.mlocationPaths;
 	this->mserverName = ref.mserverName;
+	this->mtimeout = ref.mtimeout;
+	this->mauto_index = ref.mauto_index;
 	return (*this);
 }
 
 Server::Server(void)
 	: mport(8000)
-	, mserverBlocks()
+	// , mserverBlocks()
 	, m_manager(NULL)
 	, msocket(0)
 	// , mPhase(READY)
@@ -65,8 +67,9 @@ Server::Server(void)
 
 Server::Server(ServerManager *serverManager)
 	: mport(8000)
-	, mserverBlocks()
+	// , mserverBlocks()
 	, m_manager(serverManager)
+	, msocket(0)
 	// , mPhase(READY)
 {
 }
@@ -87,6 +90,8 @@ Server&	Server::operator=(const Server &ref)
 		return (*this);
 	this->mport = ref.mport;
 	this->mserverBlocks = ref.mserverBlocks;
+	this->msocket = ref.msocket;
+	this->m_connections = ref.m_connections;
 	return (*this);
 }
 
@@ -121,6 +126,8 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 
 
 const int&	Server::get_m_fd(void) const{ return (this->msocket); }
+
+std::vector<ServerBlock>&	Server::get_m_serverBlocks(void){ return (this->mserverBlocks);}
 
 void	Server::run(void)
 {
@@ -284,11 +291,8 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	catch (int status_code)
 	{
 		std::cout << "status code : " << status_code << std::endl;
-		create_errorpage_Response(connection, status_code);
+		create_statuspage_Response(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
-		// REVIEW 합의가 필요한 부분
-		// delete connection.get_m_request();
-		// connection.set_m_request(NULL);
 		return (true);
 	}
 	// catch (const Server::IOError& e)
@@ -299,20 +303,30 @@ bool			Server::runRecvAndSolve(Connection& connection)
 	{
 		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());
 		// createResponse(connection, 50001);
-		delete connection.get_m_request();
-		connection.set_m_request(NULL);
-		return (true);
 	}
 
-	// const Request* request = connection.get_m_request();
-	// if (request->GetPhase() == Request::COMPLETE)
-	// {
-	// 	writeCreateNewRequestLog(request);
-	// 	connection.set_m_status(Connection::ON_EXECUTE);
-	// 	solveRequest(connection, connection.get_m_request());
-		// std::cout << request->get_m_content() << std::endl;
-		// return (true);
-	// }
+	try
+	{
+		Request& request = *connection.get_m_request();
+		if (request.GetPhase() == Request::COMPLETE)
+		{
+		// 	writeCreateNewRequestLog(request);
+		// 	connection.set_m_status(Connection::ON_EXECUTE); //REVIEW 이게 맞나?
+			solveRequest(connection, *connection.get_m_request());
+			return (true);
+		}
+		return (false);
+	}
+	catch (int status_code)
+	{
+		std::cout << "status code : " << status_code << std::endl;
+		create_statuspage_Response(connection, status_code);
+		connection.SetStatus(Connection::SEND_READY);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 	return (false);
 }
 
@@ -554,17 +568,8 @@ bool						Server::hasSendWork(Connection& connection)
 	if (connection.get_m_request() == NULL)
 		return (false);
 	Request::ePhase value;
-	// value = connection.get_m_request()->COMPLETE;
+	value = connection.get_m_request()->GetPhase();
 	
-	// char buffer[200];
-	// int ret = read(connection.get_m_fd(), buffer, 200); // FIXME read는 단 한번...
-	// cout <<  connection.get_m_fd() << endl;
-	// cout << "ret: " << ret << endl; 
-	// if (ret == 0) // NOTE 클라이언트에서 서버를 끊는 경우에만 생기는 케이스
-	// {
-	// 	throw Server::ClientServerClose();
-	// }
-	//
 	if (value == connection.get_m_request()->COMPLETE)
 	{
 		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
@@ -588,45 +593,14 @@ bool						Server::runSend(Connection& connection)
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
 		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
-		cout << connection.get_m_response()->getResponse() << endl;
+		// cout << connection.get_m_response()->getResponse() << endl;
 		send_complete = true;
 	}
-	// TODO solveRequest에서 진행되어야하는 부분
-	// bool auto_index = true;
-	// if (ft::isDirPath(request->get_m_uri()) && auto_index == true)
-	// {
-	// 	executeAutoindex(connection, *connection.get_m_request());
-	// 	return (true);
-	// }
 	closeConnection(connection.get_m_fd());
 	return (send_complete);
 }
 
-
-void	Server::executeAutoindex(Connection& connection, const Request& request)
-{
-	int clinet_socket = connection.get_m_fd();
-	std::string total;
-	std::string header;
-	std::string body;
-
-	//STUB header는 파싱된 결과로 구성할 수 있어야한다. 우선은 nginx의 autoindex request header를 보고 베낌
-	header.append("HTTP/1.1 200 OK\r\n");
-	header.append("Server: webserv\r\n");
-	header.append("Content-Type: text/html\r\n");
-	header.append("Connection: keep-alive\r\n");
-	// header.append("Transfer-Encoding: chunked\r\n"); // REVIEW 시도하면 postman에서 body를 못 받음
-	header.append("Date: " + ft::getCurrentTime() + "\r\n");
-	header.append("\r\n");
-	body = ft::makeAutoindexHTML(request.get_m_uri());
-	total = header + body;
-	int ret = write(clinet_socket, total.c_str(), total.size());
-	cout << "write return: " << ret << endl;
-	closeConnection(clinet_socket);
-}
-
-
-void		Server::create_errorpage_Response(Connection &connection, int status_code)
+void		Server::create_statuspage_Response(Connection &connection, int status_code)
 {
 		// NOTE connection의 response에 갖다 붙이기.
 		if (connection.get_m_response() != NULL)
@@ -635,16 +609,235 @@ void		Server::create_errorpage_Response(Connection &connection, int status_code)
 		}
 		else
 		{
-			connection.set_m_response(new Response(&connection, status_code));
-			Response *response = connection.get_m_response();
-			response->set_m_headers("Server", "YKK_webserv");
-			response->set_m_headers("Date", ft::getCurrentTime());
-			response->set_m_headers("Content-Type", "text/html");
-			std::string errorpage_body = Response::makeErrorPage(status_code);
-			response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
-			response->set_m_body(errorpage_body);
+			if (status_code != 0)
+			{
+				connection.set_m_response(new Response(&connection, status_code));
+				Response *response = connection.get_m_response();
+				response->set_m_headers("Server", "YKK_webserv");
+				response->set_m_headers("Date", ft::getCurrentTime());
+				response->set_m_headers("Content-Type", "text/html");
+				std::string errorpage_body = Response::makeErrorPage(status_code);
+				response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
+				response->set_m_body(errorpage_body);
+				return ;
+			}
 		}
 }
+
+void		Server::get_htmlpage_Response(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
+{
+	connection.set_m_response(new Response(&connection, 0));
+	Response *response = connection.get_m_response();
+	response->set_m_headers("Server", "webserv");
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Connection", "keep-alive");
+	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+
+	char buffer[BUFIZE_HTMLFILE];
+	int fd;
+	if (type == ERROR_HTML)
+	{
+		cout << "error_html :" << uri_plus_file << endl;
+		int start = uri_plus_file.rfind('/') + 1;
+		uri_plus_file = uri_plus_file.substr(start, uri_plus_file.size());
+		fd = open(uri_plus_file.c_str(), O_RDONLY);
+		if (fd == -1)
+		{
+			fd = open("./error.html", O_RDONLY);
+		}
+	}
+	else if (type == INDEX_HTML)
+	{
+		cout << "index_html :" << uri_plus_file << endl;
+		fd = open(uri_plus_file.c_str(), O_RDONLY);
+		if (fd == -1)
+		{
+			fd = open("./index.html", O_RDONLY);
+		}
+
+	}
+	int ret = read(fd, buffer, BUFIZE_HTMLFILE);
+	buffer[ret] = '\0';
+	std::string body = buffer;
+	response->set_m_body(body);
+	if (fd != -1)
+		close(fd);
+}
+
+
+void	Server::solveRequest(Connection& connection, Request& request)
+{
+	cout << "solveRequest()" << endl;
+	char absolute_path[255];
+	getcwd(absolute_path, 255);
+	std::string target_uri(absolute_path);
+	
+	std::string hostname;
+	std::map<std::string, std::string>::iterator it;
+	it = request.get_m_headers().find("host");
+	if (it == request.get_m_headers().end())
+		hostname = "localhost";
+	else
+		hostname = it->second;
+	// FIXME @ykoh 이런 뉘앙스가 들어가야함.
+	// hostname = request.get_m_host();
+
+	// NOTE 무작위 값이 들어감
+	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
+	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.get_m_uri());
+
+	target_uri += locationPath->mroot.getPath();
+	target_uri += request.get_m_uri();
+	// 여기까지 왔으면, 내가 요청하고자하는 자원의 위치는 정해짐. -> 폴더이면, autoindex와 index_page를 찾거나, 파일이면, Method를 적용함.
+	// target_uri.pop_back();
+	cout << "target_uri: " << target_uri << endl;
+	
+	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
+	if (ft::isFilePath(target_uri))
+	{
+		if (ft::access(target_uri) == false)
+		{
+			throw 404;
+		}
+		else
+		{
+			// NOTE 파일 경로이고, 존재함.
+			connection.set_m_response(new Response(&connection, 200));
+		}
+	}
+	else
+	{
+		if (ft::access(target_uri) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
+		{
+			for (int i = 0; i < locationPath->mindex_pages.size(); i++)
+			{
+				std::string uri_indexhtml(target_uri);
+				uri_indexhtml += locationPath->mindex_pages[i].getPath();
+				if (ft::isFilePath(uri_indexhtml) == true && ft::access(uri_indexhtml) == true)
+				{
+					get_htmlpage_Response(connection, uri_indexhtml, INDEX_HTML);
+					connection.SetStatus(Connection::SEND_READY);
+					return ;
+				}
+			}
+
+			// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
+			if (serverblock->mauto_index == true)
+			{
+				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
+				executeAutoindex(connection, *connection.get_m_request(), target_uri);
+				return ;
+			}
+			else
+			{
+				throw 403;
+			}
+		}
+		else // NOTE 없는 폴더 경로에 접근 했을 때, error.html 보여주기
+		{
+			std::string uri_errorhtml(target_uri);
+			uri_errorhtml += locationPath->merror_page.getPath();
+			// uri_errorhtml.clear();
+			// uri_errorhtml = "/Users/yunslee/webserv_200/flabc/error.html";
+			get_htmlpage_Response(connection, uri_errorhtml, ERROR_HTML);
+			connection.SetStatus(Connection::SEND_READY);
+			return ;
+		}
+	}
+}
+
+std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname)
+{
+	std::vector<ServerBlock>::iterator it = serverblocks.begin();
+	while (it != serverblocks.end())
+	{
+		if (hostname == it->mserverName)
+		{
+			return (it);
+		}
+		it++;
+	}
+	it--; // NOTE 맨 뒤에 있는 serverBlock을 default로 잡음
+	return (it);
+}
+
+std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str)
+{
+	std::vector<LocationPath>::iterator it = locationpaths.begin();
+	while (it != locationpaths.end())
+	{
+		if (locationpath_str == it->mlocationPath.getPath())
+		{
+			return (it);
+		}
+		it++;
+	}
+	it--; // NOTE 맨 뒤에 있는 locationPath을 default로 잡음
+	return (it);
+}
+
+// bool Server::isHostname_IN_server_name(std::vector<ServerBlock> &serverblocks, std::string hostname)
+// {
+// 	std::vector<ServerBlock>::iterator it = serverblocks.begin();
+// 	while (it != serverblocks.end())
+// 	{
+// 		if (hostname == it->mserverName)
+// 			return (true);
+// 		it++;
+// 	}
+// 	return (false);
+// }
+
+
+
+void	Server::executeAutoindex(Connection& connection, const Request& request, std::string uri_copy)
+{
+	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(uri_copy)));
+	Response *response = connection.get_m_response();
+	response->set_m_headers("Server", "webserv");
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Connection", "keep-alive");
+	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+
+	connection.SetStatus(Connection::SEND_READY);
+}
+
+
+void		Server::executeGet(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeHead(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executePost(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executePut(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeDelete(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeOptions(Connection& connection, const Request& request)
+{
+
+}
+
+void		Server::executeTrace(Connection& connection, const Request& request)
+{
+
+}
+
 
 
 const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }

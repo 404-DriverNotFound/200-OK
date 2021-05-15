@@ -17,9 +17,10 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 {
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configuration_file_path.c_str());
+	// configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
 	// ANCHOR 2단계 parsing
-	this->SetServers_value(&configfiles); // NOTE 값을 확인하고싶으면, this->ShowServers();
-	// ANCHOR 3단계 parsing -> port에 대해서 listen 함수까지 호출함.
+	this->SetServers_value(&configfiles); // NOTE server로 구성된 값을 확인하고싶으면,this->ShowServers();
+	// // ANCHOR 3단계 parsing -> port에 대해서 listen 함수까지 호출함.
 	this->SetServers();
 
 
@@ -45,7 +46,6 @@ void		ServerManager::runServer(void)
 		resetMaxFd();
 		// cout << "m_max_fd: " << m_max_fd << endl;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
-		// cout << "cnt : " << cnt << endl;
 		if (cnt < 0)
 		{
 			// std::cout << "Select error\n";
@@ -62,10 +62,7 @@ void		ServerManager::runServer(void)
 			read_set = ft::getVector_changedFD(&m_read_copy_set, m_max_fd + 1);
 			std::vector<int> write_set;
 			write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
-
-			// cout << "read_set size: " << read_set.size() << endl;
-			// cout << "write_set size: " << write_set.size() << endl;
-			// std::cout << "Received connection\n";
+			std::cout << "select :" << cnt << endl;
 		}
 
 		// ANCHOR 참고코드
@@ -177,6 +174,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
+			temp.mtimeout = config.mtimeout;
+			temp.mauto_index = config.mauto_index;
 			server.mserverBlocks.push_back(temp);
 
 			LocationPath temp2;
@@ -197,6 +196,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			// NOTE port는 있으나 다른 서버네임을 가지고 있음
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
+			temp.mtimeout = config.mtimeout;
+			temp.mauto_index = config.mauto_index;
 			server.mserverBlocks.push_back(temp);
 			
 			LocationPath temp2;
@@ -277,6 +278,9 @@ int ServerManager::ShowServers()
 		{
 			ServerBlock temp2 = temp.mserverBlocks[j];
 			std::cout << "server_name: " << temp2.mserverName << std::endl;
+			std::cout << "timeout: " << temp2.mtimeout << std::endl;
+			std::cout << "auto_index: " << temp2.mauto_index << std::endl;
+
 			std::cout << temp2.mserverName << ": " << "locationPathsize: " << temp2.mlocationPaths.size() << std::endl;
 			for (size_t k = 0; k < temp2.mlocationPaths.size(); k++)
 			{
@@ -329,7 +333,7 @@ fd_set & ServerManager::GetErrorSet() {return (this->m_error_set);}
 
 
 
-const std::vector<Server> &ServerManager::GetServers() const{return (this->m_servers);}
+std::vector<Server> &ServerManager::GetServers() {return (this->m_servers);}
 
 void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 {
@@ -347,7 +351,6 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 			close (it2->second.get_m_fd());
 			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
 			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
-			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
 			server_it->m_connections.erase(it2);
 			return ;
 		}

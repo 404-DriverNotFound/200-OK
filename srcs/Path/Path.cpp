@@ -26,7 +26,9 @@ void				Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 
 const std::string	Path::getPath2(std::vector<std::string> const &vec) const
 {
-	std::string temp;
+	std::string temp = "/";
+	if (vec.size() == 0)
+		return ("/");
 	for (size_t i = 0; i < vec.size(); i++)
 	{
 		temp.append(vec[i]);
