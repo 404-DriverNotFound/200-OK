@@ -380,7 +380,7 @@ void						Server::recvRequest(Connection& connection)
 
 bool Server::isRequestHasBody(Request* request)
 {
-	if (request->get_m_method() == Request::POST || request->get_m_method() == Request::PUT)
+	if (request->GetMethod() == Request::POST || request->GetMethod() == Request::PUT)
 		return (true);
 	else
 		return (false);
@@ -414,7 +414,7 @@ bool						Server::parseStartLine(Connection& connection)
 	{
 		if (tmp.compare(methodSet[i]) == 0)
 		{
-			request->set_m_method(static_cast<Request::eMethod>(i));
+			request->SetMethod(static_cast<Request::eMethod>(i));
 			break ;
 		}
 	}
@@ -422,7 +422,7 @@ bool						Server::parseStartLine(Connection& connection)
 	{
 		throw 400;
 	}
-	// std::cout << "\tmethod : " << request->get_m_method() << std::endl;
+	// std::cout << "\tmethod : " << request->GetMethod() << std::endl;
 	request->SetSeek(found + 1);
 
 	// URI 파싱
@@ -434,12 +434,11 @@ bool						Server::parseStartLine(Connection& connection)
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
 
-	request->set_m_uri(tmp);
-	// TODO URI 분석 (URI 구조를 몰라서 아직 못함)
-	// TODO uri 타입도 설정해주어야함
-	// std::cout << "\turi : " << request->get_m_uri() << std::endl;
-	request->SetSeek(found + 1);
+	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
+	request->ParseURI(tmp);
 
+
+	request->SetSeek(found + 1);
 	// http version 파싱
 	found = requestLine.find("\r\n", request->GetSeek());
 	if (found == std::string::npos)
@@ -497,7 +496,7 @@ bool						Server::parseBody(Connection& connection)
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing
-	if (request->get_m_transfer_type() == Request::CHUNKED)
+	if (request->GetTransferType() == Request::CHUNKED)
 	{
 		while (true)
 		{
@@ -541,7 +540,7 @@ bool						Server::parseBody(Connection& connection)
 	else
 	{
 		// NOTE contents-length parsing
-		std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("content-length");
+		std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("content-length");
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
 		std::cout << contentLength << " " << bodyLength << std::endl;
@@ -674,8 +673,8 @@ void	Server::solveRequest(Connection& connection, Request& request)
 	
 	std::string hostname;
 	std::map<std::string, std::string>::iterator it;
-	it = request.get_m_headers().find("host");
-	if (it == request.get_m_headers().end())
+	it = request.GetHeaders().find("host");
+	if (it == request.GetHeaders().end())
 		hostname = "localhost";
 	else
 		hostname = it->second;
@@ -684,10 +683,10 @@ void	Server::solveRequest(Connection& connection, Request& request)
 
 	// NOTE 무작위 값이 들어감
 	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
-	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.get_m_uri());
+	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
 
 	target_uri += locationPath->mroot.getPath();
-	target_uri += request.get_m_uri();
+	target_uri += request.GetURI();
 	// 여기까지 왔으면, 내가 요청하고자하는 자원의 위치는 정해짐. -> 폴더이면, autoindex와 index_page를 찾거나, 파일이면, Method를 적용함.
 	// target_uri.pop_back();
 	cout << "target_uri: " << target_uri << endl;
