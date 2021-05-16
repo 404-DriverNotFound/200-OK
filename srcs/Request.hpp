@@ -27,10 +27,12 @@ public:
 	// const Connection*							get_m_connection(void) const;
 	// const Server*								get_m_server(void) const;
 	// const Location*								get_m_location(void) const;
-	const eMethod&								get_m_method(void) const;
-	std::map<std::string, std::string>&			get_m_headers(void);
-	const eTransferType&						get_m_transfer_type(void) const;
+
+	std::map<std::string, std::string>&			GetHeaders(void);
+
+	const eTransferType&						GetTransferType(void) const;
 	void										SetTransferType(const eTransferType& trasferType);
+
 	const std::string&							getBody(void) const;
 	void										SetBody(const std::string& body);
 	
@@ -40,7 +42,8 @@ public:
 	const ePhase&								GetPhase(void) const;
 	void										SetPhase(const ePhase& phase);
 
-	void										set_m_method(const eMethod& method);
+	const eMethod&								GetMethod(void) const;
+	void										SetMethod(const eMethod& method);
 
 
 	const std::size_t&							GetSeek(void) const;
@@ -79,26 +82,26 @@ private:
 	// Location*									m_location;
 
 	// struct timeval								m_start_at;
-	eMethod										m_method;
 
+	ePhase										mPhase;
+	std::size_t									mSeek;
+	std::string									m_origin;	//FIXME http message 전문을 담고 있음 이부분은 나중에 수정해야함
+
+	eMethod										mMethod;
 	/* uri 친구들 */
 	std::string									mURI;
 	std::string									mDirectory;
 	std::string									mFileName;
 	std::string									mParameter;
 	std::string									mQuery;
-	/* uri 친구들 */
-
-
 	eURIType									mURItype;
-	std::map<std::string, std::string>			m_headers;
-	eTransferType								m_trasfer_type;
-	std::string									mBody;
-	std::string									m_origin;	//FIXME http message 전문을 담고 있음 이부분은 나중에 수정해야함
-	ePhase										mPhase;
-	std::size_t									mSeek;
+	/* uri 친구들 */
 	std::string									mVersion;
 
+	std::map<std::string, std::string>			mHeaders;
+	std::string									mBody;
+
+	eTransferType								mTransferType;
 };
 
 #endif

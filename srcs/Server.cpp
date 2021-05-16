@@ -380,7 +380,7 @@ void						Server::recvRequest(Connection& connection)
 
 bool Server::isRequestHasBody(Request* request)
 {
-	if (request->get_m_method() == Request::POST || request->get_m_method() == Request::PUT)
+	if (request->GetMethod() == Request::POST || request->GetMethod() == Request::PUT)
 		return (true);
 	else
 		return (false);
@@ -414,7 +414,7 @@ bool						Server::parseStartLine(Connection& connection)
 	{
 		if (tmp.compare(methodSet[i]) == 0)
 		{
-			request->set_m_method(static_cast<Request::eMethod>(i));
+			request->SetMethod(static_cast<Request::eMethod>(i));
 			break ;
 		}
 	}
@@ -422,7 +422,7 @@ bool						Server::parseStartLine(Connection& connection)
 	{
 		throw 400;
 	}
-	// std::cout << "\tmethod : " << request->get_m_method() << std::endl;
+	// std::cout << "\tmethod : " << request->GetMethod() << std::endl;
 	request->SetSeek(found + 1);
 
 	// URI 파싱
@@ -496,7 +496,7 @@ bool						Server::parseBody(Connection& connection)
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing
-	if (request->get_m_transfer_type() == Request::CHUNKED)
+	if (request->GetTransferType() == Request::CHUNKED)
 	{
 		while (true)
 		{
@@ -540,7 +540,7 @@ bool						Server::parseBody(Connection& connection)
 	else
 	{
 		// NOTE contents-length parsing
-		std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("content-length");
+		std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("content-length");
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
 		std::cout << contentLength << " " << bodyLength << std::endl;
@@ -673,8 +673,8 @@ void	Server::solveRequest(Connection& connection, Request& request)
 	
 	std::string hostname;
 	std::map<std::string, std::string>::iterator it;
-	it = request.get_m_headers().find("host");
-	if (it == request.get_m_headers().end())
+	it = request.GetHeaders().find("host");
+	if (it == request.GetHeaders().end())
 		hostname = "localhost";
 	else
 		hostname = it->second;

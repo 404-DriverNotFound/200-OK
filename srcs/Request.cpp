@@ -2,7 +2,8 @@
 
 Request::Request(void)
 	: mPhase(READY)
-	, m_trasfer_type(GENERAL)
+	, mTransferType(GENERAL)
+	, mURItype(DIRECTORY)
 	, mSeek(0)
 {
 }
@@ -22,14 +23,14 @@ void					Request::SetOrigin(const std::string& origin)
 	m_origin = origin;
 }
 
-const Request::eMethod&	Request::get_m_method(void) const
+const Request::eMethod&	Request::GetMethod(void) const
 {
-	return (m_method);
+	return (mMethod);
 }
 
-void					Request::set_m_method(const eMethod& method)
+void					Request::SetMethod(const eMethod& method)
 {
-	m_method = method;
+	mMethod = method;
 }
 
 
@@ -106,7 +107,7 @@ void					Request::addHeader(const std::string& header)
 		}
 	}
 	std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
-	m_headers.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
+	mHeaders.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
 const std::string&		Request::getBody(void) const
@@ -134,9 +135,9 @@ void					Request::SetSeek(const std::size_t& seek)
 	mSeek = seek;
 }
 
-std::map<std::string, std::string>&	Request::get_m_headers(void)
+std::map<std::string, std::string>&	Request::GetHeaders(void)
 {
-	return (m_headers);
+	return (mHeaders);
 }
 
 const std::string&					Request::GetVersion(void) const
@@ -148,14 +149,14 @@ void								Request::SetVersion(const std::string& version)
 	mVersion = version;
 }
 
-const Request::eTransferType&		Request::get_m_transfer_type(void) const
+const Request::eTransferType&		Request::GetTransferType(void) const
 {
-	return (m_trasfer_type);
+	return (mTransferType);
 }
 
 void								Request::SetTransferType(const eTransferType& trasferType)
 {
-	m_trasfer_type = trasferType;
+	mTransferType = trasferType;
 }
 
 void								Request::ParseURI(std::string& uri)
@@ -216,7 +217,7 @@ void								Request::ParseURI(std::string& uri)
 			mURItype = Request::FILE;
 		}
 	}
-	if (m_method == Request::PUT)
+	if (mMethod == Request::PUT) // STUB POST메소드도 추가해야할수도
 	{
 			mURItype = Request::FILE_TO_CREATE;
 	}
