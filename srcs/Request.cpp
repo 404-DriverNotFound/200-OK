@@ -193,58 +193,91 @@ void								Request::ParseURI(std::string& uri)
 		std::cout << "\t mFileName : |" << mFileName << "|" << std::endl;
 		uri.resize(found);
 	}
-	
+
 	// directory parsing
 	mDirectory = uri;
 	std::cout << "\tmDirectory : |" << mDirectory << "|" << std::endl;
+
+	// uri 타입 설정
+	if (mFileName.empty())
+	{
+		mURItype = Request::DIRECTORY;
+	}
+	else
+	{
+		// STUB CGI_PROGRAM 설정
+		// if (mFileName.compare(GetCGIprogramName()) == 0)
+		if (mFileName.compare("cgi_tester") == 0)
+		{
+			mURItype = Request::CGI_PROGRAM;
+		}
+		else
+		{
+			mURItype = Request::FILE;
+		}
+	}
+	if (m_method == Request::PUT)
+	{
+			mURItype = Request::FILE_TO_CREATE;
+	}
 }
 
-void					Request::SetURI(const std::string& uri)
+void								Request::SetURI(const std::string& uri)
 {
 	mURI = uri;
 }
 
-const std::string&		Request::GetURI(void) const
+const std::string&					Request::GetURI(void) const
 {
 	return (mURI);
 }
 
-const std::string&		Request::GetDirectory(void) const
+const std::string&					Request::GetDirectory(void) const
 {
 	return (mDirectory);
 }
 
-void					Request::SetDirectory(const std::string& directory)
+void								Request::SetDirectory(const std::string& directory)
 {
 	mDirectory = directory;
 }
 
-const std::string&		Request::GetFileName(void) const
+const std::string&					Request::GetFileName(void) const
 {
 	return (mFileName);
 }
 
-void					Request::SetFileName(const std::string& fileName)
+void								Request::SetFileName(const std::string& fileName)
 {
 	mFileName = fileName;
 }
 
-const std::string&		Request::GetParameter(void) const
+const std::string&					Request::GetParameter(void) const
 {
 	return (mParameter);
 }
 
-void					Request::SetParameter(const std::string& parameter)
+void								Request::SetParameter(const std::string& parameter)
 {
 	mParameter = parameter;
 }
 
-const std::string&		Request::GetQuery(void) const
+const std::string&					Request::GetQuery(void) const
 {
 	return (mQuery);
 }
 
-void					Request::SetQuery(const std::string& query)
+void								Request::SetQuery(const std::string& query)
 {
 	mQuery = query;
+}
+
+const Request::eURIType&			Request::GetURItype(void) const
+{
+	return (mURItype);
+}
+
+void								Request::SetURItype(const eURIType& uriType)
+{
+	mURItype = uriType;
 }

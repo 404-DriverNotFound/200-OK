@@ -17,7 +17,7 @@ class Request
 {
 public:
 	enum eMethod								{ DEFAULT, GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE };
-	// enum eURIType								{ DIRECTORY, FILE, FILE_TO_CREATE, CGI_PROGRAM };
+	enum eURIType								{ DIRECTORY, FILE, FILE_TO_CREATE, CGI_PROGRAM };
 	enum eTransferType							{ GENERAL, CHUNKED };
 	enum ePhase									{ READY, ON_HEADER, ON_BODY, COMPLETE };
 
@@ -28,7 +28,6 @@ public:
 	// const Server*								get_m_server(void) const;
 	// const Location*								get_m_location(void) const;
 	const eMethod&								get_m_method(void) const;
-	// const eURIType&								GetURI_type(void) const;
 	std::map<std::string, std::string>&			get_m_headers(void);
 	const eTransferType&						get_m_transfer_type(void) const;
 	void										SetTransferType(const eTransferType& trasferType);
@@ -70,6 +69,8 @@ public:
 	void										SetQuery(const std::string& query);
 	const std::string&							GetFragment(void) const;
 	void										SetFragment(const std::string& fragment);
+	const eURIType&								GetURItype(void) const;
+	void										SetURItype(const eURIType& uriType);
 	// URI 관련된 친구들 //
 
 private:
@@ -89,7 +90,7 @@ private:
 	/* uri 친구들 */
 
 
-	// eURIType									m_uri_type;
+	eURIType									mURItype;
 	std::map<std::string, std::string>			m_headers;
 	eTransferType								m_trasfer_type;
 	std::string									mBody;
