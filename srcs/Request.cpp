@@ -8,43 +8,42 @@ Request::Request(void)
 {
 }
 
-void				Request::addOrigin(const std::string& added_origin)
+void								Request::addOrigin(const std::string& added_origin)
 {
 	m_origin.append(added_origin);
 }
 
-const std::string&		Request::get_m_origin(void) const
+const std::string&					Request::get_m_origin(void) const
 {
 	return (m_origin);
 }
 
-void					Request::SetOrigin(const std::string& origin)
+void								Request::SetOrigin(const std::string& origin)
 {
 	m_origin = origin;
 }
 
-const Request::eMethod&	Request::GetMethod(void) const
+const std::string&					Request::GetMethod(void) const
 {
 	return (mMethod);
 }
 
-void					Request::SetMethod(const eMethod& method)
+void								Request::SetMethod(const std::string& method)
 {
 	mMethod = method;
 }
 
-
-const Request::ePhase&	Request::GetPhase(void) const
+const Request::ePhase&				Request::GetPhase(void) const
 {
 	return (mPhase);
 }
 
-void					Request::SetPhase(const ePhase& phase)
+void								Request::SetPhase(const ePhase& phase)
 {
 	mPhase = phase;
 }
 
-bool					Request::isValidHeader(const std::string& header)
+bool								Request::isValidHeader(const std::string& header)
 {
 	std::size_t	found = header.find(": ");
 	if (found == std::string::npos)
@@ -74,7 +73,7 @@ bool					Request::isValidHeader(const std::string& header)
 	return (false);
 }
 
-void					Request::addHeader(const std::string& header)
+void								Request::addHeader(const std::string& header)
 {
 	std::size_t	found = header.find(": ");
 	if (found == std::string::npos)
@@ -110,27 +109,27 @@ void					Request::addHeader(const std::string& header)
 	mHeaders.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
-const std::string&		Request::getBody(void) const
+const std::string&					Request::getBody(void) const
 {
 	return (mBody);
 }
 
-void					Request::SetBody(const std::string& body)
+void								Request::SetBody(const std::string& body)
 {
 	mBody = body;
 }
 
-void					Request::addBody(const std::string& body)
+void								Request::addBody(const std::string& body)
 {
 	mBody.append(body);
 }
 
-const std::size_t&		Request::GetSeek(void) const
+const std::size_t&					Request::GetSeek(void) const
 {
 	return (mSeek);
 }
 
-void					Request::SetSeek(const std::size_t& seek)
+void								Request::SetSeek(const std::size_t& seek)
 {
 	mSeek = seek;
 }
@@ -217,7 +216,7 @@ void								Request::ParseURI(std::string& uri)
 			mURItype = Request::FILE;
 		}
 	}
-	if (mMethod == Request::PUT) // STUB POST메소드도 추가해야할수도
+	if (mMethod.compare("PUT") == 0) // STUB POST메소드도 추가해야할수도
 	{
 			mURItype = Request::FILE_TO_CREATE;
 	}
