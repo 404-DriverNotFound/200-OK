@@ -2,6 +2,7 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
+extern char**	g_env;
 
 LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
 {
@@ -142,8 +143,8 @@ void	Server::run(void)
 			}
 			if (hasExecuteWork(it2->second))
 			{
-			// 	runExecute(it2->second);
-			// 	continue ;
+				runExecute(it2->second);
+				continue ;
 			}
 			if (hasRequest(it2->second))
 			{
@@ -652,6 +653,7 @@ const char* Server::ClientServerClose::what() const throw(){ return ("Client clo
 bool		Server::hasExecuteWork(const Connection& connection) const
 {
 	if (connection.GetStatus() == Connection::CGI_READY ||
+		connection.GetStatus() == Connection::SEND_READY || // STUB	나중에 지워야함
 		connection.GetStatus() == Connection::CGI_ING)
 	{
 		return (true);
@@ -660,4 +662,82 @@ bool		Server::hasExecuteWork(const Connection& connection) const
 	{
 		return (false);
 	}
+}
+
+bool		Server::runExecute(Connection& connection)
+{
+	if (connection.GetStatus() == Connection::CGI_READY)
+	{
+		createCGIEnv(connection);
+	}
+	else	// CGI_ING
+	{
+		// executeCGI();
+	}
+	return (false);
+}
+
+char**		Server::createCGIEnv(const Connection& connection) const
+{
+	char**											ret = NULL;
+	std::map<std::string, std::string>				cgiEnv;
+	
+	Request*										request = connection.get_m_request();
+	std::map<std::string, std::string>::iterator	it = request->get_m_headers().find("authorization");
+	if (it != request->get_m_headers().end())
+	{
+		std::size_t	found = it->first.find(" ");
+		if (found != std::string::npos)
+		{
+			cgiEnv["AUTH_TYPE"] = it->second.substr(0, found);		// NOTE 불확실 검증필요
+			cgiEnv["REMOTE_IDENT"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
+			cgiEnv["REMOTE_USER"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
+			
+		}
+	}
+
+	it = request->get_m_headers().find("content-length");
+	if (it != request->get_m_headers().end())
+	{
+		cgiEnv["CONTENT_LENGTH"] = it->second;
+	}
+
+	it = request->get_m_headers().find("content-type");
+	if (it != request->get_m_headers().end())
+	{
+		cgiEnv["CONTENT_TYPE"] = it->second;
+	}
+
+	cgiEnv["GATEWAY_INTERFACE"] = "이건 Config클래스에서 가져오는데 쓸지말지 정해야함";
+
+
+	cgiEnv["PATH_INFO"] = "path suffix, if appended to URL after program name and a slash.";	// NOTE /asdf 인지 asdf 인지 모르겠음
+	cgiEnv["PATH_TRANSLATED"] = "corresponding full path as supposed by server, if PATH_INFO is present.";
+
+
+	cgiEnv["QUERY_STRING"] = "the part of URL after ? character. The query string may be composed of *name=value pairs separated with ampersands (such as var1=val1&var2=val2...) when used to submit form data transferred via GET method as defined by HTML application/x-www-form-urlencoded.";
+	cgiEnv["REMOTE_ADDR"] = "IP address of the client (dot-decimal).";
+	cgiEnv["REQUEST_METHOD"] = "name of HTTP method (see above).";
+	cgiEnv["REQUEST_URI"] = "requset uri name of HTTP method (see above).";
+	cgiEnv["SCRIPT_NAME"] = "relative path to the program, like /cgi-bin/script.cgi.";
+	cgiEnv["SERVER_NAME"] = "host name of the server, may be dot-decimal IP address.";
+	cgiEnv["SERVER_PORT"] = "TCP port (decimal).";
+	cgiEnv["SERVER_PROTOCOL"] = "HTTP/version.";
+	cgiEnv["SERVER_SOFTWARE"] = "name/version of HTTP server.";
+
+	try
+	{
+		ret = new char*[cgiEnv.size() + 1];
+		int	i = 0;
+		for (std::map<std::string,std::string>::iterator it = cgiEnv.begin(); it != cgiEnv.end(); ++it)
+		{
+			ret[i++] = strdup((it->first + "=" + it->second).c_str());	// iostream 했더니 strdup됨
+		}
+		ret[i] = 0;
+	}
+	catch(const std::exception& e)
+	{
+		throw 500; // NOTE 뭘 날려야할까요 500번대 에러는 맞는데...
+	}
+	return (ret);
 }
