@@ -160,28 +160,43 @@ void								Request::SetTransferType(const eTransferType& trasferType)
 
 void								Request::ParseURI(std::string& uri)
 {
-	// http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
-	mURI = uri;
-	std::cout << "      uri : |" << mURI << "|" << std::endl;
 	//ANCHOR parseURI 작업중
+	// http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
 
-	// querty parsing
+	std::size_t	found;
+	
+	mURI = uri;
+
+	// query parsing
+	found = uri.find_last_of("?");
+	if (found != std::string::npos)
+	{
+		mQuery = uri.substr(found + 1);
+		std::cout << "\t    mQuery : |" << mQuery << "|" << std::endl;
+		uri.resize(found);
+	}
 
 	// parameter parsing
+	found = uri.find_last_of(";");
+	if (found != std::string::npos)
+	{
+		mParameter = uri.substr(found + 1);
+		std::cout << "\tmParameter : |" << mParameter << "|" << std::endl;
+		uri.resize(found);
+	}
 
 	// filename parsing
-
+	found = uri.find_last_of("/");
+	if (found != uri.length() - 1)
+	{
+		mFileName = uri.substr(found + 1);
+		std::cout << "\t mFileName : |" << mFileName << "|" << std::endl;
+		uri.resize(found);
+	}
+	
 	// directory parsing
-
-	// std::size_t	found = mURI.find_last_of("/");
-	// if (found != std::string::npos)
-	// {
-	// 	mDirectory = mURI.substr(0, found + 1);
-	// 	std::cout << "directory : |" << mDirectory << "|" << std::endl;
-	// }
-
-
-	exit(7);
+	mDirectory = uri;
+	std::cout << "\tmDirectory : |" << mDirectory << "|" << std::endl;
 }
 
 void					Request::SetURI(const std::string& uri)
