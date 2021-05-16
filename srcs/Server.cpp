@@ -434,13 +434,11 @@ bool						Server::parseStartLine(Connection& connection)
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
 
-	request->SetURI(tmp);
-	// TODO URI 분석 (URI 구조를 몰라서 아직 못함)
+	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
 	request->ParseURI(tmp);
 
-	// std::cout << "\turi : " << request->GetURI() << std::endl;
-	request->SetSeek(found + 1);
 
+	request->SetSeek(found + 1);
 	// http version 파싱
 	found = requestLine.find("\r\n", request->GetSeek());
 	if (found == std::string::npos)

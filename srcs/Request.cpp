@@ -160,17 +160,38 @@ void								Request::SetTransferType(const eTransferType& trasferType)
 
 void								Request::ParseURI(std::string& uri)
 {
-	//ANCHOR
+	// http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
+	mURI = uri;
+	std::cout << "      uri : |" << mURI << "|" << std::endl;
+	//ANCHOR parseURI 작업중
+
+	// querty parsing
+
+	// parameter parsing
+
+	// filename parsing
+
+	// directory parsing
+
+	// std::size_t	found = mURI.find_last_of("/");
+	// if (found != std::string::npos)
+	// {
+	// 	mDirectory = mURI.substr(0, found + 1);
+	// 	std::cout << "directory : |" << mDirectory << "|" << std::endl;
+	// }
+
+
+	exit(7);
 }
 
 void					Request::SetURI(const std::string& uri)
 {
-	m_uri = uri;
+	mURI = uri;
 }
 
 const std::string&		Request::GetURI(void) const
 {
-	return (m_uri);
+	return (mURI);
 }
 
 const std::string&		Request::GetDirectory(void) const
@@ -211,14 +232,4 @@ const std::string&		Request::GetQuery(void) const
 void					Request::SetQuery(const std::string& query)
 {
 	mQuery = query;
-}
-
-const std::string&		Request::GetFragment(void) const
-{
-	return (mFragment);
-}
-
-void					Request::SetFragment(const std::string& fragment)
-{
-	mFragment = fragment;
 }

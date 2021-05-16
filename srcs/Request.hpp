@@ -81,12 +81,11 @@ private:
 	eMethod										m_method;
 
 	/* uri 친구들 */
-	std::string									m_uri;
+	std::string									mURI;
 	std::string									mDirectory;
 	std::string									mFileName;
 	std::string									mParameter;
 	std::string									mQuery;
-	std::string									mFragment;
 	/* uri 친구들 */
 
 
