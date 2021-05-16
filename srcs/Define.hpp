@@ -8,4 +8,12 @@
 #define SELECT_TIMEOUT_SEC 10
 #define SELECT_TIMEOUT_USEC 0
 
+#define BUFIZE_HTMLFILE 300
+
+enum TYPE_HTML
+{
+	ERROR_HTML,
+	INDEX_HTML
+};
+
 #endif

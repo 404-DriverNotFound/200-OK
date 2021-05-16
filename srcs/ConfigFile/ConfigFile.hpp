@@ -21,6 +21,9 @@ public :
 		std::string			mserver_name;		// localhost
 		uint16_t			mport;				// def = 8000;
 
+		bool				mauto_index;		// def = false;
+		int					mtimeout;			// def = 5s
+
 		Path				mlocation_path;		// def = 
 		// NOTE - location에서 덮어씌워지는 요소들
 		Path				mroot;				// def = 
@@ -30,7 +33,5 @@ public :
 	// REVIEW 현재 사용하지 않는 설정
 		uint64_t			mhead_length_max;	// def = 8k // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
 		uint64_t			mbody_length_max;	// def = 1M // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
-		bool				mautoindex;			// def = off
-		uint32_t			mtimeout;			// def = 5s
 		Path				mauth;				// REVIEW 뭔지 모르겠음 삭제해도 될 꺼 같음
 };
