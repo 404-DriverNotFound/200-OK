@@ -9,7 +9,7 @@ class Location
 public:
 	Location(std::string location_block);
 
-	const std::string&							get_m_uri(void) const;
+	const std::string&							GetURI(void) const;
 	const std::string&							get_m_root_path(void) const;
 	const std::set<std::string>&				get_m_allow_method(void) const;
 	const std::string&							get_m_auth_basic_realm(void) const;

@@ -32,10 +32,6 @@ void					Request::set_m_method(const eMethod& method)
 	m_method = method;
 }
 
-void					Request::set_m_uri(const std::string& uri)
-{
-	m_uri = uri;
-}
 
 const Request::ePhase&	Request::GetPhase(void) const
 {
@@ -45,11 +41,6 @@ const Request::ePhase&	Request::GetPhase(void) const
 void					Request::SetPhase(const ePhase& phase)
 {
 	mPhase = phase;
-}
-
-const std::string&		Request::get_m_uri(void) const
-{
-	return (m_uri);
 }
 
 bool					Request::isValidHeader(const std::string& header)
@@ -165,4 +156,69 @@ const Request::eTransferType&		Request::get_m_transfer_type(void) const
 void								Request::SetTransferType(const eTransferType& trasferType)
 {
 	m_trasfer_type = trasferType;
+}
+
+void								Request::ParseURI(std::string& uri)
+{
+	//ANCHOR
+}
+
+void					Request::SetURI(const std::string& uri)
+{
+	m_uri = uri;
+}
+
+const std::string&		Request::GetURI(void) const
+{
+	return (m_uri);
+}
+
+const std::string&		Request::GetDirectory(void) const
+{
+	return (mDirectory);
+}
+
+void					Request::SetDirectory(const std::string& directory)
+{
+	mDirectory = directory;
+}
+
+const std::string&		Request::GetFileName(void) const
+{
+	return (mFileName);
+}
+
+void					Request::SetFileName(const std::string& fileName)
+{
+	mFileName = fileName;
+}
+
+const std::string&		Request::GetParameter(void) const
+{
+	return (mParameter);
+}
+
+void					Request::SetParameter(const std::string& parameter)
+{
+	mParameter = parameter;
+}
+
+const std::string&		Request::GetQuery(void) const
+{
+	return (mQuery);
+}
+
+void					Request::SetQuery(const std::string& query)
+{
+	mQuery = query;
+}
+
+const std::string&		Request::GetFragment(void) const
+{
+	return (mFragment);
+}
+
+void					Request::SetFragment(const std::string& fragment)
+{
+	mFragment = fragment;
 }

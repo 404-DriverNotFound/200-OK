@@ -434,10 +434,11 @@ bool						Server::parseStartLine(Connection& connection)
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
 
-	request->set_m_uri(tmp);
+	request->SetURI(tmp);
 	// TODO URI 분석 (URI 구조를 몰라서 아직 못함)
-	// TODO uri 타입도 설정해주어야함
-	// std::cout << "\turi : " << request->get_m_uri() << std::endl;
+	request->ParseURI(tmp);
+
+	// std::cout << "\turi : " << request->GetURI() << std::endl;
 	request->SetSeek(found + 1);
 
 	// http version 파싱
@@ -684,10 +685,10 @@ void	Server::solveRequest(Connection& connection, Request& request)
 
 	// NOTE 무작위 값이 들어감
 	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
-	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.get_m_uri());
+	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
 
 	target_uri += locationPath->mroot.getPath();
-	target_uri += request.get_m_uri();
+	target_uri += request.GetURI();
 	// 여기까지 왔으면, 내가 요청하고자하는 자원의 위치는 정해짐. -> 폴더이면, autoindex와 index_page를 찾거나, 파일이면, Method를 적용함.
 	// target_uri.pop_back();
 	cout << "target_uri: " << target_uri << endl;
