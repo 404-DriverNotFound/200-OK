@@ -653,11 +653,24 @@ void		Server::get_htmlpage_Response(Connection &connection, std::string uri_plus
 		{
 			fd = open("./index.html", O_RDONLY);
 		}
-
 	}
-	int ret = read(fd, buffer, BUFIZE_HTMLFILE);
-	buffer[ret] = '\0';
-	std::string body = buffer;
+	else if (type == ANY_FILE)
+	{
+		cout << "ANY_FILE :" << uri_plus_file << endl;
+		fd = open(uri_plus_file.c_str(), O_RDONLY);
+		if (fd == -1)
+		{
+			throw 404;
+		}
+	}
+
+	int ret = 0;
+	std::string body;
+	while (0 != (ret = read(fd, buffer, BUFIZE_HTMLFILE - 1)))
+	{
+		buffer[ret] = '\0';
+		body.append(buffer, ret);
+	}
 	response->set_m_body(body);
 	if (fd != -1)
 		close(fd);
@@ -686,8 +699,7 @@ void	Server::solveRequest(Connection& connection, Request& request)
 	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
 
 	target_uri += locationPath->mroot.getPath();
-	target_uri += request.GetDirectory();
-	target_uri += request.GetFileName();
+	target_uri += request.GetDirectory() + "/" + request.GetFileName();
 	cout << "target_uri: " << target_uri << endl;
 	
 	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
@@ -700,7 +712,9 @@ void	Server::solveRequest(Connection& connection, Request& request)
 		else
 		{
 			// NOTE 파일 경로이고, 존재함.
-			connection.set_m_response(new Response(&connection, 200));
+			get_htmlpage_Response(connection, target_uri, ANY_FILE);
+			connection.SetStatus(Connection::SEND_READY);
+			return ;
 		}
 	}
 	else
@@ -724,6 +738,7 @@ void	Server::solveRequest(Connection& connection, Request& request)
 			{
 				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
 				executeAutoindex(connection, *connection.get_m_request(), target_uri);
+				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
 			else

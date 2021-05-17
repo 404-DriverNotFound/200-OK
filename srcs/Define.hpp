@@ -13,7 +13,8 @@
 enum TYPE_HTML
 {
 	ERROR_HTML,
-	INDEX_HTML
+	INDEX_HTML,
+	ANY_FILE
 };
 
 #endif

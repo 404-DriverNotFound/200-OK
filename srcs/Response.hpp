@@ -46,7 +46,7 @@ public:
 	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
 	{
-		m_status_map[0] = "Ykk_Error";
+		m_status_map[0] = "Ykk_File";
 
 		m_status_map[100] = "Continue";
 		m_status_map[101] = "Switching Protocols";
