@@ -686,9 +686,8 @@ void	Server::solveRequest(Connection& connection, Request& request)
 	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
 
 	target_uri += locationPath->mroot.getPath();
-	target_uri += request.GetURI();
-	// 여기까지 왔으면, 내가 요청하고자하는 자원의 위치는 정해짐. -> 폴더이면, autoindex와 index_page를 찾거나, 파일이면, Method를 적용함.
-	// target_uri.pop_back();
+	target_uri += request.GetDirectory();
+	target_uri += request.GetFileName();
 	cout << "target_uri: " << target_uri << endl;
 	
 	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
