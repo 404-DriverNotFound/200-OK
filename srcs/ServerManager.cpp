@@ -183,6 +183,9 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mroot = config.mroot;
 			temp2.mindex_pages = config.mindex_pages;
 			temp2.merror_page = config.merror_page;
+
+			temp2.mcgi_extension = config.mcgi_extension;
+			temp2.m_method = config.m_method;
 			server.mserverBlocks[0].mlocationPaths.push_back(temp2);
 
 			this->m_servers.push_back(server);
@@ -205,6 +208,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mroot = config.mroot;
 			temp2.mindex_pages = config.mindex_pages;
 			temp2.merror_page = config.merror_page;
+			temp2.mcgi_extension = config.mcgi_extension;
+			temp2.m_method = config.m_method;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
 			continue;
@@ -219,6 +224,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mroot = config.mroot;
 			temp2.mindex_pages = config.mindex_pages;
 			temp2.merror_page = config.merror_page;
+			temp2.mcgi_extension = config.mcgi_extension;
+			temp2.m_method = config.m_method;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
 			continue;
@@ -292,6 +299,18 @@ int ServerManager::ShowServers()
 				{
 					std::cout << "index_pages: " << temp3.mindex_pages[l].getPath() << std::endl;	/* code */
 				}
+				std::cout << "method: ";
+				for (size_t j = 0; j < temp3.m_method.size(); j++)
+				{
+					std::cout << temp3.m_method[j] << " ";
+				}
+				std::cout << endl;
+				std::cout << "cgi_extension: ";
+				for (size_t j = 0; j < temp3.mcgi_extension.size(); j++)
+				{
+					std::cout << temp3.mcgi_extension[j] << " ";
+				}
+				std::cout << endl;
 				std::cout << "------------------------------ locationPath" << std::endl;
 			}
 			std::cout << "============================== server name" << std::endl;

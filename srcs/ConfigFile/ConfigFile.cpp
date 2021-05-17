@@ -27,5 +27,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 
 	this->mauto_index = ref.mauto_index;
 	this->mtimeout = ref.mtimeout;
+	this->m_method = ref.m_method;
+	this->mcgi_extension = ref.mcgi_extension;
 	return (*this);
 }

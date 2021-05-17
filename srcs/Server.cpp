@@ -4,100 +4,7 @@
 
 extern char**	g_env;
 
-LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
-{
-	Path temp("index.html");
-	this->mindex_pages.push_back(temp);
-}
-
-LocationPath::~LocationPath()
-{
-
-}
-
-LocationPath::LocationPath(const LocationPath &ref)
-{
-	*this = ref;
-}
-
-LocationPath&	LocationPath::operator=(const LocationPath &ref)
-{
-	if (this == &ref)
-		return (*this);
-	this->merror_page = ref.merror_page;
-	this->mindex_pages = ref.mindex_pages;
-	this->mlocationPath = ref.mlocationPath;
-	this->mroot = ref.mroot;
-	return (*this);
-}
-
-ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths(), mauto_index(false), mtimeout(0)
-{
-
-}
-
-ServerBlock::~ServerBlock()
-{
-
-}
-
-ServerBlock::ServerBlock(const ServerBlock &ref)
-{
-	*this = ref;
-}
-
-ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
-{
-	if (this == &ref)
-		return (*this);
-	this->mlocationPaths = ref.mlocationPaths;
-	this->mserverName = ref.mserverName;
-	this->mtimeout = ref.mtimeout;
-	this->mauto_index = ref.mauto_index;
-	return (*this);
-}
-
-Server::Server(void)
-	: mport(8000)
-	// , mserverBlocks()
-	, m_manager(NULL)
-	, msocket(0)
-	// , mPhase(READY)
-{
-}
-
-Server::Server(ServerManager *serverManager)
-	: mport(8000)
-	// , mserverBlocks()
-	, m_manager(serverManager)
-	, msocket(0)
-	// , mPhase(READY)
-{
-}
-
-Server::~Server()
-{
-	
-}
-
-Server::Server(const Server &ref)
-{
-	*this = ref;
-}
-
-Server&	Server::operator=(const Server &ref)
-{
-	if (this == &ref)
-		return (*this);
-	this->mport = ref.mport;
-	this->mserverBlocks = ref.mserverBlocks;
-	this->msocket = ref.msocket;
-	this->m_connections = ref.m_connections;
-	return (*this);
-}
-
-
-int 	Server::SetSocket(std::string ip, uint16_t port)
+int				Server::SetSocket(std::string ip, uint16_t port)
 {
 	if ((this->msocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 			return (-1);
@@ -124,126 +31,6 @@ int 	Server::SetSocket(std::string ip, uint16_t port)
 	// }
 	return (-1);
 }
-
-
-const int&	Server::get_m_fd(void) const{ return (this->msocket); }
-
-std::vector<ServerBlock>&	Server::get_m_serverBlocks(void){ return (this->mserverBlocks);}
-
-void	Server::run(void)
-{
-	std::map<int, Connection>::iterator	it = m_connections.begin();
-	while (it != m_connections.end())
-	{
-		std::map<int, Connection>::iterator it2 = it++;
-		int fd = this->msocket;
-		if (it2->second.get_m_fd() == fd)
-		{
-			continue ;
-		}
-		try
-		{
-			if (hasSendWork(it2->second))
-			{
-			 	runSend(it2->second);
-			 	continue ; // FIXME 어떻게 처리할지...
-			}
-			if (hasExecuteWork(it2->second))
-			{
-				runExecute(it2->second);
-				continue ;
-			}
-			if (hasRequest(it2->second))
-			{
-				if (it2->second.get_m_request() == NULL)
-				{
-					it2->second.set_m_request(new Request());
-				}
-				runRecvAndSolve(it2->second);
-			}
-		}
-		// catch (Server::IOError& e)
-		// {
-		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
-		// 	closeConnection(fd);
-		// }
-		catch (const std::exception& e)
-		{
-			cout << e.what() << endl;
-			// ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
-			closeConnection(it2->second.get_m_fd());
-
-		}
-	}
-	if (hasNewConnection())
-	{
-		if (m_connections.size() >= (INIT_FD_MAX / m_manager->GetServers().size()))
-		{
-			int fd = getUnuseConnectionFd();
-			if (fd == -1)
-				return ;
-			closeConnection(fd);
-		}
-		
-		if (false == acceptNewConnection())
-		{
-			cout << "accpetNewconnection(): Fail" << endl;
-			// reportCreateNewConnectionLog();
-		}
-		else
-		{
-			cout << "accpetNewconnection(): Success" << endl;
-		}
-	}
-	// cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
-}
-
-bool					Server::hasRequest(const Connection& connection)
-{
-	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
-	{
-		// std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
-		return (true);
-	}
-	else
-	{
-		return (false);
-	}
-}
-
-bool						Server::hasNewConnection()
-{
-	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadCopySet())))
-	{
-		cout << "this->msocket: " << this->msocket << endl;
-		return (true);
-	}
-	else
-	{
-		return (false);
-	}
-}
-
-bool						Server::acceptNewConnection()
-{
-	int client_socket;
-	sockaddr_in sockaddr;
-	socklen_t socketlen;
-	socketlen = sizeof(struct sockaddr);
-	client_socket = accept(this->msocket, (struct sockaddr*)&sockaddr, (socklen_t*)&socketlen);
-	if (client_socket == -1)
-	{
-		std::cerr << "Could not create socket." << std::endl;
-		return (false);
-	}
-	fcntl(client_socket, F_SETFL, O_NONBLOCK);
-	FD_SET(client_socket, &(this->m_manager->GetReadSet()));
-	FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
-	this->m_connections[client_socket] = Connection(client_socket, "", this->mport);
-	// close(client_socket); // NOTE 이제 keep-alive로 관리
-	return (true);
-}
-
 
 int				Server::getUnuseConnectionFd()
 {
@@ -283,55 +70,7 @@ void			Server::closeConnection(int client_fd)
 	}
 }
 
-bool			Server::runRecvAndSolve(Connection& connection)
-{
-	try
-	{
-		recvRequest(connection);
-	}
-	catch (int status_code)
-	{
-		std::cout << "status code : " << status_code << std::endl;
-		create_statuspage_Response(connection, status_code);
-		connection.SetStatus(Connection::SEND_READY);
-		return (true);
-	}
-	// catch (const Server::IOError& e)
-	// {
-	// 	throw (e);
-	// }
-	catch (const std::exception& e)
-	{
-		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());
-		// createResponse(connection, 50001);
-	}
-
-	try
-	{
-		Request& request = *connection.get_m_request();
-		if (request.GetPhase() == Request::COMPLETE)
-		{
-		// 	writeCreateNewRequestLog(request);
-		// 	connection.set_m_status(Connection::ON_EXECUTE); //REVIEW 이게 맞나?
-			solveRequest(connection, *connection.get_m_request());
-			return (true);
-		}
-		return (false);
-	}
-	catch (int status_code)
-	{
-		std::cout << "status code : " << status_code << std::endl;
-		create_statuspage_Response(connection, status_code);
-		connection.SetStatus(Connection::SEND_READY);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	return (false);
-}
-
-void						Server::recvRequest(Connection& connection)
+void			Server::recvRequest(Connection& connection)
 {
 	Request*	request = connection.get_m_request();
 	char		buf[BUFFER_SIZE] = { 0, };
@@ -379,7 +118,7 @@ void						Server::recvRequest(Connection& connection)
 	}
 }
 
-bool Server::isRequestHasBody(Request* request)
+bool			Server::isRequestHasBody(Request* request)
 {
 	if (request->GetMethod().compare("POST") == 0 || request->GetMethod().compare("PUT") == 0)
 	{
@@ -391,7 +130,7 @@ bool Server::isRequestHasBody(Request* request)
 	}
 }
 
-bool						Server::parseStartLine(Connection& connection)
+bool			Server::parseStartLine(Connection& connection)
 {
 	Request*			request = connection.get_m_request();
 	const std::string&	requestLine = request->get_m_origin();
@@ -446,7 +185,7 @@ bool						Server::parseStartLine(Connection& connection)
 	return (true);
 }
 
-bool						Server::parseHeader(Connection& connection)
+bool			Server::parseHeader(Connection& connection)
 {
 	Request*		request = connection.get_m_request();
 	std::size_t		found = request->get_m_origin().find("\r\n\r\n", request->GetSeek());
@@ -480,7 +219,7 @@ bool						Server::parseHeader(Connection& connection)
 	return (true);
 }
 
-bool						Server::parseBody(Connection& connection)
+bool			Server::parseBody(Connection& connection)
 {
 	std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
@@ -550,46 +289,7 @@ bool						Server::parseBody(Connection& connection)
 	}
 }
 
-bool						Server::hasSendWork(Connection& connection)
-{
-	// value = connection.get_m_request()->GetPhase();
-	// TODO COMPLETE로 가정하였으나, 실제로는 request의 진행상황에 따라서 { READY, ON_HEADER, ON_BODY, COMPLETE }; 단계로 나뉨.
-	if (connection.get_m_request() == NULL)
-		return (false);
-	Request::ePhase value;
-	value = connection.get_m_request()->GetPhase();
-	
-	if (value == connection.get_m_request()->COMPLETE)
-	{
-		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
-		{
-			closeConnection(connection.get_m_fd());
-			return (false);
-		}
-		return (true);
-	}
-	else
-		return (false);
-}
-
-bool						Server::runSend(Connection& connection)
-{
-	int clinet_socket = connection.get_m_fd();
-	Request *request = connection.get_m_request();
-	char buffer[100];
-
-	bool send_complete = false;
-	if (connection.GetStatus() == Connection::SEND_READY)
-	{
-		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
-		// cout << connection.get_m_response()->getResponse() << endl;
-		send_complete = true;
-	}
-	closeConnection(connection.get_m_fd());
-	return (send_complete);
-}
-
-void		Server::create_statuspage_Response(Connection &connection, int status_code)
+void			Server::create_statuspage_Response(Connection &connection, int status_code)
 {
 		// NOTE connection의 response에 갖다 붙이기.
 		if (connection.get_m_response() != NULL)
@@ -613,7 +313,7 @@ void		Server::create_statuspage_Response(Connection &connection, int status_code
 		}
 }
 
-void		Server::get_htmlpage_Response(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
+void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
 {
 	connection.set_m_response(new Response(&connection, 0));
 	Response *response = connection.get_m_response();
@@ -666,8 +366,7 @@ void		Server::get_htmlpage_Response(Connection &connection, std::string uri_plus
 		close(fd);
 }
 
-
-void	Server::solveRequest(Connection& connection, Request& request)
+void			Server::solveRequest(Connection& connection, Request& request)
 {
 	cout << "solveRequest()" << endl;
 	char absolute_path[255];
@@ -787,150 +486,9 @@ void	Server::solveRequest(Connection& connection, Request& request)
 
 }
 
-std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname)
-{
-	std::vector<ServerBlock>::iterator it = serverblocks.begin();
-	while (it != serverblocks.end())
-	{
-		if (hostname == it->mserverName)
-		{
-			return (it);
-		}
-		it++;
-	}
-	it--; // NOTE 맨 뒤에 있는 serverBlock을 default로 잡음
-	return (it);
-}
-
-std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str)
-{
-	std::vector<LocationPath>::iterator it = locationpaths.begin();
-	while (it != locationpaths.end())
-	{
-		if (locationpath_str == it->mlocationPath.getPath())
-		{
-			return (it);
-		}
-		it++;
-	}
-	it--; // NOTE 맨 뒤에 있는 locationPath을 default로 잡음
-	return (it);
-}
-
-// bool Server::isHostname_IN_server_name(std::vector<ServerBlock> &serverblocks, std::string hostname)
-// {
-// 	std::vector<ServerBlock>::iterator it = serverblocks.begin();
-// 	while (it != serverblocks.end())
-// 	{
-// 		if (hostname == it->mserverName)
-// 			return (true);
-// 		it++;
-// 	}
-// 	return (false);
-// }
-
-
-
-void	Server::executeAutoindex(Connection& connection, const Request& request, std::string uri_copy)
-{
-	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(uri_copy)));
-	Response *response = connection.get_m_response();
-	response->set_m_headers("Server", "webserv");
-	response->set_m_headers("Content-Type", "text/html");
-	response->set_m_headers("Connection", "keep-alive");
-	response->set_m_headers("Date", ft::getCurrentTime().c_str());
-
-	connection.SetStatus(Connection::SEND_READY);
-}
-
-
-void		Server::executeGet(Connection& connection, const Request& request, std::string target_uri)
-{
-	if (ft::access(target_uri) == false)
-	{
-		throw 404;
-	}
-	else
-	{
-		get_htmlpage_Response(connection, target_uri, ANY_FILE);
-		return ;
-	}
-}
-
-void		Server::executeHead(Connection& connection, const Request& request, std::string target_uri)
-{
-	executeGet(connection, request, target_uri);
-	std::string null_str;
-	connection.get_m_response()->set_m_body(null_str);
-}
-
-void		Server::executePost(Connection& connection, const Request& request, std::string target_uri)
-{
-	connection.set_m_response(new Response(&connection, 200, request.getBody()));
-	Response *response = connection.get_m_response();
-	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
-	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
-	cout << "ret: " << ret << endl;
-
-}
-
-void		Server::executePut(Connection& connection, const Request& request, std::string target_uri)
-{
-	connection.set_m_response(new Response(&connection, 200, request.getBody()));
-	Response *response = connection.get_m_response();
-	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
-	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
-	cout << "ret: " << ret << endl;
-}
-
-void		Server::executeDelete(Connection& connection, const Request& request, std::string target_uri)
-{
-	connection.set_m_response(new Response(&connection, 200));
-	Response *response = connection.get_m_response();
-	int ret = unlink(target_uri.c_str());
-	cout << "ret: " << ret << endl;
-}
-
-void		Server::executeOptions(Connection& connection, const Request& request)
-{
-
-}
-
-void		Server::executeTrace(Connection& connection, const Request& request)
-{
-
-}
-
-
-
 const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }
 
-bool		Server::hasExecuteWork(const Connection& connection) const
-{
-	if (connection.GetStatus() == Connection::CGI_READY ||
-		connection.GetStatus() == Connection::SEND_READY || // STUB	나중에 지워야함
-		connection.GetStatus() == Connection::CGI_ING)
-	{
-		return (true);
-	}
-	else
-	{
-		return (false);
-	}
-}
-
-bool		Server::runExecute(const Connection& connection)
-{
-	if (connection.GetStatus() == Connection::CGI_READY)
-	{
-		createCGIEnv(connection);
-	}
-
-	// executeCGI();
-	return (false);
-}
-
-char**		Server::createCGIEnv(const Connection& connection) const
+char**			Server::createCGIEnv(const Connection& connection) const
 {
 	std::map<std::string, std::string>	cgiEnv;
 	

@@ -43,6 +43,9 @@ public:
 	Path				mroot;				// def = 
 	std::vector<Path>	mindex_pages;		// def = index.html
 	Path				merror_page;		// def = error.html
+
+	std::vector<std::string>	m_method;
+	std::vector<std::string>	mcgi_extension;
 };
 
 class ServerBlock
@@ -105,7 +108,7 @@ public:
 	void						executeDelete(Connection& connection, const Request& request, std::string target_uri);
 	void						executeOptions(Connection& connection, const Request& request);
 	void						executeTrace(Connection& connection, const Request& request);
-	// void						executeCGI(Connection& connection, const Request& request);
+	void						executeCGI(Connection& connection, const Request& request);
 	void						create_statuspage_Response(Connection& connection, int status_code);
 	void						get_htmlpage_Response(Connection &connection, std::string uri_file, TYPE_HTML type);
 

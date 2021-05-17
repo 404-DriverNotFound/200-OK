@@ -2,6 +2,9 @@ SRCS	=	gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp \
 			srcs/main.cpp\
 			srcs/ServerManager.cpp\
 			srcs/Server.cpp\
+			srcs/Server_parsing.cpp\
+			srcs/Server_run.cpp\
+			srcs/Server_execute*.cpp\
 			srcs/Config.cpp\
 			srcs/Location.cpp \
 			srcs/Connection.cpp \
