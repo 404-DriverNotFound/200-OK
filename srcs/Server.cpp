@@ -693,21 +693,17 @@ void	Server::solveRequest(Connection& connection, Request& request)
 	cout << "target_uri: " << target_uri << endl;
 	
 	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
-	if (ft::isFilePath(target_uri))
+	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
-		if (ft::access(target_uri) == false)
-		{
-			throw 404;
-		}
-		else
-		{
-			// NOTE 파일 경로이고, 존재함.
-			get_htmlpage_Response(connection, target_uri, ANY_FILE);
-			connection.SetStatus(Connection::SEND_READY);
-			return ;
-		}
+		executePut(connection, request, target_uri);
+		connection.SetStatus(Connection::SEND_READY);
+
 	}
-	else
+	else if (request.GetURItype() == Request::CGI_PROGRAM)
+	{
+		connection.SetStatus(Connection::CGI_READY);
+	}
+	else if (request.GetURItype() == Request::DIRECTORY)
 	{
 		if (ft::access(target_uri) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
@@ -747,6 +743,48 @@ void	Server::solveRequest(Connection& connection, Request& request)
 			return ;
 		}
 	}
+	else if (request.GetURItype() == Request::FILE)
+	{
+		if (request.GetMethod().compare("GET") == 0)
+		{
+			executeGet(connection, request, target_uri);
+			connection.SetStatus(Connection::SEND_READY);
+		}
+		else if (request.GetMethod().compare("HEAD") == 0)
+		{
+			executeHead(connection, request, target_uri);
+			connection.SetStatus(Connection::SEND_READY);
+		}
+		else if (request.GetMethod().compare("POST") == 0)
+		{
+			executePost(connection, request, target_uri);
+			connection.SetStatus(Connection::SEND_READY);
+		}
+		else if (request.GetMethod().compare("DELETE") == 0)
+		{
+			executeDelete(connection, request, target_uri);
+			connection.SetStatus(Connection::SEND_READY);
+		}
+		// else if (request.GetMethod().compare("OPTIONS") == 0)
+		// {
+			// executeOptions(connection, request);
+			// connection.SetStatus(Connection::SEND_READY);
+		// }
+		// else if (request.GetMethod().compare("TRACE") == 0)
+		// {
+		// 	// executeOptions(connection, request);
+		// 	connection.SetStatus(Connection::SEND_READY);
+		// }
+		else
+		{
+			throw 405; // NOTE Method NOTE Allowed
+		}
+	}
+	else
+	{
+		throw 0;
+	}
+
 }
 
 std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname)
@@ -806,29 +844,51 @@ void	Server::executeAutoindex(Connection& connection, const Request& request, st
 }
 
 
-void		Server::executeGet(Connection& connection, const Request& request)
+void		Server::executeGet(Connection& connection, const Request& request, std::string target_uri)
 {
+	if (ft::access(target_uri) == false)
+	{
+		throw 404;
+	}
+	else
+	{
+		get_htmlpage_Response(connection, target_uri, ANY_FILE);
+		return ;
+	}
+}
+
+void		Server::executeHead(Connection& connection, const Request& request, std::string target_uri)
+{
+	executeGet(connection, request, target_uri);
+	std::string null_str;
+	connection.get_m_response()->set_m_body(null_str);
+}
+
+void		Server::executePost(Connection& connection, const Request& request, std::string target_uri)
+{
+	connection.set_m_response(new Response(&connection, 200, request.getBody()));
+	Response *response = connection.get_m_response();
+	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
+	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
+	cout << "ret: " << ret << endl;
 
 }
 
-void		Server::executeHead(Connection& connection, const Request& request)
+void		Server::executePut(Connection& connection, const Request& request, std::string target_uri)
 {
-
+	connection.set_m_response(new Response(&connection, 200, request.getBody()));
+	Response *response = connection.get_m_response();
+	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
+	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
+	cout << "ret: " << ret << endl;
 }
 
-void		Server::executePost(Connection& connection, const Request& request)
+void		Server::executeDelete(Connection& connection, const Request& request, std::string target_uri)
 {
-
-}
-
-void		Server::executePut(Connection& connection, const Request& request)
-{
-
-}
-
-void		Server::executeDelete(Connection& connection, const Request& request)
-{
-
+	connection.set_m_response(new Response(&connection, 200));
+	Response *response = connection.get_m_response();
+	int ret = unlink(target_uri.c_str());
+	cout << "ret: " << ret << endl;
 }
 
 void		Server::executeOptions(Connection& connection, const Request& request)
