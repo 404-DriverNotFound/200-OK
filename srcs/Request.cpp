@@ -160,66 +160,67 @@ void								Request::SetTransferType(const eTransferType& trasferType)
 
 void								Request::ParseURI(std::string& uri)
 {
-	//ANCHOR parseURI 작업중
 	// http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
-
 	std::size_t	found;
-	
 	mURI = uri;
-
 	// query parsing
 	found = uri.find_last_of("?");
 	if (found != std::string::npos)
 	{
 		mQuery = uri.substr(found + 1);
-		std::cout << "\t    mQuery : |" << mQuery << "|" << std::endl;
 		uri.resize(found);
 	}
-
 	// parameter parsing
 	found = uri.find_last_of(";");
 	if (found != std::string::npos)
 	{
 		mParameter = uri.substr(found + 1);
-		std::cout << "\tmParameter : |" << mParameter << "|" << std::endl;
 		uri.resize(found);
 	}
-
 	// filename parsing
 	found = uri.find_last_of("/");
 	if (found != uri.length() - 1)
 	{
-		mFileName = uri.substr(found + 1);
-		std::cout << "\t mFileName : |" << mFileName << "|" << std::endl;
-		uri.resize(found);
+		std::size_t	dot = uri.substr(found + 1).rfind(".");
+		if (dot != std::string::npos)
+		{
+			mFileName = uri.substr(found + 1);
+			mURItype = Request::FILE;
+			std::string	extension = mFileName.substr(dot);
+			if (extension.compare(".bla") == 0/* || extension.compare(".php") == 0*/)
+			{
+				mURItype = Request::CGI_PROGRAM;
+			}
+			uri.resize(found);
+		}
 	}
-
 	// directory parsing
 	mDirectory = uri;
-	std::cout << "\tmDirectory : |" << mDirectory << "|" << std::endl;
-
-	// uri 타입 설정
-	if (mFileName.empty())
+	// * 일때 파일로 처리
+	if (mMethod.compare("OPTIONS") == 0 &&
+		mDirectory.rfind("*") == mDirectory.length() - 1)
 	{
-		mURItype = Request::DIRECTORY;
-	}
-	else
-	{
-		// STUB CGI_PROGRAM 설정
-		// if (mFileName.compare(GetCGIprogramName()) == 0)
-		if (mFileName.compare("cgi_tester") == 0)
-		{
-			mURItype = Request::CGI_PROGRAM;
-		}
-		else
-		{
-			mURItype = Request::FILE;
-		}
+		mFileName = mDirectory;
+		mDirectory.clear();
+		mURItype = Request::FILE;
 	}
 	if (mMethod.compare("PUT") == 0) // STUB POST메소드도 추가해야할수도
 	{
 			mURItype = Request::FILE_TO_CREATE;
 	}
+	// // ANCHOR URI parsing debug
+	// if (mURItype == Request::DIRECTORY)
+	// 	std::cout << "\t  mURItype : |DIRECTORY|"<< std::endl;
+	// if (mURItype == Request::FILE)
+	// 	std::cout << "\t  mURItype : |FILE|"<< std::endl;
+	// if (mURItype == Request::FILE_TO_CREATE)
+	// 	std::cout << "\t  mURItype : |FILE_TO_CREATE|"<< std::endl;
+	// if (mURItype == Request::CGI_PROGRAM)
+	// 	std::cout << "\t  mURItype : |CGI_PROGRAM|"<< std::endl;
+	// std::cout << "\t    mQuery : |" << mQuery << "|" << std::endl;
+	// std::cout << "\tmParameter : |" << mParameter << "|" << std::endl;
+	// std::cout << "\t mFileName : |" << mFileName << "|" << std::endl;
+	// std::cout << "\tmDirectory : |" << mDirectory << "|" << std::endl;
 }
 
 void								Request::SetURI(const std::string& uri)

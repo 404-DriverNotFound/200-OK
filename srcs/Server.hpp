@@ -98,11 +98,11 @@ public:
 	void						solveRequest(Connection& connection, Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
 	// void						executeAutoindex(Connection& connection, const Request& request);
 	void						executeAutoindex(Connection& connection, const Request& request, std::string uri_copy); // NOTE 살짝 변형함.
-	void						executeGet(Connection& connection, const Request& request);
-	void						executeHead(Connection& connection, const Request& request);
-	void						executePost(Connection& connection, const Request& request);
-	void						executePut(Connection& connection, const Request& request);
-	void						executeDelete(Connection& connection, const Request& request);
+	void						executeGet(Connection& connection, const Request& request, std::string target_uri);
+	void						executeHead(Connection& connection, const Request& request, std::string target_uri);
+	void						executePost(Connection& connection, const Request& request, std::string target_uri);
+	void						executePut(Connection& connection, const Request& request, std::string target_uri);
+	void						executeDelete(Connection& connection, const Request& request, std::string target_uri);
 	void						executeOptions(Connection& connection, const Request& request);
 	void						executeTrace(Connection& connection, const Request& request);
 	// void						executeCGI(Connection& connection, const Request& request);
