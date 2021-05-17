@@ -188,6 +188,9 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 {
 	std::string oneline;
 	std::vector<std::string> split_vector;
+	bool exist_index_pages = false;
+	bool exist_cgi_extension = false;
+	bool exist_method = false;
 	int i = start;
 	while (i <= end)
 	{
@@ -231,11 +234,19 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			std::vector<Path> index_pages;
 			while (i < split_vector.size())
 			{
+				
 				Path index_page(split_vector[i]);
-				index_pages.push_back(index_page);
+				if (exist_index_pages == true)
+					default_location.mindex_pages.push_back(split_vector[i]);
+				else
+					index_pages.push_back(split_vector[i]);
 				i++;
 			}
-			default_location.mindex_pages = index_pages;
+			if (exist_index_pages == false)
+			{
+				default_location.mindex_pages = index_pages;
+				exist_index_pages = true;
+			}
 		}
 		else if (split_vector[0].compare("error_page") == 0)
 		{
@@ -249,9 +260,9 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			bool value;
 			if (split_vector.size() != 2)
 				return (-1);
-			if (split_vector[1].compare("false") == 0)
+			if (split_vector[1].compare("off") == 0)
 				value = false;
-			if (split_vector[1].compare("true") == 0)
+			if (split_vector[1].compare("on") == 0)
 				value = true;
 			default_location.mauto_index = value;
 		}
@@ -260,6 +271,47 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			if (split_vector.size() != 2)
 				return (-1);
 			default_location.mtimeout = std::atoi(split_vector[1].c_str());
+		}
+		else if (split_vector[0].compare("method") == 0)
+		{
+			if (split_vector.size() < 2)
+				return (-1);
+			int i = 1;
+			std::vector<std::string> method;
+			while (i < split_vector.size())
+			{
+				if (exist_method == true)
+					default_location.m_method.push_back(split_vector[i]);
+				else
+					method.push_back(split_vector[i]);
+				i++;
+			}
+			if (exist_method == false)
+			{
+				default_location.m_method = method;
+				exist_method = true;
+			}
+
+		}
+		else if (split_vector[0].compare("cgi_extension") == 0)
+		{
+			if (split_vector.size() < 2)
+				return (-1);
+			int i = 1;
+			std::vector<std::string> cgi_extension;
+			while (i < split_vector.size())
+			{
+				if (exist_cgi_extension == true)
+					default_location.mcgi_extension.push_back(split_vector[i]);
+				else
+					cgi_extension.push_back(split_vector[i]);
+				i++;
+			}
+			if (exist_cgi_extension == false)
+			{
+				default_location.mcgi_extension = cgi_extension;
+				exist_cgi_extension = true;
+			}
 		}
 		i++;
 	}
@@ -271,6 +323,8 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 	std::string oneline;
 	std::vector<std::string> split_vector;
 	bool exist_index_pages = false;
+	bool exist_cgi_extension = false;
+	bool exist_method = false;
 	int i = start;
 	while (i <= end)
 	{
@@ -324,6 +378,47 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				return (-1);
 			Path error_page(split_vector[1]);
 			default_location.merror_page = error_page;
+		}
+		else if (split_vector[0].compare("method") == 0)
+		{
+			if (split_vector.size() < 2)
+				return (-1);
+			int i = 1;
+			std::vector<std::string> method;
+			while (i < split_vector.size())
+			{
+				if (exist_method == true)
+					default_location.m_method.push_back(split_vector[i]);
+				else
+					method.push_back(split_vector[i]);
+				i++;
+			}
+			if (exist_method == false)
+			{
+				default_location.m_method = method;
+				exist_method = true;
+			}
+
+		}
+		else if (split_vector[0].compare("cgi_extension") == 0)
+		{
+			if (split_vector.size() < 2)
+				return (-1);
+			int i = 1;
+			std::vector<std::string> cgi_extension;
+			while (i < split_vector.size())
+			{
+				if (exist_cgi_extension == true)
+					default_location.mcgi_extension.push_back(split_vector[i]);
+				else
+					cgi_extension.push_back(split_vector[i]);
+				i++;
+			}
+			if (exist_cgi_extension == false)
+			{
+				default_location.mcgi_extension = cgi_extension;
+				exist_cgi_extension = true;
+			}
 		}
 		i++;
 	}

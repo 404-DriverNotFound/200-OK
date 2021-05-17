@@ -29,6 +29,8 @@ public :
 		Path				mroot;				// def = 
 		std::vector<Path>	mindex_pages;		// def = index.html
 		Path				merror_page;		// def = error.html
+		std::vector<std::string> m_method;		// def = GET HEAD PUT POST DELETE OPTIONS
+		std::vector<std::string> mcgi_extension;// def = .bla
 	
 	// REVIEW 현재 사용하지 않는 설정
 		uint64_t			mhead_length_max;	// def = 8k // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
