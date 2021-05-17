@@ -2,6 +2,7 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
+extern char**	g_env;
 
 LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
 {
@@ -144,14 +145,14 @@ void	Server::run(void)
 		{
 			if (hasSendWork(it2->second))
 			{
-				runSend(it2->second);
-				continue ; // FIXME 어떻게 처리할지...
+			 	runSend(it2->second);
+			 	continue ; // FIXME 어떻게 처리할지...
 			}
-			// if (hasExecuteWork(it2->second))
-			// {
-			// 	runExecute(it2->second);
-			// 	continue ;
-			// }
+			if (hasExecuteWork(it2->second))
+			{
+				runExecute(it2->second);
+				continue ;
+			}
 			if (hasRequest(it2->second))
 			{
 				if (it2->second.get_m_request() == NULL)
@@ -380,10 +381,14 @@ void						Server::recvRequest(Connection& connection)
 
 bool Server::isRequestHasBody(Request* request)
 {
-	if (request->GetMethod() == Request::POST || request->GetMethod() == Request::PUT)
+	if (request->GetMethod().compare("POST") == 0 || request->GetMethod().compare("PUT") == 0)
+	{
 		return (true);
+	}
 	else
+	{
 		return (false);
+	}
 }
 
 bool						Server::parseStartLine(Connection& connection)
@@ -407,22 +412,7 @@ bool						Server::parseStartLine(Connection& connection)
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
 	std::cout << "\t|" << tmp << "|" << std::endl;
-	std::string			methodSet[8] = { "DEFAULT", "GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "TRACE" };
-
-	int i;
-	for (i = 0; i < 8; i++)
-	{
-		if (tmp.compare(methodSet[i]) == 0)
-		{
-			request->SetMethod(static_cast<Request::eMethod>(i));
-			break ;
-		}
-	}
-	if (i == 8)
-	{
-		throw 400;
-	}
-	// std::cout << "\tmethod : " << request->GetMethod() << std::endl;
+	request->SetMethod(tmp);
 	request->SetSeek(found + 1);
 
 	// URI 파싱
@@ -436,9 +426,9 @@ bool						Server::parseStartLine(Connection& connection)
 
 	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
 	request->ParseURI(tmp);
-
-
 	request->SetSeek(found + 1);
+
+
 	// http version 파싱
 	found = requestLine.find("\r\n", request->GetSeek());
 	if (found == std::string::npos)
@@ -855,3 +845,117 @@ void		Server::executeTrace(Connection& connection, const Request& request)
 
 const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }
 
+bool		Server::hasExecuteWork(const Connection& connection) const
+{
+	if (connection.GetStatus() == Connection::CGI_READY ||
+		connection.GetStatus() == Connection::SEND_READY || // STUB	나중에 지워야함
+		connection.GetStatus() == Connection::CGI_ING)
+	{
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
+}
+
+bool		Server::runExecute(const Connection& connection)
+{
+	if (connection.GetStatus() == Connection::CGI_READY)
+	{
+		createCGIEnv(connection);
+	}
+
+	// executeCGI();
+	return (false);
+}
+
+char**		Server::createCGIEnv(const Connection& connection) const
+{
+	std::map<std::string, std::string>	cgiEnv;
+	
+	int	i = 0;
+	while (g_env[i])
+	{
+		std::string	env = std::string(g_env[i]);
+		std::size_t	found = env.find("=");
+		if (found != std::string::npos)
+		{
+			cgiEnv[env.substr(0, found)] = env.substr(found + 1);
+		}
+		i++;
+	}
+	
+	Request*	request = connection.get_m_request();
+
+	std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("authorization");
+	if (it != request->GetHeaders().end())
+	{
+		std::size_t	found = it->first.find(" ");
+		if (found != std::string::npos)
+		{
+			cgiEnv["AUTH_TYPE"] = it->second.substr(0, found);		// NOTE 불확실 검증필요
+			cgiEnv["REMOTE_IDENT"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
+			cgiEnv["REMOTE_USER"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
+			
+		}
+	}
+
+	it = request->GetHeaders().find("content-length");
+	if (it != request->GetHeaders().end())
+	{
+		cgiEnv["CONTENT_LENGTH"] = it->second;
+	}
+
+	it = request->GetHeaders().find("content-type");
+	if (it != request->GetHeaders().end())
+	{
+		cgiEnv["CONTENT_TYPE"] = it->second;
+	}
+
+	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";												// STUB config 클래스에서 가져와야함
+
+	cgiEnv["PATH_INFO"] = request->GetURI();
+
+	cgiEnv["PATH_TRANSLATED"] = request->GetFileName(); 									// STUB 잘 모르겠음 _file_path
+
+	cgiEnv["QUERY_STRING"] = request->GetQuery();
+
+	cgiEnv["REMOTE_ADDR"] = "0.0.0.0";														// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
+
+	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
+	cgiEnv["REQUEST_URI"] = request->GetURI();
+	cgiEnv["SCRIPT_NAME"] = "/cgi-bin/script.cgi";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
+
+	cgiEnv["SERVER_NAME"] = "YKK_Server"; 													// STUB "host name of the server, may be dot-decimal IP address.";
+	cgiEnv["SERVER_PORT"] = ft::itoa(mport);
+	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
+	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
+
+	try
+	{
+		char**	ret = new char*[cgiEnv.size() + 1];
+		int	i = 0;
+		for (std::map<std::string,std::string>::iterator it = cgiEnv.begin(); it != cgiEnv.end(); ++it)
+		{
+			ret[i++] = strdup((it->first + "=" + it->second).c_str());	// iostream 했더니 strdup됨
+		}
+		ret[i] = 0;
+
+		// ANCHOR cgiENV debug block
+		// {
+		// 	i = 0;
+		// 	while (ret[i])
+		// 	{
+		// 		std::cout << ret[i++] << std::endl;
+		// 	}
+		// 	exit(1);
+		// }
+
+		return (ret);
+	}
+	catch(const std::exception& e)
+	{
+		throw 500; // NOTE 뭘 날려야할까요 500번대 에러는 맞는데...
+	}
+}

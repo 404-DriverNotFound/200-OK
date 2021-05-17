@@ -75,10 +75,8 @@ public:
 	// bool						hasException(int client_fd);
 	// void						isSendable(int client_fd);
 	void						recvRequest(Connection& connection);
-	ssize_t						recvWithoutBody(Connection& connection, void* buf, size_t nbyte);
-	ssize_t						recvBody(Connection& connection, void* buf, size_t nbyte);
 	// void						sendResponse(Response response);
-	// char**						createCGIEnv(void);
+	char**						createCGIEnv(const Connection& connection) const;
 	bool						hasNewConnection(void);
 	bool						acceptNewConnection(void);
 	int							getUnuseConnectionFd();
@@ -91,8 +89,8 @@ public:
 	bool						isRequestHasBody(Request *);
 	bool						hasRequest(const Connection& connection);
 	bool						runRecvAndSolve(Connection& connection);
-	// bool						hasExecuteWork(Connection& connection);
-	// bool						runExecute(Connection& connection);
+	bool						hasExecuteWork(const Connection& connection) const;
+	bool						runExecute(const Connection& connection);
 	bool						hasSendWork(Connection& connection);
 	bool						runSend(Connection& connection);
 

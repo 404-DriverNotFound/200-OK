@@ -16,7 +16,6 @@ class Server;
 class Request
 {
 public:
-	enum eMethod								{ DEFAULT, GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE };
 	enum eURIType								{ DIRECTORY, FILE, FILE_TO_CREATE, CGI_PROGRAM };
 	enum eTransferType							{ GENERAL, CHUNKED };
 	enum ePhase									{ READY, ON_HEADER, ON_BODY, COMPLETE };
@@ -42,8 +41,8 @@ public:
 	const ePhase&								GetPhase(void) const;
 	void										SetPhase(const ePhase& phase);
 
-	const eMethod&								GetMethod(void) const;
-	void										SetMethod(const eMethod& method);
+	const std::string&							GetMethod(void) const;
+	void										SetMethod(const std::string& method);
 
 
 	const std::size_t&							GetSeek(void) const;
@@ -87,7 +86,7 @@ private:
 	std::size_t									mSeek;
 	std::string									m_origin;	//FIXME http message 전문을 담고 있음 이부분은 나중에 수정해야함
 
-	eMethod										mMethod;
+	std::string									mMethod;
 	/* uri 친구들 */
 	std::string									mURI;
 	std::string									mDirectory;
