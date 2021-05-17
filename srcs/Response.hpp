@@ -42,7 +42,7 @@ public:
 	const std::string								getResponse(void);
 
 	// ANCHOR yunslee static 함수(error page 관련 함수)
-	static std::string								makeErrorPage(int status_code);
+	static std::string								makeErrorPage(int status_code, std::string method);
 	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
 	{

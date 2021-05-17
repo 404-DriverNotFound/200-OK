@@ -305,7 +305,7 @@ void			Server::create_statuspage_Response(Connection &connection, int status_cod
 				response->set_m_headers("Server", "YKK_webserv");
 				response->set_m_headers("Date", ft::getCurrentTime());
 				response->set_m_headers("Content-Type", "text/html");
-				std::string errorpage_body = Response::makeErrorPage(status_code);
+				std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
 				response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
 				response->set_m_body(errorpage_body);
 				return ;

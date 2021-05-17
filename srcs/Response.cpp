@@ -62,15 +62,18 @@ const std::string								Response::getResponse(void)
 	return (all);
 }
 
-std::string										Response::makeErrorPage(int status_code)
+std::string										Response::makeErrorPage(int status_code, std::string method)
 {
 	std::string errorpage;
 	errorpage += "<html><head><title>STATUS_CODE STATUS_DESCRIPTION</title></head><body bgcolor=\"white\"><center>\n";
-	errorpage += "<h1>STATUS_CODE STATUS_DESCRIPTION</h1></center><hr><center>YKK_Webserver</center></body></html>";
+	errorpage += "<h1>STATUS_CODE STATUS_DESCRIPTION</h1></center><hr>\n";
+	errorpage += "<h2>Method: METHOD</h2></center><hr>\n";
+	errorpage += "<center>YKK_Webserver</center></body></html>";
 	
 	std::string status_str = std::to_string(status_code);
 	ft::ReplaceAll(errorpage, "STATUS_CODE", status_str);
 	ft::ReplaceAll(errorpage, "STATUS_DESCRIPTION", Response::m_status_map[status_code]);
+	ft::ReplaceAll(errorpage, "METHOD", method);
 	return (errorpage);
 }
 
