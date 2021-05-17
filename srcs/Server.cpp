@@ -862,10 +862,22 @@ bool		Server::runExecute(const Connection& connection)
 
 char**		Server::createCGIEnv(const Connection& connection) const
 {
-	char**											ret = NULL;
-	std::map<std::string, std::string>				cgiEnv;
+	std::map<std::string, std::string>	cgiEnv;
 	
-	Request*										request = connection.get_m_request();
+	int	i = 0;
+	while (g_env[i])
+	{
+		std::string	env = std::string(g_env[i]);
+		std::size_t	found = env.find("=");
+		if (found != std::string::npos)
+		{
+			cgiEnv[env.substr(0, found)] = env.substr(found + 1);
+		}
+		i++;
+	}
+	
+	Request*	request = connection.get_m_request();
+
 	std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("authorization");
 	if (it != request->GetHeaders().end())
 	{
@@ -912,7 +924,7 @@ char**		Server::createCGIEnv(const Connection& connection) const
 
 	try
 	{
-		ret = new char*[cgiEnv.size() + 1];
+		char**	ret = new char*[cgiEnv.size() + 1];
 		int	i = 0;
 		for (std::map<std::string,std::string>::iterator it = cgiEnv.begin(); it != cgiEnv.end(); ++it)
 		{
@@ -920,16 +932,20 @@ char**		Server::createCGIEnv(const Connection& connection) const
 		}
 		ret[i] = 0;
 
-		i = 0;
-		while (ret[i])
-		{
-			std::cout << ret[i++] << std::endl;
-		}
-		exit(1);
+		// NOTE cgiENV debug block
+		// {
+		// 	i = 0;
+		// 	while (ret[i])
+		// 	{
+		// 		std::cout << ret[i++] << std::endl;
+		// 	}
+		// 	exit(1);
+		// }
+
+		return (ret);
 	}
 	catch(const std::exception& e)
 	{
 		throw 500; // NOTE 뭘 날려야할까요 500번대 에러는 맞는데...
 	}
-	return (ret);
 }
