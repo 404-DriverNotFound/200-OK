@@ -847,16 +847,12 @@ bool		Server::hasExecuteWork(const Connection& connection) const
 
 bool		Server::runExecute(const Connection& connection)
 {
-	if (connection.GetStatus() == Connection::CGI_READY ||
-		connection.GetStatus() == Connection::SEND_READY) // STUB 나중에 지워야함
-
+	if (connection.GetStatus() == Connection::CGI_READY)
 	{
 		createCGIEnv(connection);
 	}
-	else	// CGI_ING
-	{
-		// executeCGI();
-	}
+
+	// executeCGI();
 	return (false);
 }
 
@@ -907,7 +903,7 @@ char**		Server::createCGIEnv(const Connection& connection) const
 
 	cgiEnv["PATH_INFO"] = request->GetURI();
 
-	cgiEnv["PATH_TRANSLATED"] = request->GetFileName(); // FIXME 잘 모르겠음 _file_path
+	cgiEnv["PATH_TRANSLATED"] = request->GetFileName(); 									// STUB 잘 모르겠음 _file_path
 
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
 
@@ -932,7 +928,7 @@ char**		Server::createCGIEnv(const Connection& connection) const
 		}
 		ret[i] = 0;
 
-		// NOTE cgiENV debug block
+		// ANCHOR cgiENV debug block
 		// {
 		// 	i = 0;
 		// 	while (ret[i])
