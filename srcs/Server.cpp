@@ -306,28 +306,28 @@ bool			Server::runRecvAndSolve(Connection& connection)
 		// createResponse(connection, 50001);
 	}
 
-	// try
-	// {
-	// 	Request& request = *connection.get_m_request();
-	// 	if (request.GetPhase() == Request::COMPLETE)
-	// 	{
-	// 	// 	writeCreateNewRequestLog(request);
-	// 	// 	connection.set_m_status(Connection::ON_EXECUTE); //REVIEW 이게 맞나?
-	// 		solveRequest(connection, *connection.get_m_request());
-	// 		return (true);
-	// 	}
-	// 	return (false);
-	// }
-	// catch (int status_code)
-	// {
-	// 	std::cout << "status code : " << status_code << std::endl;
-	// 	create_statuspage_Response(connection, status_code);
-	// 	connection.SetStatus(Connection::SEND_READY);
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << e.what() << '\n';
-	// }
+	try
+	{
+		Request& request = *connection.get_m_request();
+		if (request.GetPhase() == Request::COMPLETE)
+		{
+		// 	writeCreateNewRequestLog(request);
+		// 	connection.set_m_status(Connection::ON_EXECUTE); //REVIEW 이게 맞나?
+			solveRequest(connection, *connection.get_m_request());
+			return (true);
+		}
+		return (false);
+	}
+	catch (int status_code)
+	{
+		std::cout << "status code : " << status_code << std::endl;
+		create_statuspage_Response(connection, status_code);
+		connection.SetStatus(Connection::SEND_READY);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 	return (false);
 }
 
