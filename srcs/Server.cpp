@@ -143,11 +143,11 @@ void	Server::run(void)
 		}
 		try
 		{
-			// if (hasSendWork(it2->second))
-			// {
-			// 	runSend(it2->second);
-			// 	continue ; // FIXME 어떻게 처리할지...
-			// }
+			if (hasSendWork(it2->second))
+			{
+			 	runSend(it2->second);
+			 	continue ; // FIXME 어떻게 처리할지...
+			}
 			if (hasExecuteWork(it2->second))
 			{
 				runExecute(it2->second);
