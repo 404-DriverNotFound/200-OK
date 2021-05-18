@@ -35,6 +35,12 @@ namespace ft
 	in_addr_t ft_inet_addr(const char * ip_address);
 
 	unsigned long	stohex(const std::string &str);
+
+
+
+
+	std::string getBody_from_file(std::string uri_plus_file);
+	std::string getBody_from_fd(int fd);
 }
 
 #endif

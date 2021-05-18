@@ -315,3 +315,38 @@ unsigned long	ft::stohex(const std::string &str)
 	return result;
 }
 
+
+std::string ft::getBody_from_file(std::string uri_plus_file)
+{
+	std::string body;
+	int fd = open(uri_plus_file.c_str(), O_RDONLY);
+	if (fd == -1)
+		return (body);
+	off_t sz_file;
+	sz_file  = lseek(fd, 0, SEEK_END);
+	printf("file size = %d\n", (int)sz_file);
+	lseek(fd, 0, SEEK_SET);
+	char *buffer = (char *)malloc(sizeof(char) * sz_file);
+	int ret = read(fd, buffer, sz_file);
+	body.append(buffer, ret);
+	free(buffer);
+	if (fd != -1)
+		close(fd);
+	return (body);
+}
+
+std::string ft::getBody_from_fd(int fd)
+{
+	std::string body;
+	if (fd == -1)
+		return (body);
+	off_t sz_file;
+	sz_file  = lseek(fd, 0, SEEK_END);
+	printf( "file size = %d\n", (int)sz_file);
+	lseek(fd, 0, SEEK_SET);
+	char *buffer = (char *)malloc(sizeof(char) * sz_file);
+	int ret = read(fd, buffer, sz_file);
+	body.append(buffer, ret);
+	free(buffer);
+	return (body);
+}

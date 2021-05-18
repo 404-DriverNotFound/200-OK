@@ -62,7 +62,7 @@ const std::string								Response::getResponse(void)
 	return (all);
 }
 
-std::string										Response::makeErrorPage(int status_code, std::string method)
+std::string										Response::makeStatusPage(int status_code, std::string method)
 {
 	std::string errorpage;
 	errorpage += "<html><head><title>STATUS_CODE STATUS_DESCRIPTION</title></head><body bgcolor=\"white\"><center>\n";
