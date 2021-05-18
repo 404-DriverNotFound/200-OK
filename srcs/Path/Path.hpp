@@ -2,6 +2,7 @@
 #include "../../gnl/get_next_line_bonus.hpp"
 #include <vector>
 #include <string>
+#include <iostream>
 
 class Path
 {
@@ -12,7 +13,7 @@ public:
 	~Path();
 	const std::string			getPath() const;
 	void						setPath(const std::string&);
-	int					getSize() const;
+	int							getSize() const;
 	
 	Path&						operator+(Path&);
 	Path&						operator--();     // 전위 prefix "--Path"
@@ -20,6 +21,13 @@ public:
 	Path&						operator=(const std::string&);
 	Path&						operator=(const Path&);
 	bool						operator==(const Path&);
+	std::string&				operator[](int i);
+
+	class OutOfRange : public std::exception
+	{
+		public:
+			const char* what() const throw();
+	};
 	
 private:
 	std::vector<std::string>	segments;

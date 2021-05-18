@@ -124,16 +124,28 @@ std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vect
 	return (it);
 }
 
-std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str)
+std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string relative_str)
 {
 	std::vector<LocationPath>::iterator it = locationpaths.begin();
+	Path relative_path(relative_str);
 	while (it != locationpaths.end())
 	{
-		if (locationpath_str == it->mlocationPath.getPath())
+		int i = 0;
+		while (i < it->mlocationPath.getSize() && i < relative_path.getSize())
 		{
-			return (it);
+			if (it->mlocationPath[i] != relative_path[i])
+			{
+				break ;
+			}
+			i++;
 		}
+		if (i == it->mlocationPath.getSize())
+			return (it);
 		it++;
+		// if (relative_str == it->mlocationPath.getPath())
+		// {
+		// 	return (it);
+		// }
 	}
 	it--; // NOTE 맨 뒤에 있는 locationPath을 default로 잡음
 	return (it);

@@ -111,3 +111,12 @@ int			Path::getSize() const
 {
 	return (this->segments.size());
 }
+
+std::string&		Path::operator[](int i)
+{
+	if (i >= this->segments.size() || i < 0)
+		throw Path::OutOfRange();
+	return (this->segments[i]);
+}
+
+const char* Path::OutOfRange::what() const throw(){ return ("Out of Range");}

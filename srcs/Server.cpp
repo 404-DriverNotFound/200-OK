@@ -383,16 +383,17 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	// FIXME @ykoh 이런 뉘앙스가 들어가야함.
 	// hostname = request.get_m_host();
 
-	// NOTE 무작위 값이 들어감
-	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
-	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
 	config_iterator config_it; // NOTE configfile에 있는 내용을 전달하기위해서 구조체를 이용함
+	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
 	config_it.serverblock = serverblock;
+	std::string relative_uri = request.GetDirectory() + "/" + request.GetFileName();
+	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, relative_uri);
 	config_it.locationPath = locationPath;
 
 	target_uri += locationPath->mroot.getPath();
 	target_uri += request.GetDirectory() + "/" + request.GetFileName();
 	cout << "target_uri: " << target_uri << endl;
+	// NOTE 무작위 값이 들어감
 	
 	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
@@ -467,11 +468,11 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			executeDelete(connection, request, target_uri);
 			connection.SetStatus(Connection::SEND_READY);
 		}
-		// else if (request.GetMethod().compare("OPTIONS") == 0)
-		// {
-			// executeOptions(connection, request);
-			// connection.SetStatus(Connection::SEND_READY);
-		// }
+		else if (request.GetMethod().compare("OPTIONS") == 0)
+		{
+			executeOptions(connection, request, target_uri, config_it);
+			connection.SetStatus(Connection::SEND_READY);
+		}
 		// else if (request.GetMethod().compare("TRACE") == 0)
 		// {
 		// 	// executeOptions(connection, request);

@@ -140,9 +140,27 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	errno = 0; // NOTE 초기화!
 }
 
-void		Server::executeOptions(Connection& connection, const Request& request)
+void		Server::executeOptions(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it)
 {
-
+	int fd = open(target_uri.c_str(), O_RDONLY);
+	if (fd < 0)
+		throw 404;
+	else
+	{
+		connection.set_m_response(new Response(&connection, 200));
+		Response *response = connection.get_m_response();
+		response->set_m_headers("Date", ft::getCurrentTime().c_str());
+		response->set_m_headers("Server", "webserv");
+		std::string value;
+		for (size_t i = 0; i < config_it.locationPath->m_method.size(); i++)
+		{
+			value += config_it.locationPath->m_method[i];
+			if (i != config_it.locationPath->m_method.size() - 1)
+				value += " ";
+		}
+		response->set_m_headers("Allow", value);
+		close(fd);
+	}
 }
 
 void		Server::executeTrace(Connection& connection, const Request& request)
