@@ -110,8 +110,9 @@ public:
 	void						executeOptions(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it);
 	void						executeTrace(Connection& connection, const Request& request);
 	void						executeCGI(Connection& connection, const Request& request);
-	void						create_statuspage_Response(Connection& connection, int status_code);
-	void						get_htmlpage_Response(Connection &connection, std::string uri_file, TYPE_HTML type);
+	void						create_Response_statuscode(Connection& connection, int status_code);
+	void						create_Response_0(Connection &connection, std::string uri_plus_file);
+	void						create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type);
 
 	const int&					get_m_fd(void) const;
 

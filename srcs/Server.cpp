@@ -287,31 +287,31 @@ bool			Server::parseBody(Connection& connection)
 	}
 }
 
-void			Server::create_statuspage_Response(Connection &connection, int status_code)
+void			Server::create_Response_statuscode(Connection &connection, int status_code)
 {
-		// NOTE connection의 response에 갖다 붙이기.
-		if (connection.get_m_response() != NULL)
-		{
-			cout << "말이 안되는 상황" << endl;
-		}
-		else
-		{
-			if (status_code != 0)
-			{
-				connection.set_m_response(new Response(&connection, status_code));
-				Response *response = connection.get_m_response();
-				response->set_m_headers("Server", "YKK_webserv");
-				response->set_m_headers("Date", ft::getCurrentTime());
-				response->set_m_headers("Content-Type", "text/html");
-				std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
-				response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
-				response->set_m_body(errorpage_body);
-				return ;
-			}
-		}
+	if (connection.get_m_response() != NULL)
+	{
+		delete connection.get_m_response();
+		connection.set_m_response(NULL);
+	}
+	// createResponse_statuscode
+	std::map<int, std::string> &status_map = Response::m_status_map;
+	std::map<int, std::string>::iterator it;
+	if ((it = status_map.find(status_code)) != status_map.end())
+	{
+		status_code = 0;
+	}
+	connection.set_m_response(new Response(&connection, status_code));
+	Response *response = connection.get_m_response();
+	response->set_m_headers("Server", "YKK_webserv");
+	response->set_m_headers("Date", ft::getCurrentTime());
+	std::string errorpage_body = Response::makeStatusPage(status_code, connection.get_m_request()->GetMethod());
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
+	response->set_m_body(errorpage_body);
 }
 
-void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
+void			Server::create_Response_0(Connection &connection, std::string uri_plus_file)
 {
 	connection.set_m_response(new Response(&connection, 0));
 	Response *response = connection.get_m_response();
@@ -320,66 +320,58 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Content-Language", "en-US");
 
-	// char buffer[BUFIZE_HTMLFILE];
-	int fd;
-	if (type == ERROR_HTML)
-	{
-		cout << "error_html :" << uri_plus_file << endl;
-		int start = uri_plus_file.rfind('/') + 1;
-		uri_plus_file = uri_plus_file.substr(start, uri_plus_file.size());
-		fd = open(uri_plus_file.c_str(), O_RDONLY);
-		if (fd == -1)
-		{
-			fd = open("./error.html", O_RDONLY);
-		}
-	}
-	else if (type == INDEX_HTML)
-	{
-		cout << "index_html :" << uri_plus_file << endl;
-		fd = open(uri_plus_file.c_str(), O_RDONLY);
-		if (fd == -1)
-		{
-			fd = open("./index.html", O_RDONLY);
-		}
-	}
-	else if (type == ANY_FILE)
-	{
-		cout << "ANY_FILE :" << uri_plus_file << endl;
-		fd = open(uri_plus_file.c_str(), O_RDONLY);
-		if (fd == -1)
-		{
-			throw 404;
-		}
-		struct stat buf;
-		stat(uri_plus_file.c_str(), &buf);
-		std::string temp = ft::getHTTPTimeFormat(buf.st_mtime);
-		response->set_m_headers("Last-Modified", temp);
-		// std::cout << "LastModified: " << temp << std::endl;
-	}
-
-	// STUB 파일 읽기
 	std::string body;
-	off_t sz_file;
-	sz_file  = lseek(fd, 0, SEEK_END);
-	printf( "file size = %d\n", (int)sz_file);
-	lseek(fd, 0, SEEK_SET);
-	char *buffer = (char *)malloc(sizeof(char) * sz_file);
-	int ret = read(fd, buffer, sz_file);
-	std::cout << "ret :" << ret << std::endl;
-	body.append(buffer, ret);
+	int fd;
+	body = ft::getBody_from_file(uri_plus_file);
+	if (body.size() == 0)
+	{
+		fd = open("./error.html", O_RDONLY);
+		body = ft::getBody_from_fd(fd);
+	}
 	response->set_m_body(body);
 	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
-	free(buffer);
 	if (fd != -1)
 		close(fd);
+	return ;
+}
+
+void			Server::create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
+{
+	connection.set_m_response(new Response(&connection, 200));
+	Response *response = connection.get_m_response();
+	response->set_m_headers("Server", "webserv");
+	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Content-Language", "en-US");
+
+	std::string body;
+	int fd;
+	body = ft::getBody_from_file(uri_plus_file);
+	if (body.size() == 0)
+	{
+		if (type == INDEX_HTML)
+			fd = open("./index.html", O_RDONLY);
+		else
+		{
+			delete connection.get_m_response();
+			connection.set_m_response(NULL);
+			throw 404;
+		}
+		body = ft::getBody_from_fd(fd);
+	}
+	response->set_m_body(body);
+	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+	if (fd != -1)
+		close(fd);
+	return ;
 }
 
 void			Server::solveRequest(Connection& connection, Request& request)
 {
 	cout << "solveRequest()" << endl;
-	char absolute_path[255];
-	getcwd(absolute_path, 255);
-	std::string target_uri(absolute_path);
+	char temp[500];
+	getcwd(temp, 500);
+	std::string absolute_path(temp);
 	
 	std::string hostname;
 	std::map<std::string, std::string>::iterator it;
@@ -396,8 +388,9 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, relative_uri);
 	config_it.locationPath = locationPath;
 
-	target_uri += locationPath->mroot.getPath();
-	target_uri += request.GetDirectory() + "/" + request.GetFileName();
+	std::string root = locationPath->mroot.getPath();
+	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
+	std::string target_uri = absolute_path + root + relative_path;
 	cout << "target_uri: " << target_uri << endl;
 	// NOTE 무작위 값이 들어감
 	
@@ -410,15 +403,15 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 	else if (request.GetURItype() == Request::DIRECTORY)
 	{
-		if (ft::access(target_uri) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
+		if (ft::access(absolute_path + root + relative_path) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
 			for (int i = 0; i < locationPath->mindex_pages.size(); i++)
 			{
-				std::string uri_indexhtml(target_uri);
-				uri_indexhtml += locationPath->mindex_pages[i].getPath();
+				std::string uri_indexhtml(absolute_path + root + request.GetDirectory());
+				uri_indexhtml += "/" + locationPath->mindex_pages[i].getPath();
 				if (ft::isFilePath(uri_indexhtml) == true && ft::access(uri_indexhtml) == true)
 				{
-					get_htmlpage_Response(connection, uri_indexhtml, INDEX_HTML);
+					create_Response_200(connection, uri_indexhtml, INDEX_HTML);
 					connection.SetStatus(Connection::SEND_READY);
 					return ;
 				}
@@ -428,7 +421,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			if (serverblock->mauto_index == true)
 			{
 				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
-				executeAutoindex(connection, *connection.get_m_request(), request.GetDirectory() + "/" + request.GetFileName());
+				std::string temp = root + relative_path;
+				executeAutoindex(connection, *connection.get_m_request(), ft::ReplaceAll_modified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
@@ -443,7 +437,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			uri_errorhtml += locationPath->merror_page.getPath();
 			// uri_errorhtml.clear();
 			// uri_errorhtml = "/Users/yunslee/webserv_200/flabc/error.html";
-			get_htmlpage_Response(connection, uri_errorhtml, ERROR_HTML);
+			create_Response_0(connection, uri_errorhtml);
 			connection.SetStatus(Connection::SEND_READY);
 			return ;
 		}

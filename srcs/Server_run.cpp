@@ -158,7 +158,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	catch (int status_code)
 	{
 		std::cout << "status code : " << status_code << std::endl;
-		create_statuspage_Response(connection, status_code);
+		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
@@ -187,7 +187,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	catch (int status_code)
 	{
 		std::cout << "status code : " << status_code << std::endl;
-		create_statuspage_Response(connection, status_code);
+		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 	}
 	catch(const std::exception& e)

@@ -24,7 +24,7 @@ void		Server::executeGet(Connection& connection, const Request& request, std::st
 	}
 	else
 	{
-		get_htmlpage_Response(connection, target_uri, ANY_FILE);
+		create_Response_200(connection, target_uri, ANY_FILE);
 		return ;
 	}
 }
@@ -120,7 +120,7 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 		{
 			int status_code = 200;
 			connection.set_m_response(new Response(&connection, status_code, request.getBody()));
-			std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
+			std::string errorpage_body = Response::makeStatusPage(status_code, connection.get_m_request()->GetMethod());
 			connection.get_m_response()->set_m_body(errorpage_body);
 			unlink(target_uri.c_str());
 			temp = errno;
