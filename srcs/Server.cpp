@@ -101,14 +101,12 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					connection.SetStatus(Connection::SEND_READY);
 					std::cout << "|" << request->getBody() << "|" << std::endl;
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				connection.SetStatus(Connection::SEND_READY);
 			}
 		}
 	}
@@ -390,8 +388,6 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		hostname = "localhost";
 	else
 		hostname = it->second;
-	// FIXME @ykoh 이런 뉘앙스가 들어가야함.
-	// hostname = request.get_m_host();
 
 	config_iterator config_it; // NOTE configfile에 있는 내용을 전달하기위해서 구조체를 이용함
 	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
@@ -411,10 +407,6 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		executePut(connection, request, target_uri, config_it);
 		connection.SetStatus(Connection::SEND_READY);
 
-	}
-	else if (request.GetURItype() == Request::CGI_PROGRAM)
-	{
-		connection.SetStatus(Connection::CGI_READY);
 	}
 	else if (request.GetURItype() == Request::DIRECTORY)
 	{
@@ -456,23 +448,32 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			return ;
 		}
 	}
-	else if (request.GetURItype() == Request::FILE)
+	else if (request.GetURItype() == Request::FILE || request.GetURItype() == Request::CGI_PROGRAM)
 	{
 		if (request.GetMethod().compare("GET") == 0)
 		{
 			executeGet(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
+			if (request.GetURItype() == Request::FILE)
+				connection.SetStatus(Connection::SEND_READY);
+			else
+				connection.SetStatus(Connection::CGI_READY);
 		}
 		else if (request.GetMethod().compare("HEAD") == 0)
 		{
 			executeHead(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
+			if (request.GetURItype() == Request::FILE)
+				connection.SetStatus(Connection::SEND_READY);
+			else
+				connection.SetStatus(Connection::CGI_READY);
 		}
-		// else if (request.GetMethod().compare("POST") == 0)
-		// {
-		// 	executePost(connection, request, target_uri);
-		// 	connection.SetStatus(Connection::SEND_READY);
-		// }
+		else if (request.GetMethod().compare("POST") == 0)
+		{
+			executePost(connection, request, target_uri);
+			if (request.GetURItype() == Request::FILE)
+				connection.SetStatus(Connection::SEND_READY);
+			else
+				connection.SetStatus(Connection::CGI_READY);
+		}
 		else if (request.GetMethod().compare("DELETE") == 0)
 		{
 			executeDelete(connection, request, target_uri);

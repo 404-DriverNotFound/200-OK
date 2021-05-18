@@ -94,7 +94,7 @@ public:
 	bool						hasRequest(const Connection& connection);
 	bool						runRecvAndSolve(Connection& connection);
 	bool						hasExecuteWork(const Connection& connection) const;
-	bool						runExecute(const Connection& connection);
+	bool						runExecute(Connection& connection);
 	bool						hasSendWork(Connection& connection);
 	bool						runSend(Connection& connection);
 

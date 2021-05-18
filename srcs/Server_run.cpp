@@ -45,7 +45,7 @@ void		Server::run(void)
 		{
 			cout << e.what() << endl;
 			// ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
-			closeConnection(it2->second.get_m_fd());
+			// closeConnection(it2->second.get_m_fd());
 
 		}
 	}
@@ -77,9 +77,8 @@ bool		Server::hasSendWork(Connection& connection)
 	// value = connection.get_m_request()->GetPhase();
 	// TODO COMPLETE로 가정하였으나, 실제로는 request의 진행상황에 따라서 { READY, ON_HEADER, ON_BODY, COMPLETE }; 단계로 나뉨.
 	if (connection.get_m_request() == NULL)
-	{
 		return (false);
-	}
+	
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
 		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
@@ -125,13 +124,14 @@ bool		Server::hasExecuteWork(const Connection& connection) const
 	}
 }
 
-bool		Server::runExecute(const Connection& connection)
+bool		Server::runExecute(Connection& connection)
 {
 	if (connection.GetStatus() == Connection::CGI_READY)
 	{
 		createCGIEnv(connection);
 	}
 
+	connection.SetStatus(Connection::SEND_READY);
 	// executeCGI();
 	return (false);
 }
