@@ -15,6 +15,7 @@ namespace ft
 	void*			memset(void *b, int c, size_t len);
 	void			split_vector(std::vector<std::string> &vec, const std::string& str, const char *delim);
 	std::string		ReplaceAll(std::string &str, const std::string& from, const std::string& to);
+	std::string		ReplaceAll_modified(std::string &str, const std::string& from, const std::string& to);
 
 	char*			itoa(int n);
 	// int				atoi(const char *str); // NOTE std::atoi으로 대체가능 <iostream>

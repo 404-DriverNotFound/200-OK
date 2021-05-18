@@ -45,6 +45,17 @@ std::string ft::ReplaceAll(std::string &str, const std::string& from, const std:
     return str;
 }
 
+std::string ft::ReplaceAll_modified(std::string &str, const std::string& from, const std::string& to)
+{
+    size_t start_pos = 0; //string처음부터 검사
+    while((start_pos = str.find(from, start_pos)) != std::string::npos)  //from을 찾을 수 없을 때까지
+    {
+        str.replace(start_pos, from.length(), to);
+        // start_pos += to.length(); // 중복검사를 피하고 from.length() > to.length()인 경우를 위해서
+    }
+    return str;
+}
+
 static int		ft_itoa_len(int v)
 {
 	int i;
@@ -221,7 +232,7 @@ std::string ft::makeAutoindexHTML(std::string url)
 		if (curr->d_name[0] != '.')
 		{
 			res += "<a href=\"http://";
-			res += "localhost:8000/"; res +=url; res += curr->d_name; res += "\">";
+			res += "localhost:8000"; res +=url; res += curr->d_name; res += "\">";
 			res += curr->d_name; res += "</a><br>\n";
 		}
 		// cout << "1" << endl;

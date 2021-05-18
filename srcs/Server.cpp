@@ -407,8 +407,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		{
 			for (int i = 0; i < locationPath->mindex_pages.size(); i++)
 			{
-				std::string uri_indexhtml(target_uri);
-				uri_indexhtml += locationPath->mindex_pages[i].getPath();
+				std::string uri_indexhtml(absolute_path + root + request.GetDirectory());
+				uri_indexhtml += "/" + locationPath->mindex_pages[i].getPath();
 				if (ft::isFilePath(uri_indexhtml) == true && ft::access(uri_indexhtml) == true)
 				{
 					create_Response_200(connection, uri_indexhtml, INDEX_HTML);
@@ -421,7 +421,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			if (serverblock->mauto_index == true)
 			{
 				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
-				executeAutoindex(connection, *connection.get_m_request(), request.GetDirectory() + "/" + request.GetFileName());
+				std::string temp = root + relative_path;
+				executeAutoindex(connection, *connection.get_m_request(), ft::ReplaceAll_modified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
