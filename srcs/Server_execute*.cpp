@@ -34,6 +34,22 @@ void		Server::executeHead(Connection& connection, const Request& request, std::s
 	executeGet(connection, request, target_uri);
 	std::string null_str;
 	connection.get_m_response()->set_m_body(null_str);
+	Response *response = connection.get_m_response();
+
+	std::map<std::string, std::string>::iterator it = response->get_m_headers().begin();
+	std::map<std::string, std::string> temp;
+	while (it != response->get_m_headers().end())
+	{
+		if (it->first == "Date")
+			temp["Date"] = it->second;
+		else if (it->first == "Server")
+			temp["Server"] = it->second;
+		else if (it->first == "Content-Length")
+			temp["Content-Length"] = it->second;
+		it++;
+	}
+	response->copy_m_headers(temp);
+	
 }
 
 void		Server::executePost(Connection& connection, const Request& request, std::string target_uri)

@@ -318,9 +318,11 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 	connection.set_m_response(new Response(&connection, 0));
 	Response *response = connection.get_m_response();
 	response->set_m_headers("Server", "webserv");
-	response->set_m_headers("Content-Type", "text/html");
-	response->set_m_headers("Connection", "keep-alive");
 	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Content-Language", "en-US");
+	response->set_m_headers("Last-Modified", "en-US");
+
 
 	char buffer[BUFIZE_HTMLFILE];
 	int fd;
@@ -361,6 +363,7 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 		body.append(buffer, ret);
 	}
 	response->set_m_body(body);
+	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
 	if (fd != -1)
 		close(fd);
 }

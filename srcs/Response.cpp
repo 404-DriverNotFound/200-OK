@@ -33,7 +33,7 @@ const int&										Response::get_m_status_code(void) const{return (this->m_stat
 
 const std::string&								Response::get_m_status_description(void) const{return (this->m_status_description);}
 
-const std::map<std::string, std::string>		Response::get_m_headers(void) const{return (this->m_headers);}
+std::map<std::string, std::string>&				Response::get_m_headers(void) {return (this->m_headers);}
 
 const enum TransferType&						Response::get_m_transfer_type(void) const{	return (this->m_transfer_type);}
 
@@ -115,4 +115,20 @@ void		Response::set_m_transfer_type(enum TransferType type)
 void		Response::set_m_body(std::string &body)
 {
 	this->m_body = body;
+}
+
+void		Response::clear_m_headers()
+{
+	this->m_headers.clear();
+}
+
+void		Response::copy_m_headers(std::map<std::string, std::string> &ref)
+{
+	this->clear_m_headers();
+	std::map<std::string, std::string>::iterator it = ref.begin();
+	while (it != ref.end())
+	{
+		this->m_headers[it->first] = it->second;
+		it++;
+	}
 }
