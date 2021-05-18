@@ -297,7 +297,7 @@ void			Server::create_Response_statuscode(Connection &connection, int status_cod
 	// createResponse_statuscode
 	std::map<int, std::string> &status_map = Response::m_status_map;
 	std::map<int, std::string>::iterator it;
-	if ((it = status_map.find(status_code)) != status_map.end())
+	if ((it = status_map.find(status_code)) == status_map.end())
 	{
 		status_code = 0;
 	}
