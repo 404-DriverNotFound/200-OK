@@ -287,28 +287,39 @@ bool			Server::parseBody(Connection& connection)
 	}
 }
 
-void			Server::create_statuspage_Response(Connection &connection, int status_code)
+void			Server::create_Response_statuscode(Connection &connection, int status_code)
 {
-		// NOTE connection의 response에 갖다 붙이기.
-		if (connection.get_m_response() != NULL)
-		{
-			cout << "말이 안되는 상황" << endl;
-		}
-		else
-		{
-			if (status_code != 0)
-			{
-				connection.set_m_response(new Response(&connection, status_code));
-				Response *response = connection.get_m_response();
-				response->set_m_headers("Server", "YKK_webserv");
-				response->set_m_headers("Date", ft::getCurrentTime());
-				response->set_m_headers("Content-Type", "text/html");
-				std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
-				response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
-				response->set_m_body(errorpage_body);
-				return ;
-			}
-		}
+	if (connection.get_m_response() != NULL)
+	{
+		delete connection.get_m_response();
+		connection.set_m_response(NULL);
+	}
+	// createResponse_statuscode
+	std::map<int, std::string> &status_map = Response::m_status_map;
+	std::map<int, std::string>::iterator it;
+	if ((it = status_map.find(status_code)) != status_map.end())
+	{
+		status_code = 0;
+		connection.set_m_response(new Response(&connection, status_code));
+		Response *response = connection.get_m_response();
+		response->set_m_headers("Server", "YKK_webserv");
+		response->set_m_headers("Date", ft::getCurrentTime());
+		std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
+		response->set_m_headers("Content-Type", "text/html");
+		response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
+		response->set_m_body(errorpage_body);
+	}
+	else
+	{
+		connection.set_m_response(new Response(&connection, status_code));
+		Response *response = connection.get_m_response();
+		response->set_m_headers("Server", "YKK_webserv");
+		response->set_m_headers("Date", ft::getCurrentTime());
+		std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
+		response->set_m_headers("Content-Type", "text/html");
+		response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
+		response->set_m_body(errorpage_body);
+	}
 }
 
 void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plus_file, TYPE_HTML type)

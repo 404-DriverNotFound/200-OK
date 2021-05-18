@@ -44,11 +44,12 @@ public:
 	const std::string								getResponse(void);
 
 	// ANCHOR yunslee static 함수(error page 관련 함수)
+	// REVIEW const 처리를 해주는 것이 좋아보임.
 	static std::string								makeErrorPage(int status_code, std::string method);
 	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
 	{
-		m_status_map[0] = "Ykk_File";
+		m_status_map[0] = "Undefined Error";
 
 		m_status_map[100] = "Continue";
 		m_status_map[101] = "Switching Protocols";
