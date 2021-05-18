@@ -358,7 +358,6 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 	std::string body;
 	while (0 != (ret = read(fd, buffer, BUFIZE_HTMLFILE - 1)))
 	{
-		buffer[ret] = '\0';
 		body.append(buffer, ret);
 	}
 	response->set_m_body(body);
@@ -426,7 +425,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			if (serverblock->mauto_index == true)
 			{
 				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
-				executeAutoindex(connection, *connection.get_m_request(), target_uri);
+				executeAutoindex(connection, *connection.get_m_request(), request.GetDirectory() + "/" + request.GetFileName());
 				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
