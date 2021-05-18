@@ -19,7 +19,7 @@ void		Server::run(void)
 		{
 			if (hasSendWork(it2->second))
 			{
-			 	runSend(it2->second);
+				runSend(it2->second);
 			 	continue ; // FIXME 어떻게 처리할지...
 			}
 			if (hasExecuteWork(it2->second))
@@ -77,11 +77,10 @@ bool		Server::hasSendWork(Connection& connection)
 	// value = connection.get_m_request()->GetPhase();
 	// TODO COMPLETE로 가정하였으나, 실제로는 request의 진행상황에 따라서 { READY, ON_HEADER, ON_BODY, COMPLETE }; 단계로 나뉨.
 	if (connection.get_m_request() == NULL)
+	{
 		return (false);
-	Request::ePhase value;
-	value = connection.get_m_request()->GetPhase();
-	
-	if (value == connection.get_m_request()->COMPLETE)
+	}
+	if (connection.GetStatus() == Connection::SEND_READY)
 	{
 		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
 		{
@@ -91,7 +90,9 @@ bool		Server::hasSendWork(Connection& connection)
 		return (true);
 	}
 	else
+	{
 		return (false);
+	}
 }
 
 bool		Server::runSend(Connection& connection)
@@ -114,7 +115,6 @@ bool		Server::runSend(Connection& connection)
 bool		Server::hasExecuteWork(const Connection& connection) const
 {
 	if (connection.GetStatus() == Connection::CGI_READY ||
-		connection.GetStatus() == Connection::SEND_READY || // STUB	나중에 지워야함
 		connection.GetStatus() == Connection::CGI_ING)
 	{
 		return (true);
