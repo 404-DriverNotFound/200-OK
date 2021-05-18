@@ -7,7 +7,6 @@ Connection::Connection(int client_fd, std::string client_ip, int client_port)
 	, mRequest(0)
 	, mResponse(0)
 	, mStatus(REQUEST_READY)
-	, mFdFromCGI(-2)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
@@ -19,7 +18,6 @@ Connection::Connection(void)
 	, mRequest(0)
 	, mResponse(0)
 	, mStatus(REQUEST_READY)
-	, mFdFromCGI(-2)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
 }
@@ -99,14 +97,4 @@ const Connection::eStatus&	Connection::GetStatus(void) const
 void						Connection::SetStatus(const eStatus& status)
 {
 	mStatus = status;
-}
-
-const int&				Connection::GetFdFromCgi(void) const
-{
-	return (mFdFromCGI);
-}
-
-void					Connection::SetFdFromCgi(const int& fd)
-{
-	mFdFromCGI = fd;
 }

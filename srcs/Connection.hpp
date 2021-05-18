@@ -40,10 +40,6 @@ public:
 	const eStatus&			GetStatus(void) const;
 	void					SetStatus(const eStatus& status);
 
-	const int&				GetFdFromCgi(void) const;
-	void					SetFdFromCgi(const int& fd);
-
-
 	void					addRbufFromClient(char* buf, size_t count);
 
 	//ANCHOR yunslee
@@ -57,7 +53,6 @@ private:
 	
 	Request*				mRequest;
 	Response*				mResponse;
-	int						mFdFromCGI;
 };
 
 #endif

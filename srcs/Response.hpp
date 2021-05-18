@@ -29,6 +29,9 @@ public:
 	const std::string&								get_m_body(void) const;
 
 
+	const int&								GetFdFromCgi(void) const;
+	void									SetFdFromCgi(const int& fd);
+
 	void		set_m_connection(Connection *connect);
 	void		set_m_status_code(int status_code);
 	void		set_m_status_description(std::string &status_description);
@@ -116,6 +119,7 @@ private:
 	std::map<std::string, std::string>				m_headers;
 	enum TransferType								m_transfer_type;
 	std::string										m_body;
+	int												mFdFromCGI;
 	
 };
 
