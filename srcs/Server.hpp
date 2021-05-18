@@ -29,6 +29,7 @@ using namespace std;
 class ServerManager;
 class Request;
 class Response;
+struct config_iterator;
 
 class LocationPath
 {
@@ -93,7 +94,7 @@ public:
 	bool						hasRequest(const Connection& connection);
 	bool						runRecvAndSolve(Connection& connection);
 	bool						hasExecuteWork(const Connection& connection) const;
-	bool						runExecute(const Connection& connection);
+	bool						runExecute(Connection& connection);
 	bool						hasSendWork(Connection& connection);
 	bool						runSend(Connection& connection);
 
@@ -104,9 +105,9 @@ public:
 	void						executeGet(Connection& connection, const Request& request, std::string target_uri);
 	void						executeHead(Connection& connection, const Request& request, std::string target_uri);
 	void						executePost(Connection& connection, const Request& request, std::string target_uri);
-	void						executePut(Connection& connection, const Request& request, std::string target_uri);
+	void						executePut(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it);
 	void						executeDelete(Connection& connection, const Request& request, std::string target_uri);
-	void						executeOptions(Connection& connection, const Request& request);
+	void						executeOptions(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it);
 	void						executeTrace(Connection& connection, const Request& request);
 	void						executeCGI(Connection& connection, const Request& request);
 	void						create_statuspage_Response(Connection& connection, int status_code);
@@ -142,5 +143,12 @@ public :
 	// std::queue<Response>		m_responses;
 	// Config*						m_config;
 };
+
+struct config_iterator
+{
+	std::vector<ServerBlock>::iterator serverblock;
+	std::vector<LocationPath>::iterator locationPath;
+};
+
 
 #endif

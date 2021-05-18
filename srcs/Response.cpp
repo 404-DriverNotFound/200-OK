@@ -33,7 +33,7 @@ const int&										Response::get_m_status_code(void) const{return (this->m_stat
 
 const std::string&								Response::get_m_status_description(void) const{return (this->m_status_description);}
 
-const std::map<std::string, std::string>		Response::get_m_headers(void) const{return (this->m_headers);}
+std::map<std::string, std::string>&				Response::get_m_headers(void) {return (this->m_headers);}
 
 const enum TransferType&						Response::get_m_transfer_type(void) const{	return (this->m_transfer_type);}
 
@@ -62,15 +62,18 @@ const std::string								Response::getResponse(void)
 	return (all);
 }
 
-std::string										Response::makeErrorPage(int status_code)
+std::string										Response::makeErrorPage(int status_code, std::string method)
 {
 	std::string errorpage;
 	errorpage += "<html><head><title>STATUS_CODE STATUS_DESCRIPTION</title></head><body bgcolor=\"white\"><center>\n";
-	errorpage += "<h1>STATUS_CODE STATUS_DESCRIPTION</h1></center><hr><center>YKK_Webserver</center></body></html>";
+	errorpage += "<h1>STATUS_CODE STATUS_DESCRIPTION</h1></center><hr>\n";
+	errorpage += "<h2>Method: METHOD</h2></center><hr>\n";
+	errorpage += "<center>YKK_Webserver</center></body></html>";
 	
 	std::string status_str = std::to_string(status_code);
 	ft::ReplaceAll(errorpage, "STATUS_CODE", status_str);
 	ft::ReplaceAll(errorpage, "STATUS_DESCRIPTION", Response::m_status_map[status_code]);
+	ft::ReplaceAll(errorpage, "METHOD", method);
 	return (errorpage);
 }
 
@@ -112,4 +115,20 @@ void		Response::set_m_transfer_type(enum TransferType type)
 void		Response::set_m_body(std::string &body)
 {
 	this->m_body = body;
+}
+
+void		Response::clear_m_headers()
+{
+	this->m_headers.clear();
+}
+
+void		Response::copy_m_headers(std::map<std::string, std::string> &ref)
+{
+	this->clear_m_headers();
+	std::map<std::string, std::string>::iterator it = ref.begin();
+	while (it != ref.end())
+	{
+		this->m_headers[it->first] = it->second;
+		it++;
+	}
 }

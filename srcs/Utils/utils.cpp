@@ -203,16 +203,15 @@ std::string ft::makeAutoindexHTML(std::string url)
 	std::string res;
 	std::string root_string;
 
-	char root_str[100];
-	if (NULL == getcwd(root_str, 100))
+	char root_char[300];
+	if (NULL == getcwd(root_char, 300))
 		return (res);
-	root_string = root_str;
-	root_string += url;
+	root_string = root_char;
 	// url = this->_request.getHeaderValue("Host") + this->_request.getStartLine().path;
 	// dir = opendir(root_string.c_str());
-
-	dir = opendir(url.c_str());
-	std::cout << "rootstring: " << url << std::endl;
+	std::string full_path = root_string + url;
+	dir = opendir(full_path.c_str());
+	std::cout << "rootstring: " << root_string << std::endl;
 	res += "<html>\n";
 	res += "<head><title>Index of "; res+= url; res+= "</title></head>";
 	res += "<body>\n";
@@ -222,7 +221,7 @@ std::string ft::makeAutoindexHTML(std::string url)
 		if (curr->d_name[0] != '.')
 		{
 			res += "<a href=\"http://";
-			res += "localhost:8000/"; res += curr->d_name; res += "\">";
+			res += "localhost:8000/"; res +=url; res += curr->d_name; res += "\">";
 			res += curr->d_name; res += "</a><br>\n";
 		}
 		// cout << "1" << endl;

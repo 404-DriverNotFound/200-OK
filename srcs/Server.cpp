@@ -101,14 +101,12 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					connection.SetStatus(Connection::SEND_READY);
 					std::cout << "|" << request->getBody() << "|" << std::endl;
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				connection.SetStatus(Connection::SEND_READY);
 			}
 		}
 	}
@@ -305,7 +303,7 @@ void			Server::create_statuspage_Response(Connection &connection, int status_cod
 				response->set_m_headers("Server", "YKK_webserv");
 				response->set_m_headers("Date", ft::getCurrentTime());
 				response->set_m_headers("Content-Type", "text/html");
-				std::string errorpage_body = Response::makeErrorPage(status_code);
+				std::string errorpage_body = Response::makeErrorPage(status_code, connection.get_m_request()->GetMethod());
 				response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
 				response->set_m_body(errorpage_body);
 				return ;
@@ -318,11 +316,11 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 	connection.set_m_response(new Response(&connection, 0));
 	Response *response = connection.get_m_response();
 	response->set_m_headers("Server", "webserv");
-	response->set_m_headers("Content-Type", "text/html");
-	response->set_m_headers("Connection", "keep-alive");
 	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Content-Language", "en-US");
 
-	char buffer[BUFIZE_HTMLFILE];
+	// char buffer[BUFIZE_HTMLFILE];
 	int fd;
 	if (type == ERROR_HTML)
 	{
@@ -352,16 +350,26 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 		{
 			throw 404;
 		}
+		struct stat buf;
+		stat(uri_plus_file.c_str(), &buf);
+		std::string temp = ft::getHTTPTimeFormat(buf.st_mtime);
+		response->set_m_headers("Last-Modified", temp);
+		// std::cout << "LastModified: " << temp << std::endl;
 	}
 
-	int ret = 0;
+	// STUB 파일 읽기
 	std::string body;
-	while (0 != (ret = read(fd, buffer, BUFIZE_HTMLFILE - 1)))
-	{
-		buffer[ret] = '\0';
-		body.append(buffer, ret);
-	}
+	off_t sz_file;
+	sz_file  = lseek(fd, 0, SEEK_END);
+	printf( "file size = %d\n", (int)sz_file);
+	lseek(fd, 0, SEEK_SET);
+	char *buffer = (char *)malloc(sizeof(char) * sz_file);
+	int ret = read(fd, buffer, sz_file);
+	std::cout << "ret :" << ret << std::endl;
+	body.append(buffer, ret);
 	response->set_m_body(body);
+	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+	free(buffer);
 	if (fd != -1)
 		close(fd);
 }
@@ -380,27 +388,25 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		hostname = "localhost";
 	else
 		hostname = it->second;
-	// FIXME @ykoh 이런 뉘앙스가 들어가야함.
-	// hostname = request.get_m_host();
 
-	// NOTE 무작위 값이 들어감
+	config_iterator config_it; // NOTE configfile에 있는 내용을 전달하기위해서 구조체를 이용함
 	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
-	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
+	config_it.serverblock = serverblock;
+	std::string relative_uri = request.GetDirectory() + "/" + request.GetFileName();
+	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, relative_uri);
+	config_it.locationPath = locationPath;
 
 	target_uri += locationPath->mroot.getPath();
 	target_uri += request.GetDirectory() + "/" + request.GetFileName();
 	cout << "target_uri: " << target_uri << endl;
+	// NOTE 무작위 값이 들어감
 	
 	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
-		executePut(connection, request, target_uri);
+		executePut(connection, request, target_uri, config_it);
 		connection.SetStatus(Connection::SEND_READY);
 
-	}
-	else if (request.GetURItype() == Request::CGI_PROGRAM)
-	{
-		connection.SetStatus(Connection::CGI_READY);
 	}
 	else if (request.GetURItype() == Request::DIRECTORY)
 	{
@@ -422,7 +428,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			if (serverblock->mauto_index == true)
 			{
 				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
-				executeAutoindex(connection, *connection.get_m_request(), target_uri);
+				executeAutoindex(connection, *connection.get_m_request(), request.GetDirectory() + "/" + request.GetFileName());
 				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
@@ -442,33 +448,42 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			return ;
 		}
 	}
-	else if (request.GetURItype() == Request::FILE)
+	else if (request.GetURItype() == Request::FILE || request.GetURItype() == Request::CGI_PROGRAM)
 	{
 		if (request.GetMethod().compare("GET") == 0)
 		{
 			executeGet(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
+			if (request.GetURItype() == Request::FILE)
+				connection.SetStatus(Connection::SEND_READY);
+			else
+				connection.SetStatus(Connection::CGI_READY);
 		}
 		else if (request.GetMethod().compare("HEAD") == 0)
 		{
 			executeHead(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
+			if (request.GetURItype() == Request::FILE)
+				connection.SetStatus(Connection::SEND_READY);
+			else
+				connection.SetStatus(Connection::CGI_READY);
 		}
 		else if (request.GetMethod().compare("POST") == 0)
 		{
 			executePost(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
+			if (request.GetURItype() == Request::FILE)
+				connection.SetStatus(Connection::SEND_READY);
+			else
+				connection.SetStatus(Connection::CGI_READY);
 		}
 		else if (request.GetMethod().compare("DELETE") == 0)
 		{
 			executeDelete(connection, request, target_uri);
 			connection.SetStatus(Connection::SEND_READY);
 		}
-		// else if (request.GetMethod().compare("OPTIONS") == 0)
-		// {
-			// executeOptions(connection, request);
-			// connection.SetStatus(Connection::SEND_READY);
-		// }
+		else if (request.GetMethod().compare("OPTIONS") == 0)
+		{
+			executeOptions(connection, request, target_uri, config_it);
+			connection.SetStatus(Connection::SEND_READY);
+		}
 		// else if (request.GetMethod().compare("TRACE") == 0)
 		// {
 		// 	// executeOptions(connection, request);

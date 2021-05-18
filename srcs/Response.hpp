@@ -24,7 +24,7 @@ public:
 	const int&										get_m_status_code(void) const;
 	const std::string&								get_m_status_description(void) const;
 	const std::string&								get_m_firstline(void) const;
-	const std::map<std::string, std::string>		get_m_headers(void) const;
+	std::map<std::string, std::string>&				get_m_headers(void);
 	const enum TransferType&						get_m_transfer_type(void) const;
 	const std::string&								get_m_body(void) const;
 
@@ -35,14 +35,16 @@ public:
 	void		set_m_headers(std::string header_key, std::string header_value);
 	void		set_m_transfer_type(enum TransferType);
 	void		set_m_body(std::string &body);
-	
+
+	void		clear_m_headers();
 	void		make_m_firstline();
+	void		copy_m_headers(std::map<std::string, std::string> &ref);
 
 	// NOTE runSend 에서 보낼 것은 getResponse()이 함수 내용을 보내면 끝!!!!
 	const std::string								getResponse(void);
 
 	// ANCHOR yunslee static 함수(error page 관련 함수)
-	static std::string								makeErrorPage(int status_code);
+	static std::string								makeErrorPage(int status_code, std::string method);
 	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
 	{
