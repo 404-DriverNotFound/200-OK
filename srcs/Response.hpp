@@ -28,16 +28,12 @@ public:
 	const enum TransferType&						get_m_transfer_type(void) const;
 	const std::string&								get_m_body(void) const;
 
-
-	const int&								GetFdFromCgi(void) const;
-	void									SetFdFromCgi(const int& fd);
-
 	void		set_m_connection(Connection *connect);
 	void		set_m_status_code(int status_code);
 	void		set_m_status_description(std::string &status_description);
 	void		set_m_headers(std::string header_key, std::string header_value);
 	void		set_m_transfer_type(enum TransferType);
-	void		set_m_body(std::string &body);
+	void		set_m_body(const std::string& body);
 
 	void		clear_m_headers();
 	void		make_m_firstline();
@@ -119,8 +115,6 @@ private:
 	std::map<std::string, std::string>				m_headers;
 	enum TransferType								m_transfer_type;
 	std::string										m_body;
-	int												mFdFromCGI;
-	
 };
 
 #endif

@@ -184,7 +184,99 @@ void		Server::executeTrace(Connection& connection, const Request& request)
 
 }
 
-void		Server::executeCGI(Connection& connection, const Request& request)
+void		Server::executeCGI(Connection& connection, const Request& request) // NOTE request는 전혀 사용되지 않음
 {
-	return ;
+	Response*	response = connection.get_m_response();
+
+	char*	connectionFD = ft::itoa(connection.get_m_fd());
+	if (connectionFD == NULL)
+	{
+		throw 500;
+	}
+	std::string	fromCGIfileName = "fromCGI" + std::string(connectionFD);
+	free(connectionFD); connectionFD = NULL;
+
+	if (connection.GetStatus() == Connection::CGI_READY)
+	{
+		std::string	toCGIfileName("toCGI");
+
+		int	toCGI = open(toCGIfileName.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0666);
+		if (toCGI == -1)
+		{
+			throw 500;
+		}
+
+		int	fromCGI = open(fromCGIfileName.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0666);
+		if (fromCGI == -1)
+		{
+			close(toCGI);
+			throw 500;
+		}
+		int	cnt = write(toCGI, response->get_m_body().c_str(), response->get_m_body().length());
+		if (cnt <= 0)
+		{
+			close(fromCGI);
+			close(toCGI);
+			throw 500;
+		}
+		if (lseek(toCGI, 0, SEEK_SET) == -1)
+		{
+			close(fromCGI);
+			close(toCGI);
+			throw 500;
+		}
+
+		char** envp = createCGIEnv(connection);
+		if (envp == NULL)
+		{
+			close(fromCGI);
+			close(toCGI);
+			throw 500;
+		}
+		int pid = fork();
+		if (pid < 0)
+		{
+			free(envp); envp = NULL;
+			close(fromCGI);
+			close(toCGI);
+			throw 500;
+		}
+		else if (pid == 0)
+		{
+			dup2(toCGI, 0); dup2(fromCGI, 1);
+			execve("cgi_tester", 0, envp);
+			exit(0);
+		}
+		else
+		{
+			waitpid(pid, 0, 0);
+			free(envp); envp = NULL;
+			close(fromCGI);
+			close(toCGI); unlink(toCGIfileName.c_str());
+			connection.SetStatus(Connection::CGI_ING);
+		}
+	}
+	else
+	{
+		int	fromCGI = open(fromCGIfileName.c_str(), O_RDONLY, 0666);
+
+		struct stat	statBuf;
+		if (fstat(fromCGI, &statBuf) == -1)
+		{
+			close(fromCGI);
+			throw 500;
+		}
+
+		char	buf[statBuf.st_size + 1];	// NOTE STACK영역보다 heap에 할당하는ㄱㅔ 더 많이 할당할수 있었떤 것같다 이부분에서 터질 우려도 있다.
+		int		cnt = read(fromCGI, buf, sizeof(buf));
+		buf[cnt] = 0;
+		if (cnt <= 0)
+		{
+			close(fromCGI);
+			throw 500;
+		}
+		response->set_m_body(std::string(buf));
+		close(fromCGI); unlink(fromCGIfileName.c_str());
+		connection.SetStatus(Connection::SEND_READY);
+	}
 }

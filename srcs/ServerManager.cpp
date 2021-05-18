@@ -71,7 +71,7 @@ void		ServerManager::runServer(void)
 		{
 			// cout << "loop_run?" << endl;
 			it->run();
-			closeOldConnection(it);
+			// closeOldConnection(it);
 		}
 		// resetMaxFd();
 		// cout << "-------------------------------" << endl;

@@ -11,7 +11,7 @@ Response::~Response()
 }
 
 Response::Response(Connection* connection, int status_code, std::string body)
-	: m_connection(connection), m_status_code(status_code), m_body(body), mFdFromCGI(-2)
+	: m_connection(connection), m_status_code(status_code), m_body(body)
 {
 	// init_status_map(); 초기화는 메인 문에서 한번 해주고 있음. 안해줘도 됨
 	this->set_m_connection(connection);
@@ -112,7 +112,7 @@ void		Response::set_m_transfer_type(enum TransferType type)
 	this->m_transfer_type = type;
 }
 
-void		Response::set_m_body(std::string &body)
+void		Response::set_m_body(const std::string& body)
 {
 	this->m_body = body;
 }
@@ -131,14 +131,4 @@ void		Response::copy_m_headers(std::map<std::string, std::string> &ref)
 		this->m_headers[it->first] = it->second;
 		it++;
 	}
-}
-
-const int&				Response::GetFdFromCgi(void) const
-{
-	return (mFdFromCGI);
-}
-
-void					Response::SetFdFromCgi(const int& fd)
-{
-	mFdFromCGI = fd;
 }
