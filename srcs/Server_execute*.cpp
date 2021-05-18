@@ -46,13 +46,50 @@ void		Server::executePost(Connection& connection, const Request& request, std::s
 
 }
 
-void		Server::executePut(Connection& connection, const Request& request, std::string target_uri)
+void		Server::executePut(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it)
 {
-	connection.set_m_response(new Response(&connection, 200, request.getBody()));
+	// NOTE 우선은 파일만 Put에 들어온다고 가정하자.
+	bool file_exist = 0;
+	int open_fd = open(target_uri.c_str(), O_RDWR | O_TRUNC);
+	if (open_fd > 0)
+	{
+		file_exist = true;
+		if (errno == 0) // NOTE 파일를 open으로 열었음
+		{
+			connection.set_m_response(new Response(&connection, 200, request.getBody()));
+			write(open_fd, connection.get_m_response()->get_m_body().c_str(), connection.get_m_response()->get_m_body().length());
+		}
+		else if (errno == EISDIR) // NOTE 폴더를 open으로 열었음
+		{
+			connection.set_m_response(new Response(&connection, 204));
+			std::string temp;
+			connection.get_m_response()->set_m_body(temp);
+		}
+		close(open_fd);
+	}
+	else // ENOENT 2
+	{
+		connection.set_m_response(new Response(&connection, 201, request.getBody()));
+		errno = 0;
+		int open_fd = open(target_uri.c_str(), O_WRONLY | O_CREAT, 0755);
+		write(open_fd, connection.get_m_response()->get_m_body().c_str(), connection.get_m_response()->get_m_body().length());
+		close(open_fd);
+	}
 	Response *response = connection.get_m_response();
-	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
-	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
-	cout << "ret: " << ret << endl;
+
+	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+	response->set_m_headers("Server", "webserv");
+	if (errno == 0)
+	{
+		response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+		response->set_m_headers("Content-Type", "text/html");
+		response->set_m_headers("Content-Language", "en-US");
+		if (file_exist == false)
+		{
+			response->set_m_headers("Location", target_uri);
+		}
+	}
+	errno = 0; // NOTE 초기화!
 }
 
 void		Server::executeDelete(Connection& connection, const Request& request, std::string target_uri)

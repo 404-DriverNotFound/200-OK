@@ -386,6 +386,9 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	// NOTE 무작위 값이 들어감
 	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
 	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, request.GetURI());
+	config_iterator config_it; // NOTE configfile에 있는 내용을 전달하기위해서 구조체를 이용함
+	config_it.serverblock = serverblock;
+	config_it.locationPath = locationPath;
 
 	target_uri += locationPath->mroot.getPath();
 	target_uri += request.GetDirectory() + "/" + request.GetFileName();
@@ -394,7 +397,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
-		executePut(connection, request, target_uri);
+		executePut(connection, request, target_uri, config_it);
 		connection.SetStatus(Connection::SEND_READY);
 
 	}

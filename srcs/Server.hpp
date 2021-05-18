@@ -29,6 +29,7 @@ using namespace std;
 class ServerManager;
 class Request;
 class Response;
+struct config_iterator;
 
 class LocationPath
 {
@@ -104,7 +105,7 @@ public:
 	void						executeGet(Connection& connection, const Request& request, std::string target_uri);
 	void						executeHead(Connection& connection, const Request& request, std::string target_uri);
 	void						executePost(Connection& connection, const Request& request, std::string target_uri);
-	void						executePut(Connection& connection, const Request& request, std::string target_uri);
+	void						executePut(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it);
 	void						executeDelete(Connection& connection, const Request& request, std::string target_uri);
 	void						executeOptions(Connection& connection, const Request& request);
 	void						executeTrace(Connection& connection, const Request& request);
@@ -142,5 +143,12 @@ public :
 	// std::queue<Response>		m_responses;
 	// Config*						m_config;
 };
+
+struct config_iterator
+{
+	std::vector<ServerBlock>::iterator serverblock;
+	std::vector<LocationPath>::iterator locationPath;
+};
+
 
 #endif
