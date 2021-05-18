@@ -321,8 +321,6 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 	response->set_m_headers("Date", ft::getCurrentTime().c_str());
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Content-Language", "en-US");
-	response->set_m_headers("Last-Modified", "en-US");
-
 
 	char buffer[BUFIZE_HTMLFILE];
 	int fd;
@@ -354,6 +352,11 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 		{
 			throw 404;
 		}
+		struct stat buf;
+		stat(uri_plus_file.c_str(), &buf);
+		std::string temp = ft::getHTTPTimeFormat(buf.st_mtime);
+		response->set_m_headers("Last-Modified", temp);
+		// std::cout << "LastModified: " << temp << std::endl;
 	}
 
 	int ret = 0;
@@ -460,11 +463,11 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			executeHead(connection, request, target_uri);
 			connection.SetStatus(Connection::SEND_READY);
 		}
-		else if (request.GetMethod().compare("POST") == 0)
-		{
-			executePost(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
-		}
+		// else if (request.GetMethod().compare("POST") == 0)
+		// {
+		// 	executePost(connection, request, target_uri);
+		// 	connection.SetStatus(Connection::SEND_READY);
+		// }
 		else if (request.GetMethod().compare("DELETE") == 0)
 		{
 			executeDelete(connection, request, target_uri);
