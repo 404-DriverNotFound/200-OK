@@ -2,7 +2,16 @@
 
 ConfigFile::ConfigFile() : mserver_name("localhost"), mroot(), mport(8000), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
 					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0)
-					{}
+{
+	this->m_method.push_back("GET");
+	this->m_method.push_back("HEAD");
+	this->m_method.push_back("PUT");
+	this->m_method.push_back("POST");
+	this->m_method.push_back("DELETE");
+	this->m_method.push_back("OPTIONS");
+
+	this->mcgi_extension.push_back(".bla");
+}
 
 ConfigFile::~ConfigFile(){}
 
