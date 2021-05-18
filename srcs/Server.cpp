@@ -322,7 +322,7 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Content-Language", "en-US");
 
-	char buffer[BUFIZE_HTMLFILE];
+	// char buffer[BUFIZE_HTMLFILE];
 	int fd;
 	if (type == ERROR_HTML)
 	{
@@ -359,14 +359,19 @@ void			Server::get_htmlpage_Response(Connection &connection, std::string uri_plu
 		// std::cout << "LastModified: " << temp << std::endl;
 	}
 
-	int ret = 0;
+	// STUB 파일 읽기
 	std::string body;
-	while (0 != (ret = read(fd, buffer, BUFIZE_HTMLFILE - 1)))
-	{
-		body.append(buffer, ret);
-	}
+	off_t sz_file;
+	sz_file  = lseek(fd, 0, SEEK_END);
+	printf( "file size = %d\n", (int)sz_file);
+	lseek(fd, 0, SEEK_SET);
+	char *buffer = (char *)malloc(sizeof(char) * sz_file);
+	int ret = read(fd, buffer, sz_file);
+	std::cout << "ret :" << ret << std::endl;
+	body.append(buffer, ret);
 	response->set_m_body(body);
 	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+	free(buffer);
 	if (fd != -1)
 		close(fd);
 }
