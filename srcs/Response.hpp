@@ -45,7 +45,7 @@ public:
 
 	// ANCHOR yunslee static 함수(error page 관련 함수)
 	// REVIEW const 처리를 해주는 것이 좋아보임.
-	static std::string								makeErrorPage(int status_code, std::string method);
+	static std::string								makeStatusPage(int status_code, std::string method);
 	static std::map<int, std::string >				m_status_map;
 	static void				init_status_map(void)
 	{
