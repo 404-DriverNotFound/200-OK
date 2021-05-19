@@ -5,17 +5,46 @@
 #include <stdlib.h>
 #include <string.h>
 
+enum byte
+{
+	eMB_1,
+	eMB_100,
+	eGB_1
+};
+
+int MB_1 =   1000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
+int MB_100 = 100000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
+int GB_1 = 	1000000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
+
 int main()
 {
-	int buf_size = 1200000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
-	char *buff_rcv = (char *)malloc(sizeof(char) * buf_size);
-	char file_name[200]; memset(file_name, 0, 200);
-	sprintf(file_name, "%dbyte", buf_size);
-	std::cout << file_name << std::endl;
-	// int fd = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0777);
-	// if (fd < 0){perror("open_error: ");return (0);}
-	// std::cout << write(fd, buff_rcv, buf_size) << std::endl;
-	// close(fd);
-	// std::cout << "-= " << errno << " : "<< std::strerror(errno) << " =-" << std::endl;
+	int flag = eGB_1;
+	int buf_size;
+	std::string filename;
+	switch (flag)
+	{
+		case eMB_1:
+			buf_size = MB_1;
+			filename = "1MB.bla";
+			break;
+		case eMB_100:
+			buf_size = MB_100;
+			filename = "100MB.bla";
+			break;
+		case eGB_1:
+			buf_size = GB_1;
+			filename = "1GB.bla";
+			break;
+		default:
+			break;
+	}
+	char *buffer = (char *)malloc(sizeof(char) * buf_size);
+	memset(buffer, 'a', buf_size);
+	std::cout << filename.c_str() << std::endl;
+	int fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0777);
+	if (fd < 0){perror("open_error: ");return (0);}
+	std::cout << write(fd, buffer, buf_size) << std::endl;
+	close(fd);
+	std::cout << "-= " << errno << " : "<< std::strerror(errno) << " =-" << std::endl;
 	return (1);
 }

@@ -330,7 +330,7 @@ void			Server::create_Response_0(Connection &connection, std::string uri_plus_fi
 	}
 	response->set_m_body(body);
 	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
-	if (fd != -1)
+	if (fd > 2)
 		close(fd);
 	return ;
 }
@@ -361,7 +361,7 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 	}
 	response->set_m_body(body);
 	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
-	if (fd != -1)
+	if (fd > 2)
 		close(fd);
 	return ;
 }

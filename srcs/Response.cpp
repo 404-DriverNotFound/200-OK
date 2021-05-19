@@ -58,7 +58,7 @@ const std::string								Response::getResponse(void)
 	}
 	all += "\r\n";
 	all += this->m_body;
-	std::cout << all << std::endl;
+	// std::cout << all << std::endl;
 	return (all);
 }
 

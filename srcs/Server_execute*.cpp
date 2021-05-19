@@ -205,7 +205,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		{
 			throw 500;
 		}
-
+		// fcntl(toCGI, F_SETFL, O_NONBLOCK);
 		int	fromCGI = open(fromCGIfileName.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0666);
 		if (fromCGI == -1)
 		{
@@ -213,6 +213,9 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 			throw 500;
 		}
 		int	cnt = write(toCGI, response->get_m_body().c_str(), response->get_m_body().length());
+		cout << "toCGI: " << toCGI << endl;
+		cout << "fromCGI: " << fromCGI << endl;
+
 		if (cnt <= 0)
 		{
 			close(fromCGI);
@@ -244,7 +247,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		else if (pid == 0)
 		{
 			dup2(toCGI, 0); dup2(fromCGI, 1);
-			execve("cgi_tester", 0, envp);
+			execve("cgi_tester", 0, envp); // NOTE execve 돌아가는 코드
 			exit(0);
 		}
 		else
@@ -254,21 +257,26 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 			close(fromCGI);
 			close(toCGI); //unlink(toCGIfileName.c_str());
 			connection.SetStatus(Connection::CGI_ING);
+			return ;
 		}
 	}
 	else
 	{
-		int	fromCGI = open(fromCGIfileName.c_str(), O_RDONLY, 0666);
-
+		int	fromCGI = open(fromCGIfileName.c_str(), O_RDONLY);
+		cout << "fromCGIfilename: " << fromCGIfileName << endl;
 		struct stat	statBuf;
+
 		if (fstat(fromCGI, &statBuf) == -1)
 		{
 			close(fromCGI);
 			throw 500;
 		}
-
-		char	buf[statBuf.st_size + 1];	// NOTE STACK영역보다 heap에 할당하는ㄱㅔ 더 많이 할당할수 있었떤 것같다 이부분에서 터질 우려도 있다.
-		int		cnt = read(fromCGI, buf, sizeof(buf));
+		char *buf = (char *)malloc(sizeof(char) * (statBuf.st_size + 1));
+		
+		int cnt;
+		int sum = 0;
+		cnt = read(fromCGI, buf, statBuf.st_size);
+		cout << "cnt: " << cnt << endl;
 		buf[cnt] = 0;
 		if (cnt <= 0)
 		{
@@ -278,6 +286,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 
 		// STUB 파싱과정 필요
 		std::string fromCGI_str(buf);
+		free(buf);
 	
 		std::size_t seek = fromCGI_str.find("\r\n\r\n", 0);
 		if (seek == std::string::npos)
@@ -299,16 +308,15 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 				break ;
 			}
 			std::cout << "\t|" << header << "|" << std::endl;
-
-			// STUB header 넣는 부분. 값을 받아서 넣어줘야하는데, 그냥 수기로 넣어주고 있음.
+			// REVIEW 정보는 딱 두개 만 보내주는건가, header 넣는 부분. 값을 받아서 넣어줘야하는데, 그냥 수기로 넣어주고 있음.
 			// Status: 200 OK
 			// Content-Type: text/html; charset=utf-8
+	
 			std::size_t	found = header.find(": ");
 			if (found == std::string::npos)
 			{
 				throw 500;
 			}
-
 			std::string	key = header.substr(0, found);
 			std::locale loc;
 			for(std::string::size_type i = 0; i < key.length(); i++)
@@ -318,10 +326,6 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 
 			std::string	value = header.substr(found + 2);
 			// REVIEW CGI program 에서 Chunked로 보내주기도 하나?
-			// REVIEW 정보는 딱 두개 만 보내주는건가.
-			// Status: 200 OK
-			// Content-Type: text/html; charset=utf-8
-
 			if (key == "status")
 			{
 				std::size_t found = value.find(" ");
