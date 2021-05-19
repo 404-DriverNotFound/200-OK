@@ -36,7 +36,8 @@ void		Server::run(void)
 				runRecvAndSolve(it2->second);
 			}
 		}
-		// catch (Server::IOError& e)
+		// REVIEW 위 함수들에서 status_code를 throw하는데, 받아주는 catch 문이 없음..
+
 		// {
 		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
 		// 	closeConnection(fd);
