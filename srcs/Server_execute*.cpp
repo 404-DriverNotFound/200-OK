@@ -97,7 +97,9 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 	response->set_m_headers("Server", "webserv");
 	if (errno == 0)
 	{
-		response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+		char *itoa_temp = ft::itoa(response->get_m_body().length());
+		response->set_m_headers("Content-Length", itoa_temp);
+		free(itoa_temp);
 		response->set_m_headers("Content-Type", "text/html");
 		response->set_m_headers("Content-Language", "en-US");
 		if (file_exist == false)
@@ -149,7 +151,9 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	response->set_m_headers("Server", "webserv");
 	if (errno == 0 && file_exist == true)
 	{
-		response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+		char *itoa_temp = ft::itoa(response->get_m_body().length());
+		response->set_m_headers("Content-Length", itoa_temp);
+		free(itoa_temp);
 		response->set_m_headers("Content-Type", "text/html");
 		response->set_m_headers("Content-Language", "en-US");
 	}
