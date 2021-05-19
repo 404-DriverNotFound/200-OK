@@ -329,7 +329,9 @@ void			Server::create_Response_0(Connection &connection, std::string uri_plus_fi
 		body = ft::getBody_from_fd(fd);
 	}
 	response->set_m_body(body);
-	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
+  char *itoa_temp = ft::itoa(response->get_m_body().length());
+	response->set_m_headers("Content-Length", itoa_temp);
+	free(itoa_temp);
 	if (fd > 2)
 		close(fd);
 	return ;
@@ -360,8 +362,10 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 		body = ft::getBody_from_fd(fd);
 	}
 	response->set_m_body(body);
-	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
-	if (fd > 2)
+	char *itoa_temp = ft::itoa(response->get_m_body().length());
+	response->set_m_headers("Content-Length", itoa_temp);
+	free(itoa_temp);
+  if (fd > 2)
 		close(fd);
 	return ;
 }
@@ -555,7 +559,9 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	cgiEnv["SCRIPT_NAME"] = "/cgi-bin/script.cgi";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
 
 	cgiEnv["SERVER_NAME"] = "YKK_Server"; 													// STUB "host name of the server, may be dot-decimal IP address.";
-	cgiEnv["SERVER_PORT"] = ft::itoa(mport);
+	char *itoa_temp = ft::itoa(mport);
+	cgiEnv["SERVER_PORT"] = itoa_temp;
+	free(itoa_temp);
 	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
 
