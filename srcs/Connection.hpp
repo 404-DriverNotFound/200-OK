@@ -53,7 +53,6 @@ private:
 	
 	Request*				mRequest;
 	Response*				mResponse;
-
 };
 
 #endif

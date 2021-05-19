@@ -58,7 +58,7 @@ const std::string								Response::getResponse(void)
 	}
 	all += "\r\n";
 	all += this->m_body;
-	std::cout << all << std::endl;
+	// std::cout << all << std::endl;
 	return (all);
 }
 
@@ -112,7 +112,7 @@ void		Response::set_m_transfer_type(enum TransferType type)
 	this->m_transfer_type = type;
 }
 
-void		Response::set_m_body(std::string &body)
+void		Response::set_m_body(const std::string& body)
 {
 	this->m_body = body;
 }

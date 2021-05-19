@@ -329,10 +329,10 @@ void			Server::create_Response_0(Connection &connection, std::string uri_plus_fi
 		body = ft::getBody_from_fd(fd);
 	}
 	response->set_m_body(body);
-	char *itoa_temp = ft::itoa(response->get_m_body().length());
+  char *itoa_temp = ft::itoa(response->get_m_body().length());
 	response->set_m_headers("Content-Length", itoa_temp);
 	free(itoa_temp);
-	if (fd != -1)
+	if (fd > 2)
 		close(fd);
 	return ;
 }
@@ -365,7 +365,7 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 	char *itoa_temp = ft::itoa(response->get_m_body().length());
 	response->set_m_headers("Content-Length", itoa_temp);
 	free(itoa_temp);
-	if (fd != -1)
+  if (fd > 2)
 		close(fd);
 	return ;
 }
