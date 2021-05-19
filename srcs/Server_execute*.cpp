@@ -251,7 +251,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		else if (pid == 0)
 		{
 			dup2(toCGI, 0); dup2(fromCGI, 1);
-			execve("cgi_tester", 0, envp); // NOTE execve 돌아가는 코드
+			execve("ft_tester/cgi_tester", 0, envp); // NOTE execve 돌아가는 코드
 			exit(0);
 		}
 		else
