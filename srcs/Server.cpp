@@ -110,10 +110,6 @@ void			Server::recvRequest(Connection& connection)
 			}
 		}
 	}
-	else
-	{
-		throw Server::ClientServerClose();
-	}
 }
 
 bool			Server::isRequestHasBody(Request* request)
