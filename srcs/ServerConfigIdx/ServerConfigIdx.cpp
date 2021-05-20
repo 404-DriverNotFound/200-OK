@@ -255,7 +255,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			Path error_page(split_vector[1]);
 			default_location.merror_page = error_page;
 		}
-		else if (split_vector[0].compare("auto_index") == 0)
+		else if (split_vector[0].compare("autoindex") == 0)
 		{
 			bool value;
 			if (split_vector.size() != 2)
