@@ -75,12 +75,14 @@ public:
 	void										SetURItype(const eURIType& uriType);
 	// URI 관련된 친구들 //
 
+	const struct timeval&						GetStartTime(void) const;
+	void										SetStartTime(const struct timeval& startTime);
 private:
 	// Connection*									m_connection;
 	// Server*										m_server;
 	// Location*									m_location;
 
-	// struct timeval								m_start_at;
+	struct timeval								mStartTime;
 
 	ePhase										mPhase;
 	std::size_t									mSeek;
