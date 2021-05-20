@@ -221,11 +221,9 @@ bool		Server::hasNewConnection()
 
 bool		Server::acceptNewConnection()
 {
-	int client_socket;
-	sockaddr_in sockaddr;
-	socklen_t socketlen;
-	socketlen = sizeof(struct sockaddr);
-	client_socket = accept(this->msocket, (struct sockaddr*)&sockaddr, (socklen_t*)&socketlen);
+	sockaddr_in	sockaddr;
+	socklen_t	socketlen = sizeof(struct sockaddr);
+	int			client_socket = accept(this->msocket, reinterpret_cast<struct sockaddr*>(&sockaddr), reinterpret_cast<socklen_t*>(&socketlen));
 	if (client_socket == -1)
 	{
 		std::cerr << "Could not create socket." << std::endl;
@@ -234,7 +232,7 @@ bool		Server::acceptNewConnection()
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);
 	FD_SET(client_socket, &(this->m_manager->GetReadSet()));
 	FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
-	this->m_connections[client_socket] = Connection(client_socket, "", this->mport);
+	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
 	return (true);
 }

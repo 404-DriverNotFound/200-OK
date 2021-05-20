@@ -9,7 +9,7 @@ ServerManager::ServerManager(void)
 
 void		ServerManager::exitServer(const std::string& msg) const
 {
-	std::cerr << msg << std::endl;
+	std::cerr << RED "[" << ft::getCurrentTime() << "] [error] " << msg << NC << std::endl;
 	exit(1);
 }
 
