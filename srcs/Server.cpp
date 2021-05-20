@@ -101,7 +101,7 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					std::cout << "|" << request->getBody() << "|" << std::endl;
+					// std::cout << "|" << request->getBody() << "|" << std::endl; // NOTE 남기면 터짐.
 				}
 			}
 			else
@@ -427,7 +427,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 			else
 			{
-				throw 403;
+				throw 404;
 			}
 		}
 		else // NOTE 없는 폴더 경로에 접근 했을 때, error.html 보여주기
