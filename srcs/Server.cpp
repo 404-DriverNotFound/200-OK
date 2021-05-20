@@ -554,8 +554,9 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	cgiEnv["REMOTE_ADDR"] = connection.get_m_client_ip();									// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
-	cgiEnv["SCRIPT_NAME"] = "/cgi-bin/script.cgi";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
-	cgiEnv["SERVER_NAME"] = "YKK_Server"; 													// STUB "host name of the server, may be dot-decimal IP address.";
+	cgiEnv["SCRIPT_NAME"] = "ft_tester/cgi_tester";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
+
+	cgiEnv["SERVER_NAME"] = "FIXME";														// FIXME server_name을 가져다 쓰지 못하고 있다..
 	cgiEnv["SERVER_PORT"] = ft::itos(mport);
 	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
