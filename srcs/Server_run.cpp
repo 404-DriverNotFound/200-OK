@@ -36,19 +36,24 @@ void		Server::run(void)
 				runRecvAndSolve(it2->second);
 			}
 		}
-		// REVIEW 위 함수들에서 status_code를 throw하는데, 받아주는 catch 문이 없음..
-
-		// {
-		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
-		// 	closeConnection(fd);
-		// }
+		catch (int status_code)
+		{
+			it2->second.get_m_response();	
+		}
 		catch (const std::exception& e)
 		{
 			cout << e.what() << endl;
-			// ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
 			// closeConnection(it2->second.get_m_fd());
-
 		}
+
+		// STUB 예시 코드
+		// } catch (Server::IOError& e) {
+		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
+		// 	closeConnection(fd);
+		// } catch (...) {
+		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
+		// 	closeConnection(fd);				
+		// }
 	}
 	if (hasNewConnection())
 	{

@@ -73,17 +73,18 @@ static int		ft_itoa_len(int v)
 	return (i);
 }
 
-char	*ft::itoa(int n)
+std::string ft::itos(int n)
 {
-	char	*itoa;
-	int		itoa_len;
-	int		i;
-	int		temp;
+	char		*itoa;
+	int			itoa_len;
+	int			i;
+	int			temp;
+	std::string	temp_str; temp_str.clear();
 
 	i = 1;
 	itoa_len = ft_itoa_len(n);
 	if (NULL == (itoa = (char *)malloc(sizeof(char) * (itoa_len + 1))))
-		return (NULL);
+		return (temp_str);
 	if (n < 0)
 		itoa[0] = '-';
 	else if (n == 0)
@@ -98,7 +99,9 @@ char	*ft::itoa(int n)
 		n /= 10;
 		i++;
 	}
-	return (itoa);
+	temp_str = itoa;
+	free(itoa);
+	return (temp_str);
 }
 
 
