@@ -307,7 +307,7 @@ void			Server::create_Response_statuscode(Connection &connection, int status_cod
 	response->set_m_headers("Date", ft::getCurrentTime());
 	std::string errorpage_body = Response::makeStatusPage(status_code, connection.get_m_request()->GetMethod());
 	response->set_m_headers("Content-Type", "text/html");
-	response->set_m_headers("Content-Length", std::to_string(errorpage_body.size()));
+	response->set_m_headers("Content-Length", ft::itoa(errorpage_body.size()));
 	response->set_m_body(errorpage_body);
 }
 
@@ -329,9 +329,7 @@ void			Server::create_Response_0(Connection &connection, std::string uri_plus_fi
 		body = ft::getBody_from_fd(fd);
 	}
 	response->set_m_body(body);
-	char *itoa_temp = ft::itoa(response->get_m_body().length());
-	response->set_m_headers("Content-Length", itoa_temp);
-	free(itoa_temp);
+	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
 	if (fd > 2)
 		close(fd);
 	return ;
@@ -362,9 +360,7 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 		body = ft::getBody_from_fd(fd);
 	}
 	response->set_m_body(body);
-	char *itoa_temp = ft::itoa(response->get_m_body().length());
-	response->set_m_headers("Content-Length", itoa_temp);
-	free(itoa_temp);
+	response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
 	if (fd > 2)
 		close(fd);
 	return ;
@@ -564,9 +560,7 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	cgiEnv["REQUEST_URI"] = request->GetURI();
 	cgiEnv["SCRIPT_NAME"] = "/cgi-bin/script.cgi";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
 	cgiEnv["SERVER_NAME"] = "YKK_Server"; 													// STUB "host name of the server, may be dot-decimal IP address.";
-	char *itoa_temp = ft::itoa(mport);
-	cgiEnv["SERVER_PORT"] = itoa_temp;
-	free(itoa_temp);
+	cgiEnv["SERVER_PORT"] = ft::itoa(mport);
 	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
 

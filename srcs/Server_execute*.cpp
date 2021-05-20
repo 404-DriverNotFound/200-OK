@@ -97,9 +97,7 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 	response->set_m_headers("Server", "webserv");
 	if (errno == 0)
 	{
-		char *itoa_temp = ft::itoa(response->get_m_body().length());
-		response->set_m_headers("Content-Length", itoa_temp);
-		free(itoa_temp);
+		response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
 		response->set_m_headers("Content-Type", "text/html");
 		response->set_m_headers("Content-Language", "en-US");
 		if (file_exist == false)
@@ -151,9 +149,7 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	response->set_m_headers("Server", "webserv");
 	if (errno == 0 && file_exist == true)
 	{
-		char *itoa_temp = ft::itoa(response->get_m_body().length());
-		response->set_m_headers("Content-Length", itoa_temp);
-		free(itoa_temp);
+		response->set_m_headers("Content-Length", ft::itoa(response->get_m_body().length()));
 		response->set_m_headers("Content-Type", "text/html");
 		response->set_m_headers("Content-Language", "en-US");
 	}
@@ -192,13 +188,12 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 {
 	Response*	response = connection.get_m_response();
 
-	char*	connectionFD = ft::itoa(connection.get_m_fd());
-	if (connectionFD == NULL)
+	std::string connectionFD = ft::itoa(connection.get_m_fd());
+	if (connectionFD.size() == 0)
 	{
 		throw 500;
 	}
-	std::string	fromCGIfileName = "fromCGI" + std::string(connectionFD);
-	free(connectionFD); connectionFD = NULL;
+	std::string	fromCGIfileName = "fromCGI" + connectionFD;
 
 	if (connection.GetStatus() == Connection::CGI_READY)
 	{
