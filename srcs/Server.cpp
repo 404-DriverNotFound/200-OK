@@ -7,18 +7,21 @@ extern char**	g_env;
 int				Server::SetSocket(std::string ip, uint16_t port)
 {
 	if ((this->msocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-			return (-1);
-	sockaddr_in sockaddr;
-	ft::memset((sockaddr_in *)&sockaddr, 0, sizeof(sockaddr_in));
+	{
+		return (-1);
+	}
+	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_addr.s_addr = ft::ft_inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
+	sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
 	// sockaddr.sin_addr.s_addr = INADDR_ANY;
-	sockaddr.sin_port = ft::ft_htons(this->mport); // htons is necessary to convert a number to
+	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
 	setsockopt(this->msocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	if (bind(this->msocket, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0)
+	if (bind(this->msocket, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr)) < 0)
+	{
 		return (-1);
+	}
 	if (listen(this->msocket, 10) < 0)
 	{
 		cout << "this->msocket: " << this->msocket << endl;
