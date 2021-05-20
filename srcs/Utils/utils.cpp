@@ -364,3 +364,21 @@ std::string ft::getBody_from_fd(int fd)
 	free(buffer);
 	return (body);
 }
+
+std::string		ft::inet_ntos(struct in_addr in)
+{
+	const in_addr_t	mask = 255;
+	std::string		ret;
+
+	ret += itos((in.s_addr & mask));
+	ret += ".";
+    in.s_addr >>= 8;
+	ret += itos((in.s_addr & mask));
+	ret += ".";
+    in.s_addr >>= 8;
+	ret += itos((in.s_addr & mask));
+	ret += ".";
+    in.s_addr >>= 8;
+	ret += itos((in.s_addr & mask));
+	return (ret);
+}

@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 
 namespace ft
 {
@@ -37,7 +38,7 @@ namespace ft
 
 	unsigned long	stohex(const std::string &str);
 
-
+	std::string		inet_ntos(struct in_addr in);
 
 
 	std::string getBody_from_file(std::string uri_plus_file);
