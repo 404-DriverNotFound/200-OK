@@ -18,7 +18,10 @@ int GB_1 = 	1000000000; // INT_MAX 까지만 write함수의 세번째인자에 �
 
 int main()
 {
-	int flag = eGB_1;
+	printf("0번: 1MB\n1번: 100MB\n2번: 1GB\n");
+	write(1, "입력해주세요: ", strlen("입력해주세요: "));
+	int flag;
+	scanf("%d", &flag);
 	int buf_size;
 	std::string filename;
 	switch (flag)
