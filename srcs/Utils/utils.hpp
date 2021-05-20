@@ -17,7 +17,7 @@ namespace ft
 	std::string		ReplaceAll(std::string &str, const std::string& from, const std::string& to);
 	std::string		ReplaceAll_modified(std::string &str, const std::string& from, const std::string& to);
 
-	std::string		itoa(int n);
+	std::string		itos(int n);
 	// int				atoi(const char *str); // NOTE std::atoi으로 대체가능 <iostream>
 
 	bool access(std::string absolute_path);

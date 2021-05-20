@@ -73,7 +73,7 @@ static int		ft_itoa_len(int v)
 	return (i);
 }
 
-std::string ft::itoa(int n)
+std::string ft::itos(int n)
 {
 	char		*itoa;
 	int			itoa_len;

@@ -70,7 +70,7 @@ std::string										Response::makeStatusPage(int status_code, std::string metho
 	errorpage += "<h2>Method: METHOD</h2></center><hr>\n";
 	errorpage += "<center>YKK_Webserver</center></body></html>";
 	
-	ft::ReplaceAll(errorpage, "STATUS_CODE", ft::itoa(status_code));
+	ft::ReplaceAll(errorpage, "STATUS_CODE", ft::itos(status_code));
 	ft::ReplaceAll(errorpage, "STATUS_DESCRIPTION", Response::m_status_map[status_code]);
 	ft::ReplaceAll(errorpage, "METHOD", method);
 	return (errorpage);
@@ -96,7 +96,7 @@ void		Response::set_m_status_description(std::string &status_description)
 void		Response::make_m_firstline()
 {
 	this->m_firstline += "HTTP/1.1 ";
-	this->m_firstline += ft::itoa(m_status_code);
+	this->m_firstline += ft::itos(m_status_code);
 	this->m_firstline += " ";
 	this->m_firstline += this->m_status_description;
 }
