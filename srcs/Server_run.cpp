@@ -36,10 +36,6 @@ void		Server::run(void)
 				runRecvAndSolve(it2->second);
 			}
 		}
-		catch (int status_code)
-		{
-			it2->second.get_m_response();	
-		}
 		catch (const std::exception& e)
 		{
 			cout << e.what() << endl;
@@ -133,15 +129,29 @@ bool		Server::hasExecuteWork(const Connection& connection) const
 bool		Server::runExecute(Connection& connection)
 {
 	// TODO cgi 여부에 따라 걸러주는 로직이 있어야함 cgi 아니면 send ready
-	if (connection.get_m_request()->GetURItype() == Request::CGI_PROGRAM)
+	try
 	{
+		if (connection.get_m_request()->GetURItype() == Request::CGI_PROGRAM)
+		{
 		executeCGI(connection, *(connection.get_m_request()));
 		return (true);
+		}
+		else
+		{
+			connection.SetStatus(Connection::SEND_READY);
+			return (false);
+		}
 	}
-	else
+	catch (int status_code)
 	{
+		std::cout << "runExecute catch: " << status_code << std::endl;
+		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (false);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
 	}
 }
 
@@ -166,19 +176,10 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "status code : " << status_code << std::endl;
+		std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
-	}
-	// catch (const Server::IOError& e)
-	// {
-	// 	throw (e);
-	// }
-	catch (const std::exception& e)
-	{
-		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());
-		// createResponse(connection, 50001);
 	}
 
 	try
@@ -195,7 +196,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "status code : " << status_code << std::endl;
+		std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 	}

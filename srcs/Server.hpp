@@ -118,7 +118,7 @@ public:
 
 	//ANCHOR yunslee
 	std::vector<ServerBlock>&	get_m_serverBlocks(void);
-	// bool						isHostname_IN_server_name(std::vector<ServerBlock> &serverblocks, std::string hostname);
+	bool isValidMethod(Request &request, config_iterator config_it);
 
 	// std::vector<Server>::iterator return_iterator_server(std::vector<Server> servers);
 	std::vector<ServerBlock>::iterator return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname);

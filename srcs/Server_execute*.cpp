@@ -215,11 +215,17 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		cout << "toCGI: " << toCGI << endl;
 		cout << "fromCGI: " << fromCGI << endl;
 
-		if (cnt <= 0)
+		if (cnt < 0)
 		{
 			close(fromCGI);
 			close(toCGI);
 			throw 500;
+		}
+		else if (cnt == 0)
+		{
+			close(fromCGI);
+			close(toCGI);
+			throw 205;
 		}
 		if (lseek(toCGI, 0, SEEK_SET) == -1)
 		{

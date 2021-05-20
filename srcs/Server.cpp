@@ -388,9 +388,12 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string target_uri = absolute_path + root + relative_path;
 	cout << "target_uri: " << target_uri << endl;
-	// NOTE 무작위 값이 들어감
-	
-	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
+
+	if (isValidMethod(request, config_it) == false)
+	{
+		throw 405;
+		return ;
+	}
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
 		executePut(connection, request, target_uri, config_it);
@@ -586,4 +589,17 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	{
 		throw 500; // NOTE 뭘 날려야할까요 500번대 에러는 맞는데...
 	}
+}
+
+bool Server::isValidMethod(Request &request, config_iterator config_it)
+{
+	std::vector<ServerBlock>::iterator serverblock = config_it.serverblock;
+	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
+	for (size_t i = 0; i < locationPath->m_method.size(); i++)
+	{
+		cout << i <<  ": " << locationPath->m_method[i] << endl;
+		if (request.GetMethod() == locationPath->m_method[i])
+			return (true);
+	}
+	return (false);
 }
