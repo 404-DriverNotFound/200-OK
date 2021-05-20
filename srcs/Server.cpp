@@ -104,7 +104,6 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					std::cout << "|" << request->getBody() << "|" << std::endl;
 				}
 			}
 			else
@@ -195,7 +194,6 @@ bool			Server::parseHeader(Connection& connection)
 		return (false);
 	}
 
-	std::cout << "parseHeader() called" << std::endl;
 	while (true)
 	{
 		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
@@ -371,7 +369,6 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 
 void			Server::solveRequest(Connection& connection, Request& request)
 {
-	cout << "solveRequest()" << endl;
 	char temp[500];
 	getcwd(temp, 500);
 	std::string absolute_path(temp);

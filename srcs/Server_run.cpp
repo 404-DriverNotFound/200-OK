@@ -113,6 +113,19 @@ bool		Server::runSend(Connection& connection)
 		// cout << connection.get_m_response()->getResponse() << endl;
 		send_complete = true;
 	}
+	int	statusCode = connection.get_m_response()->get_m_status_code();
+	if (statusCode >= 200 && statusCode < 300)
+	{
+		std::cout << GRN;
+	}
+	else
+	{
+		std::cout << RED;
+	}
+	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
+	std::cout << "[" << request->GetMethod() << "][" << connection.get_m_response()->get_m_status_code() << " " << connection.get_m_response()->m_status_map[connection.get_m_response()->get_m_status_code()] << "]" NC << std::endl;
+
+
 	closeConnection(connection.get_m_fd());
 	return (send_complete);
 }

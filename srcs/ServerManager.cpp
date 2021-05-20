@@ -9,7 +9,7 @@ ServerManager::ServerManager(void)
 
 void		ServerManager::exitServer(const std::string& msg) const
 {
-	std::cerr << RED "[" << ft::getCurrentTime() << "] [error] " << msg << NC << std::endl;
+	std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << msg << NC << std::endl;
 	exit(1);
 }
 
@@ -30,8 +30,6 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 void		ServerManager::runServer(void)
 {
 	// signal(SIGINT, changeSignal);
-
-	cout << "Start runServer" << endl;
 	struct timeval	timeout; memset(&timeout, 0, sizeof(struct timeval));
 	// g_live = true;
 	initMaxFd();
