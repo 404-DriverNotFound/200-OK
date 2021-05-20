@@ -125,7 +125,7 @@ bool		Server::runSend(Connection& connection)
 	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
 	std::cout << "[" << request->GetMethod() << "][" << connection.get_m_response()->get_m_status_code() << " " << connection.get_m_response()->m_status_map[connection.get_m_response()->get_m_status_code()] << "]" NC << std::endl;
 
-
+	// request->ShowMessage(); // ANCHOR request message debugging 용
 	closeConnection(connection.get_m_fd());
 	return (send_complete);
 }

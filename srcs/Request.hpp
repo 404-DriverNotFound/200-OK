@@ -77,6 +77,8 @@ public:
 
 	const struct timeval&						GetStartTime(void) const;
 	void										SetStartTime(const struct timeval& startTime);
+
+	void										ShowMessage(void);
 private:
 	// Connection*									m_connection;
 	// Server*										m_server;
