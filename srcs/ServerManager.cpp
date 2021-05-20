@@ -327,7 +327,7 @@ int ServerManager::SetServers()
 		Server &server = this->m_servers[i];
 		server.SetSocket("0.0.0.0", server.mport);
 		server.m_manager = this; 
-		server.m_connections[server.msocket] = Connection(server.msocket, "INADDR_ANY", server.mport);
+		server.m_connections[server.msocket] = Connection(server.msocket, "0.0.0.0", server.mport);
 	}
 	return (1);
 }

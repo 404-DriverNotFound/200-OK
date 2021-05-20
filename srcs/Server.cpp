@@ -552,12 +552,17 @@ char**			Server::createCGIEnv(const Connection& connection) const
 
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
 
-	cgiEnv["REMOTE_ADDR"] = "0.0.0.0";														// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
+	struct sockaddr_in temp;
+	char remote_addr[16];
+	socklen_t temp_len = sizeof(struct sockaddr_in);
+
+	getsockname(connection.get_m_fd(), (sockaddr *)&temp, &temp_len); // NOTE 반환값이 존재하여 에러를 체크할 수는 있으나, fd에 의한 에러를 발생할 가능성 거의 없다.
+	strncpy(remote_addr, inet_ntoa(temp.sin_addr), 16); // NOTE  반듯이 buffer에 복사해서 사용해야함. 반환값이 동적할당없는 포인터임.
+	cgiEnv["REMOTE_ADDR"] = remote_addr;														// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
 
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
 	cgiEnv["SCRIPT_NAME"] = "/cgi-bin/script.cgi";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
-
 	cgiEnv["SERVER_NAME"] = "YKK_Server"; 													// STUB "host name of the server, may be dot-decimal IP address.";
 	char *itoa_temp = ft::itoa(mport);
 	cgiEnv["SERVER_PORT"] = itoa_temp;
