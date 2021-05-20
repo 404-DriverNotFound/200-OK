@@ -333,16 +333,16 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 			if (key == "status")
 			{
 				std::size_t found = value.find(" ");
-				std::string status_code = value.substr(0, found);
-				int statuscode = std::atoi(status_code.c_str());
-				if (statuscode != 200)
+				std::string status_code_str = value.substr(0, found);
+				int status_code = std::atoi(status_code_str.c_str());
+				if (status_code != 200)
 				{
 					delete (connection.get_m_response());
 					//STUB CGI의 반환 header를 하나만 넣어준다면, 아래로 설정하기
-					connection.set_m_response(new Response(&connection, statuscode, Response::makeStatusPage(statuscode, request.GetMethod())));
+					connection.set_m_response(new Response(&connection, status_code, Response::makeStatusPage(status_code, request.GetMethod())));
 
-					// this->create_Response_statuscode(connection, statuscode);
-					return ; // REVIEW throw 를 statuscode로 던져서 윗단에서 생성시키도록 해야하나.
+					// this->create_Response_statuscode(connection, status_code);
+					return ; // REVIEW throw 를 status_code로 던져서 윗단에서 생성시키도록 해야하나.
 				}
 			}
 			else
