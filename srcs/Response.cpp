@@ -131,3 +131,22 @@ void		Response::copy_m_headers(std::map<std::string, std::string> &ref)
 		it++;
 	}
 }
+
+void		Response::ShowMessage(void)
+{
+	// status line
+	std::cout << "HTTP/9.9 " << m_status_code << " " << m_status_map[m_status_code] << std::endl;
+
+	// response header
+	for (std::map<std::string, std::string>::iterator it = get_m_headers().begin(); it != get_m_headers().end(); ++it)
+	{
+		std::cout << it->first << ": " << it->second << std::endl;
+	}
+	std::cout << std::endl;
+
+	// body
+	if (get_m_body().empty() == false)
+	{
+		std::cout << get_m_body() << std::endl;
+	}
+}

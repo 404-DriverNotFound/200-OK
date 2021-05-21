@@ -104,7 +104,6 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					std::cout << "|" << request->getBody() << "|" << std::endl;
 				}
 			}
 			else
@@ -143,7 +142,6 @@ bool			Server::parseStartLine(Connection& connection)
 	{
 		return (false);
 	}
-	std::cout << "parseStartLine() called" << std::endl;
 	// method 파싱
 	found = requestLine.find(' ');
 	if (found == std::string::npos)
@@ -151,7 +149,6 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 400;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	std::cout << "\t|" << tmp << "|" << std::endl;
 	request->SetMethod(tmp);
 	request->SetSeek(found + 1);
 
@@ -162,7 +159,6 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 414;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	std::cout << "\t|" << tmp << "|" << std::endl;
 
 	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
 	request->ParseURI(tmp);
@@ -176,7 +172,7 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 505;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	std::cout << "\t|" << tmp << "|" << std::endl;
+	request->SetVersion(tmp);
 	// TODO 지원하지 않는 버전 관련 부분 추가해야함
 	// if (isUnsopportingVersion())
 	// {
@@ -195,7 +191,6 @@ bool			Server::parseHeader(Connection& connection)
 		return (false);
 	}
 
-	std::cout << "parseHeader() called" << std::endl;
 	while (true)
 	{
 		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
@@ -209,7 +204,6 @@ bool			Server::parseHeader(Connection& connection)
 			request->SetSeek(found + 2);
 			break ;
 		}
-		std::cout << "\t|" << line << "|" << std::endl;
 
 		if (request->isValidHeader(line))
 		{
@@ -222,7 +216,6 @@ bool			Server::parseHeader(Connection& connection)
 
 bool			Server::parseBody(Connection& connection)
 {
-	std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing
@@ -273,7 +266,7 @@ bool			Server::parseBody(Connection& connection)
 		std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("content-length");
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
-		std::cout << contentLength << " " << bodyLength << std::endl;
+		// std::cout << "contents-length : " << contentLength << " " << bodyLength << std::endl;
 		if (contentLength > bodyLength)
 		{
 			return (false);
@@ -371,7 +364,6 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 
 void			Server::solveRequest(Connection& connection, Request& request)
 {
-	cout << "solveRequest()" << endl;
 	char temp[500];
 	getcwd(temp, 500);
 	std::string absolute_path(temp);

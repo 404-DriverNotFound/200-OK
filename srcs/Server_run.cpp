@@ -67,12 +67,12 @@ void		Server::run(void)
 		
 		if (false == acceptNewConnection())
 		{
-			cout << "accpetNewconnection(): Fail" << endl;
+			// cout << "accpetNewconnection(): Fail" << endl;
 			// reportCreateNewConnectionLog();
 		}
 		else
 		{
-			cout << "accpetNewconnection(): Success" << endl;
+			// cout << "accpetNewconnection(): Success" << endl;
 		}
 	}
 	// cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
@@ -102,17 +102,30 @@ bool		Server::hasSendWork(Connection& connection)
 
 bool		Server::runSend(Connection& connection)
 {
-	int clinet_socket = connection.get_m_fd();
-	Request *request = connection.get_m_request();
-	char buffer[100];
+	Request*	request = connection.get_m_request();
+	Response*	response = connection.get_m_response();
 
 	bool send_complete = false;
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
-		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
+		write(connection.get_m_fd(), response->getResponse().c_str(), response->getResponse().size());
 		// cout << connection.get_m_response()->getResponse() << endl;
 		send_complete = true;
 	}
+	int	statusCode = response->get_m_status_code();
+	if (statusCode >= 200 && statusCode < 300)
+	{
+		std::cout << GRN;
+	}
+	else
+	{
+		std::cout << RED;
+	}
+	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
+	std::cout << "[" << request->GetMethod() << "][" << response->get_m_status_code() << " " << response->m_status_map[statusCode] << "]" NC << std::endl;
+
+	// request->ShowMessage(); // ANCHOR request message debugging 용
+	// response->ShowMessage(); // ANCHOR response message debugging 용
 	closeConnection(connection.get_m_fd());
 	return (send_complete);
 }
@@ -166,7 +179,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "status code : " << status_code << std::endl;
+		// std::cout << "status code : " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
@@ -195,7 +208,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "status code : " << status_code << std::endl;
+		// std::cout << "status code : " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 	}
