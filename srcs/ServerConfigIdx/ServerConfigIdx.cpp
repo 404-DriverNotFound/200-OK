@@ -228,6 +228,12 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				return (-1);
 			default_location.mport = std::atoi(split_vector[1].c_str());
 		}
+		else if (split_vector[0].compare("client_max_body_size") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			default_location.mclient_max_body_size = std::atoi(split_vector[1].c_str());
+		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
 			int i = 1;
@@ -350,6 +356,12 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 			if (split_vector.size() != 2)
 				return (-1);
 			default_location.mport = std::atoi(split_vector[1].c_str());
+		}
+		else if (split_vector[0].compare("client_max_body_size") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			default_location.mclient_max_body_size = std::atoi(split_vector[1].c_str());
 		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{

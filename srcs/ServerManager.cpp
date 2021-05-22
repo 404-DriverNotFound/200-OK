@@ -17,10 +17,10 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 {
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configuration_file_path.c_str());
-	//configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
+	configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
 	// ANCHOR 2단계 parsing
 	this->SetServers_value(&configfiles);
-	// this->ShowServers(); // NOTE server로 구성된 값을 확인하고싶으면,
+	this->ShowServers(); // NOTE server로 구성된 값을 확인하고싶으면,
 	// // ANCHOR 3단계 parsing -> port에 대해서 listen 함수까지 호출함.
 	this->SetServers();
 
@@ -184,6 +184,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mindex_pages = config.mindex_pages;
 			temp2.merror_page = config.merror_page;
 			temp2.mauto_index = config.mauto_index;
+			temp2.mclient_max_body_size = config.mclient_max_body_size;
 
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
@@ -211,6 +212,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
 			temp2.mauto_index = config.mauto_index;
+			temp2.mclient_max_body_size = config.mclient_max_body_size;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
 			continue;
@@ -228,6 +230,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
 			temp2.mauto_index = config.mauto_index;
+			temp2.mclient_max_body_size = config.mclient_max_body_size;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
 			continue;
@@ -297,6 +300,7 @@ int ServerManager::ShowServers()
 				std::cout << "error_page: " << temp3.merror_page.getPath() << std::endl;
 				std::cout << "root: " << temp3.mroot.getPath() << std::endl;
 				std::cout << "auto_index: " << temp3.mauto_index << std::endl;
+				std::cout << "client_max_body_size: " << temp3.mclient_max_body_size << std::endl;
 				
 				for (size_t l = 0; l < temp3.mindex_pages.size(); l++)
 				{

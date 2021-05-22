@@ -11,6 +11,8 @@ void ConfigFiles::ShowConfigs()
 		std::cout << "port: " << this->mconfigs[i].mport << std::endl;
 		std::cout << "auto_index: " << this->mconfigs[i].mauto_index << std::endl;
 		std::cout << "timeout: " << this->mconfigs[i].mtimeout << std::endl;
+		std::cout << "client_max_body_size: " << this->mconfigs[i].mclient_max_body_size << std::endl;
+
 		
 		std::cout << "index_pages: ";
 		for (size_t j = 0; j < this->mconfigs[i].mindex_pages.size(); j++)
