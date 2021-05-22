@@ -60,10 +60,10 @@ bool								Request::isValidHeader(const std::string& header)
 	}
 
 	// FIXME request에 없는 헤더도 있는데, 그 부분을 수정해야할 듯 일단 다 넣음
-	std::string			headerSet[18] = {"accept-charsets", "accept-language", "allow", "authorization", "content-language", "content-length", "content-location", "content-type", "date", "host", "last-modified", "location", "referer", "retry-after", "server", "transfer-encoding", "user-agent", "www-authenticate"};
+	std::string			headerSet[19] = {"accept-charsets", "accept-language", "allow", "authorization", "content-language", "content-length", "content-location", "content-type", "date", "host", "last-modified", "location", "referer", "retry-after", "server", "transfer-encoding", "user-agent", "www-authenticate", "x-secret-header-for-test"};
 	int					i;
 
-	for (i = 0 ; i < 18; i++)
+	for (i = 0 ; i < 19; i++)
 	{
 		if ((key.compare(headerSet[i]) == 0))
 		{

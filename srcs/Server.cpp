@@ -400,7 +400,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		connection.SetStatus(Connection::SEND_READY);
 
 	}
-	else if (request.GetURItype() == Request::DIRECTORY)
+	else if (request.GetURItype() == Request::DIRECTORY || (request.GetURItype() == Request::DIRECTORY && request.GetMethod() == "POST"))
 	{
 		if (ft::access(absolute_path + root + relative_path) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
@@ -562,6 +562,25 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	cgiEnv["SERVER_PORT"] = ft::itos(mport);
 	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
+
+	std::map<std::string, std::string> headers = request->GetHeaders();
+	std::map<string, string>::iterator it_http;
+	for (it_http = headers.begin(); it_http != headers.end(); it_http++)
+	{
+		std::string http_cgi = "HTTP_";
+		std::string temp = it_http->first;
+		for(std::string::size_type i = 0; i < temp.length(); i++)
+		{
+			if (temp[i] == '-')
+				temp[i] = '_';
+			temp[i] = std::toupper(temp[i]);
+		}
+		http_cgi += temp;
+		cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
+		cgiEnv[http_cgi] = it_http->second;
+	}
+	
+
 
 	try
 	{
