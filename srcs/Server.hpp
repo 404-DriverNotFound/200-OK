@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <iostream>
 #include <cstring>
+#include <netinet/tcp.h>
 
 #include "Location.hpp"
 #include "Config.hpp"

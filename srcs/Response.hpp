@@ -28,6 +28,9 @@ public:
 	const enum TransferType&						get_m_transfer_type(void) const;
 	const std::string&								get_m_body(void) const;
 
+	const std::string&								get_m_response(void) const;
+
+	void		set_m_response(std::string);
 	void		set_m_connection(Connection *connect);
 	void		set_m_status_code(int status_code);
 	void		set_m_status_description(std::string &status_description);
@@ -39,8 +42,8 @@ public:
 	void		make_m_firstline();
 	void		copy_m_headers(std::map<std::string, std::string> &ref);
 
-	// NOTE runSend 에서 보낼 것은 getResponse()이 함수 내용을 보내면 끝!!!!
-	const std::string								getResponse(void);
+	// NOTE runSend 에서 보낼 것은 makeResponse()이 함수 내용을 보내면 끝!!!! 나지 않는다. 소켓이라 소켓송신버퍼이상 byte는 한번에 보낼 수 없다.
+	const std::string								makeResponse(void);
 
 	// ANCHOR yunslee static 함수(error page 관련 함수)
 	// REVIEW const 처리를 해주는 것이 좋아보임.
@@ -115,6 +118,8 @@ private:
 	std::map<std::string, std::string>				m_headers;
 	enum TransferType								m_transfer_type;
 	std::string										m_body;
+
+	std::string										m_response;
 };
 
 #endif

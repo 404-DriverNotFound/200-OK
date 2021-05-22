@@ -254,16 +254,16 @@ std::vector<int> ft::getVector_changedFD(fd_set *fdset, size_t fdset_size)
 		if (FD_ISSET(i, fdset) > 0)
 		{
 			ret.push_back((int)i);
-			// std::cout << i << " ";
+			std::cout << i << " ";
 		}
 	}
 	if (ret.size() == 0)
 	{
-		// std::cout << "empty | size: 0" << std::endl;
+		std::cout << "empty | size: 0" << std::endl;
 	}
 	else
 	{
-		// std::cout << "| size: " << ret.size() << std::endl;
+		std::cout << "| size: " << ret.size() << std::endl;
 	}
 	return (ret);
 }
@@ -291,6 +291,7 @@ bool ft::access(std::string absolute_path)
 	{
 		DIR *dir;
 		dir = opendir(absolute_path.c_str());
+		closedir(dir); // NOTE 추가함
 		if (dir == NULL)
 			return (false);
 		else

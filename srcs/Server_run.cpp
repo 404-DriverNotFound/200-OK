@@ -81,7 +81,7 @@ bool		Server::hasSendWork(Connection& connection)
 	if (connection.get_m_request() == NULL)
 		return (false);
 	
-	if (connection.GetStatus() == Connection::SEND_READY)
+	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
 		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
 		{
@@ -100,17 +100,50 @@ bool		Server::runSend(Connection& connection)
 {
 	int clinet_socket = connection.get_m_fd();
 	Request *request = connection.get_m_request();
-	char buffer[100];
-
+	Response *response = connection.get_m_response();
 	bool send_complete = false;
+
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
-		write(connection.get_m_fd(), connection.get_m_response()->getResponse().c_str(), connection.get_m_response()->getResponse().size());
-		// cout << connection.get_m_response()->getResponse() << endl;
-		send_complete = true;
+		response->set_m_response(response->makeResponse()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
+		errno = 0;
+
+		int count = 1000000;
+		int snd_buf= count * 1, rcv_buf= count * 3;
+		int state;
+
+		// NOTE  최적화1. 수신 버퍼의 크기 조절하기
+		// state=setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
+		state = setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
+		cout << "state: " << state << endl;
+
+		// NOTE  최적화1. Nagle 알고리즘 해제하기
+		int opt_val = true;
+		// state = setsockopt(connection.get_m_fd(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
+		cout << "state: " << state << endl;
+
+		// perror("what?:");
+		errno = 0;
+
+		connection.SetStatus(Connection::SEND_ING);
+		return (false);
+
+	}
+	else if(connection.GetStatus() == Connection::SEND_ING)
+	{
+		errno = 0;
+		perror("what?:");
+		int write_size = write(connection.get_m_fd(), response->get_m_response().c_str(), response->get_m_response().length());
+		if (write_size != response->get_m_response().length())
+		{
+			cout << "write_size: " << write_size << endl;
+			response->set_m_response(response->get_m_response().substr(write_size));
+			cout << "now_length: " << response->get_m_response().length() << endl;
+			return (false);
+		}
 	}
 	closeConnection(connection.get_m_fd());
-	return (send_complete);
+	return (true);
 }
 
 bool		Server::hasExecuteWork(const Connection& connection) const

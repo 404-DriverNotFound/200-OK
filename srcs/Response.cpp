@@ -35,7 +35,10 @@ const std::string&								Response::get_m_body(void) const{	return (this->m_body
 
 const std::string&								Response::get_m_firstline(void) const { return (this->m_firstline);}
 
-const std::string								Response::getResponse(void)
+const std::string&								Response::get_m_response(void) const {return (this->m_response);};
+
+
+const std::string								Response::makeResponse(void)
 {
 	std::string all;
 	
@@ -71,6 +74,10 @@ std::string										Response::makeStatusPage(int status_code, std::string metho
 }
 
 
+void		Response::set_m_response(std::string response)
+{
+	this->m_response = response;
+}
 
 void		Response::set_m_connection(Connection *connect)
 {

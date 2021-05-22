@@ -58,6 +58,7 @@ void		Server::executePost(Connection& connection, const Request& request, std::s
 	Response *response = connection.get_m_response();
 	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
+	close (fd); // REVIEW POST에서 request가 들어오던가? 왜 이걸 내가 파일에 저장해야하는지 모르겠어. 존재하는 .bla 파일을 이용하는거아닌가?
 	cout << "ret: " << ret << endl;
 
 }
@@ -66,33 +67,57 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 {
 	// NOTE 우선은 파일만 Put에 들어온다고 가정하자.
 	bool file_exist = 0;
-	int open_fd = open(target_uri.c_str(), O_RDWR | O_TRUNC);
-	if (open_fd > 0)
+	errno = 0;
+	if (target_uri.back() == '/') // NOTE 무조껀 파일경로로 open 하도록 함. 폴더 경로로 open하면, 동작이 조금 다르다.
+		target_uri.pop_back();
+	// cout << "pop_target_uri: target_uri" << target_uri << endl;
+	int open_fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC);
+	// cout << "first open_fd: " << open_fd << endl;
+
+	if (open_fd > 2)
 	{
 		file_exist = true;
+		// perror("whatwhat??:");
 		if (errno == 0) // NOTE 파일를 open으로 열었음
 		{
-			connection.set_m_response(new Response(&connection, 200, request.getBody()));
+			if (connection.get_m_response() != NULL)
+			{
+				delete connection.get_m_response();
+				connection.set_m_response(NULL);
+			}
+			Response *temp2  = new Response(&connection, 200, request.getBody());
+			// printf("temp2 %p \n", temp2);
+			connection.set_m_response(temp2);
 			write(open_fd, connection.get_m_response()->get_m_body().c_str(), connection.get_m_response()->get_m_body().length());
 		}
-		else if (errno == EISDIR) // NOTE 폴더를 open으로 열었음
+		close(open_fd);
+	}
+	else
+	{
+		if (errno == EISDIR) // NOTE 폴더를 open으로 열었음
 		{
 			connection.set_m_response(new Response(&connection, 204));
 			std::string temp;
 			connection.get_m_response()->set_m_body(temp);
 		}
-		close(open_fd);
-	}
-	else // ENOENT 2
-	{
-		connection.set_m_response(new Response(&connection, 201, request.getBody()));
-		errno = 0;
-		int open_fd = open(target_uri.c_str(), O_WRONLY | O_CREAT, 0755);
-		write(open_fd, connection.get_m_response()->get_m_body().c_str(), connection.get_m_response()->get_m_body().length());
-		close(open_fd);
+		else if (errno == ENOENT)
+		{
+			if (connection.get_m_response() != NULL)
+			{
+				delete connection.get_m_response();
+				connection.set_m_response(NULL);
+			}
+			connection.set_m_response(new Response(&connection, 201, request.getBody()));	
+			int open_fd2 = open(target_uri.c_str(), O_WRONLY | O_CREAT, 0755);
+			// cout << "second open_fd: " << open_fd2 << endl;
+
+			write(open_fd2, connection.get_m_response()->get_m_body().c_str(), connection.get_m_response()->get_m_body().length());
+			close(open_fd2);
+
+		}
 	}
 	Response *response = connection.get_m_response();
-
+	// cout << "Response %p" << response << endl;
 	response->set_m_headers("Date", ft::getCurrentTime().c_str());
 	response->set_m_headers("Server", "webserv");
 	if (errno == 0)
