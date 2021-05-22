@@ -21,11 +21,11 @@ public :
 		std::string			mserver_name;		// localhost
 		uint16_t			mport;				// def = 8000;
 
-		bool				mauto_index;		// def = false;
 		int					mtimeout;			// def = 5s
 
 		Path				mlocation_path;		// def = 
 		// NOTE - location에서 덮어씌워지는 요소들
+		bool				mauto_index;		// def = false;
 		Path				mroot;				// def = 
 		std::vector<Path>	mindex_pages;		// def = index.html
 		Path				merror_page;		// def = error.html

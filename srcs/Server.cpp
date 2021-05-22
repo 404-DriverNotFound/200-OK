@@ -417,9 +417,9 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 
 			// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
-			if (serverblock->mauto_index == true)
+			if (locationPath->mauto_index == true)
 			{
-				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
+				cout << "serverblock autoindex: " << locationPath->mauto_index << endl;
 				std::string temp = root + relative_path;
 				executeAutoindex(connection, *connection.get_m_request(), ft::ReplaceAll_modified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);

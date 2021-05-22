@@ -291,7 +291,6 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				default_location.m_method = method;
 				exist_method = true;
 			}
-
 		}
 		else if (split_vector[0].compare("cgi_extension") == 0)
 		{
@@ -398,7 +397,17 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				default_location.m_method = method;
 				exist_method = true;
 			}
-
+		}
+		else if (split_vector[0].compare("autoindex") == 0)
+		{
+			bool value;
+			if (split_vector.size() != 2)
+				return (-1);
+			if (split_vector[1].compare("off") == 0)
+				value = false;
+			if (split_vector[1].compare("on") == 0)
+				value = true;
+			default_location.mauto_index = value;
 		}
 		else if (split_vector[0].compare("cgi_extension") == 0)
 		{

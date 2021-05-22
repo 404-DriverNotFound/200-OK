@@ -4,7 +4,7 @@
 
 extern char**	g_env;
 
-LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html")
+LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html"), mauto_index(false)
 {
 	Path temp("index.html");
 	this->mindex_pages.push_back(temp);
@@ -38,12 +38,13 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 	this->mlocationPath = ref.mlocationPath;
 	this->mroot = ref.mroot;
 
+	this->mauto_index = ref.mauto_index;
 	this->m_method = ref.m_method;
 	this->mcgi_extension = ref.mcgi_extension;
 	return (*this);
 }
 
-ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths(), mauto_index(false), mtimeout(0)
+ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths(), mtimeout(0)
 {
 
 }
@@ -65,7 +66,6 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
 	this->mlocationPaths = ref.mlocationPaths;
 	this->mserverName = ref.mserverName;
 	this->mtimeout = ref.mtimeout;
-	this->mauto_index = ref.mauto_index;
 	return (*this);
 }
 

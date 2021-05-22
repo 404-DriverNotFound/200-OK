@@ -45,6 +45,7 @@ public:
 	Path				mroot;				// def = 
 	std::vector<Path>	mindex_pages;		// def = index.html
 	Path				merror_page;		// def = error.html
+	bool				mauto_index;
 
 	std::vector<std::string>	m_method;
 	std::vector<std::string>	mcgi_extension;
@@ -62,7 +63,6 @@ public :
 	std::vector<LocationPath>	mlocationPaths;
 	std::string					mserverName;
 	int							mtimeout;
-	bool						mauto_index;
 };
 
 class Server // NOTE port별로 나뉘는 블록
