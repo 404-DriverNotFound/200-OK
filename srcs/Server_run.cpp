@@ -87,7 +87,7 @@ bool		Server::hasSendWork(Connection& connection)
 	
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
-		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
+		if (FT_FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
 		{
 			closeConnection(connection.get_m_fd());
 			return (false);
@@ -160,7 +160,7 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
+	if (FT_FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopySet()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
 		// std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
 		return (true);
@@ -221,7 +221,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 
 bool		Server::hasNewConnection()
 {
-	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadCopySet())))
+	if (FT_FD_ISSET(this->msocket, &(this->m_manager->GetReadCopySet())))
 	{
 		cout << "this->msocket: " << this->msocket << endl;
 		return (true);
@@ -243,8 +243,8 @@ bool		Server::acceptNewConnection()
 		return (false);
 	}
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);
-	FD_SET(client_socket, &(this->m_manager->GetReadSet()));
-	FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
+	FT_FD_SET(client_socket, &(this->m_manager->GetReadSet()));
+	FT_FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
 	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
 	return (true);

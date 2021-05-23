@@ -3,8 +3,8 @@
 
 ServerManager::ServerManager(void)
 {
-	FD_ZERO(&m_read_set);
-	FD_ZERO(&m_write_set);
+	FT_FD_ZERO(&m_read_set);
+	FT_FD_ZERO(&m_write_set);
 }
 
 void		ServerManager::exitServer(const std::string& msg) const
@@ -40,7 +40,9 @@ void		ServerManager::runServer(void)
 	while (true	/* g_live */)
 	{
 		timeout.tv_sec = SELECT_TIMEOUT_SEC; timeout.tv_usec = SELECT_TIMEOUT_USEC;
-		fdCopy(ALL_SET);
+		// fdCopy(ALL_SET);
+		FT_FD_COPY(&m_read_set, &m_read_copy_set);
+		FT_FD_COPY(&m_write_set, &m_write_copy_set);
 		resetMaxFd();
 		// cout << "m_max_fd: " << m_max_fd << endl;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
@@ -94,7 +96,8 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 	// STUB 하향식. 연결된 fd가 많으면, 이 방법이 더 효율적임
 	for (int i = 512; i >= 0; --i)
 	{
-		if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
+		// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
+		if (FT_FD_ISSET(i, &m_read_set) || FT_FD_ISSET(i, &m_write_set))
 		{
 			m_max_fd = i;
 			break ;
@@ -113,46 +116,46 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 	// }
 }
 
-void		ServerManager::fdCopy(SetType fdset)
-{
-	if (fdset == WRITE_SET || fdset == ALL_SET)
-	{
-		FD_ZERO(&m_write_copy_set);
-		m_write_copy_set = m_write_set;
-	}
-	if (fdset == READ_SET || fdset == ALL_SET)
-	{
-		FD_ZERO(&m_read_copy_set);
-		m_read_copy_set = m_read_set;
-	}
-}
+// void		ServerManager::fdCopy(SetType fdset)
+// {
+// 	if (fdset == WRITE_SET || fdset == ALL_SET)
+// 	{
+// 		FT_FD_ZERO(&m_write_copy_set);
+// 		m_write_copy_set = m_write_set;
+// 	}
+// 	if (fdset == READ_SET || fdset == ALL_SET)
+// 	{
+// 		FT_FD_ZERO(&m_read_copy_set);
+// 		m_read_copy_set = m_read_set;
+// 	}
+// }
 
-bool		ServerManager::fdIsset(int fd, SetType fdset)
-{
-	if (fdset == WRITE_SET)
-	{
-		if (FD_ISSET(fd, &m_write_copy_set))
-	{
-			return (true);
-	}
-		else
-	{
-			return (false);
-		}
-	}
-	else if (fdset == READ_SET)
-	{
-		if (FD_ISSET(fd, &m_read_copy_set))
-		{
-			return (true);
-		}
-		else
-		{
-			return (false);
-		}
-	}
-	return (false);
-}
+// bool		ServerManager::fdIsset(int fd, SetType fdset)
+// {
+// 	if (fdset == WRITE_SET)
+// 	{
+// 		if (FT_FD_ISSET(fd, &m_write_copy_set))
+// 	{
+// 			return (true);
+// 	}
+// 		else
+// 	{
+// 			return (false);
+// 		}
+// 	}
+// 	else if (fdset == READ_SET)
+// 	{
+// 		if (FT_FD_ISSET(fd, &m_read_copy_set))
+// 		{
+// 			return (true);
+// 		}
+// 		else
+// 		{
+// 			return (false);
+// 		}
+// 	}
+// 	return (false);
+// }
 
 
 
@@ -366,8 +369,8 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		{
 			cout << "closeOldConnection: " << it2->second.get_m_fd() << endl;
 			close (it2->second.get_m_fd());
-			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
-			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
+			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
+			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
 			server_it->m_connections.erase(it2);
 			return ;
 		}

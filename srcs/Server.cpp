@@ -45,7 +45,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ( (FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
+		if ( (FT_FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
 				it2->second.isKeepConnection() == false)
 		{
 			cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
@@ -65,8 +65,8 @@ void			Server::closeConnection(int client_fd)
 		std::map<int, Connection>::iterator it2 = it++;
 		if (it2->second.get_m_fd() == client_fd)
 		{
-			FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-			FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+			FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
+			FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
 			m_connections.erase(it2);
 			return ;
 		}
