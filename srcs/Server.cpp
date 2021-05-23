@@ -13,7 +13,7 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
-	// sockaddr.sin_addr.s_addr = INADDR_ANY;
+	sockaddr.sin_addr.s_addr = INADDR_ANY;
 	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
@@ -157,7 +157,6 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 414;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	// std::cout << "\t|" << tmp << "|" << std::endl;
 	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
 	request->ParseURI(tmp);
 	request->SetSeek(found + 1);
@@ -170,7 +169,6 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 505;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	// std::cout << "\t|" << tmp << "|" << std::endl;
 	request->SetVersion(tmp);
 	// TODO 지원하지 않는 버전 관련 부분 추가해야함
 	// if (isUnsopportingVersion())
@@ -190,7 +188,6 @@ bool			Server::parseHeader(Connection& connection)
 		return (false);
 	}
 
-	// std::cout << "parseHeader() called" << std::endl;
 	while (true)
 	{
 		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
@@ -204,7 +201,6 @@ bool			Server::parseHeader(Connection& connection)
 			request->SetSeek(found + 2);
 			break ;
 		}
-		// std::cout << "\t|" << line << "|" << std::endl;
 
 		if (request->isValidHeader(line))
 		{
@@ -217,7 +213,6 @@ bool			Server::parseHeader(Connection& connection)
 
 bool			Server::parseBody(Connection& connection)
 {
-	// std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing

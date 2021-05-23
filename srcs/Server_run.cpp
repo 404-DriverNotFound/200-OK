@@ -146,7 +146,20 @@ bool		Server::runSend(Connection& connection)
 	}
 	send_number++;
 	cout << "send_nubmer: " << send_number << endl;
-	
+	int	statusCode = response->get_m_status_code();
+	if (statusCode >= 200 && statusCode < 300)
+	{
+		std::cout << GRN;
+	}
+	else
+	{
+		std::cout << RED;
+	}
+	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
+	std::cout << "[" << request->GetMethod() << "][" << response->get_m_status_code() << " " << response->m_status_map[statusCode] << "]" NC << std::endl;
+
+	// request->ShowMessage(); // ANCHOR request message debugging 용
+	// response->ShowMessage(); // ANCHOR response message debugging 용
 	closeConnection(connection.get_m_fd());
 	return (true);
 }
