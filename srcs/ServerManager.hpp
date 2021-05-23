@@ -32,13 +32,10 @@ class ServerManager
 		// void					set_m_config(const Config& config);
 		void					set_m_max_fd(const int& fd);
 
-		enum SetType		{ WRITE_SET, WRITE_COPY_SET, READ_SET, READ_COPY_SET, ERROR_SET, ERROR_COPY_SET, ALL_SET };
+		// enum SetType		{ WRITE_SET, WRITE_COPY_SET, READ_SET, READ_COPY_SET, ERROR_SET, ERROR_COPY_SET, ALL_SET };
 
-		// void				fdSet(int fd, SetType fdset);
-		void				fdZero(SetType fdset);
-		// void				fdClear(int fd, SetType fdset);
-		bool				fdIsset(int fd, SetType fdset);
-		void				fdCopy(SetType fdset);
+		// bool				fdIsset(int fd, SetType fdset);
+		// void				fdCopy(SetType fdset);
 
 		void				initMaxFd();
 		void				resetMaxFd();
