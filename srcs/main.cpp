@@ -30,7 +30,7 @@ int		main(int argc, char* argv[], char* envp[])
 				}
 				else
 				{
-					cout << "No such a file: \"" << argv[1] << "\"" << endl;
+					// cout << "No such a file: \"" << argv[1] << "\"" << endl;
 					return (-1);
 				}
 			}

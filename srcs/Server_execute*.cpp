@@ -54,13 +54,12 @@ void		Server::executeHead(Connection& connection, const Request& request, std::s
 
 void		Server::executePost(Connection& connection, const Request& request, std::string target_uri)
 {
+	// int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
+	// int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
+	// close (fd); // REVIEW POST에서 request가 들어오던가? 왜 이걸 내가 파일에 저장해야하는지 모르겠어. 존재하는 .bla 파일을 이용하는거아닌가?
+	// cout << "ret: " << ret << endl;
+	
 	connection.set_m_response(new Response(&connection, 200, request.getBody()));
-	Response *response = connection.get_m_response();
-	int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
-	int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
-	close (fd); // REVIEW POST에서 request가 들어오던가? 왜 이걸 내가 파일에 저장해야하는지 모르겠어. 존재하는 .bla 파일을 이용하는거아닌가?
-	cout << "ret: " << ret << endl;
-
 }
 
 void		Server::executePut(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it)
@@ -237,8 +236,8 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 			throw 500;
 		}
 		int	cnt = write(toCGI, response->get_m_body().c_str(), response->get_m_body().length());
-		cout << "toCGI: " << toCGI << endl;
-		cout << "fromCGI: " << fromCGI << endl;
+		// cout << "toCGI: " << toCGI << endl;
+		// cout << "fromCGI: " << fromCGI << endl;
 
 		if (cnt < 0)
 		{
@@ -293,7 +292,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 	else
 	{
 		int	fromCGI = open(fromCGIfileName.c_str(), O_RDONLY);
-		cout << "fromCGIfilename: " << fromCGIfileName << endl;
+		// cout << "fromCGIfilename: " << fromCGIfileName << endl;
 		struct stat	statBuf;
 
 		if (fstat(fromCGI, &statBuf) == -1)
@@ -306,7 +305,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		int cnt;
 		int sum = 0;
 		cnt = read(fromCGI, buf, statBuf.st_size);
-		cout << "cnt: " << cnt << endl;
+		// cout << "cnt: " << cnt << endl;
 		buf[cnt] = 0;
 		if (cnt <= 0)
 		{
@@ -337,7 +336,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 				seek_cur += 2;
 				break ;
 			}
-			std::cout << "\t|" << header << "|" << std::endl;
+			// std::cout << "\t|" << header << "|" << std::endl;
 			// REVIEW 정보는 딱 두개 만 보내주는건가, header 넣는 부분. 값을 받아서 넣어줘야하는데, 그냥 수기로 넣어주고 있음.
 			// Status: 200 OK
 			// Content-Type: text/html; charset=utf-8
@@ -373,7 +372,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 			}
 			else
 			{
-				std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
+				// std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 				connection.get_m_response()->set_m_headers(key, value);
 			}
 			seek_cur = seek + 2;

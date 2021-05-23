@@ -339,7 +339,7 @@ std::string ft::getBody_from_file(std::string uri_plus_file)
 		return (body);
 	off_t sz_file;
 	sz_file  = lseek(fd, 0, SEEK_END);
-	printf("file size = %d\n", (int)sz_file);
+	// printf("file size = %d\n", (int)sz_file);
 	lseek(fd, 0, SEEK_SET);
 	char *buffer = (char *)malloc(sizeof(char) * sz_file);
 	int ret = read(fd, buffer, sz_file);
@@ -357,7 +357,7 @@ std::string ft::getBody_from_fd(int fd)
 		return (body);
 	off_t sz_file;
 	sz_file  = lseek(fd, 0, SEEK_END);
-	printf( "file size = %d\n", (int)sz_file);
+	// printf( "file size = %d\n", (int)sz_file);
 	lseek(fd, 0, SEEK_SET);
 	char *buffer = (char *)malloc(sizeof(char) * sz_file);
 	int ret = read(fd, buffer, sz_file);

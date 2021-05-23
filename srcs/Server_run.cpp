@@ -51,6 +51,7 @@ void		Server::run(void)
 		// 	closeConnection(fd);				
 		// }
 	}
+	// cout << "m_connections.size()" << m_connections.size() << endl;
 	if (hasNewConnection())
 	{
 		if (m_connections.size() >= (INIT_FD_MAX / m_manager->GetServers().size()))
@@ -98,6 +99,7 @@ bool		Server::hasSendWork(Connection& connection)
 
 bool		Server::runSend(Connection& connection)
 {
+	static int send_number = 0;
 	int clinet_socket = connection.get_m_fd();
 	Request *request = connection.get_m_request();
 	Response *response = connection.get_m_response();
@@ -114,13 +116,13 @@ bool		Server::runSend(Connection& connection)
 
 		// NOTE  최적화1. 수신 버퍼의 크기 조절하기
 		// state=setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
-		state = setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
-		cout << "state: " << state << endl;
+		// state = setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
+		// cout << "state: " << state << endl;
 
 		// NOTE  최적화1. Nagle 알고리즘 해제하기
 		int opt_val = true;
 		// state = setsockopt(connection.get_m_fd(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
-		cout << "state: " << state << endl;
+		// cout << "state: " << state << endl;
 
 		// perror("what?:");
 		errno = 0;
@@ -132,16 +134,18 @@ bool		Server::runSend(Connection& connection)
 	else if(connection.GetStatus() == Connection::SEND_ING)
 	{
 		errno = 0;
-		perror("what?:");
+		// perror("what?:");
 		int write_size = write(connection.get_m_fd(), response->get_m_response().c_str(), response->get_m_response().length());
 		if (write_size != response->get_m_response().length())
 		{
-			cout << "write_size: " << write_size << endl;
+			// cout << "write_size: " << write_size << endl;
 			response->set_m_response(response->get_m_response().substr(write_size));
-			cout << "now_length: " << response->get_m_response().length() << endl;
+			// cout << "now_length: " << response->get_m_response().length() << endl;
 			return (false);
 		}
 	}
+	send_number++;
+	cout << "send_nubmer: " << send_number << endl;
 	closeConnection(connection.get_m_fd());
 	return (true);
 }
@@ -177,7 +181,7 @@ bool		Server::runExecute(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "runExecute catch: " << status_code << std::endl;
+		// std::cout << "runExecute catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (false);
@@ -209,7 +213,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
+		// std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
@@ -229,7 +233,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	}
 	catch (int status_code)
 	{
-		std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
+		// std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 	}
@@ -244,7 +248,7 @@ bool		Server::hasNewConnection()
 {
 	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadCopySet())))
 	{
-		cout << "this->msocket: " << this->msocket << endl;
+		// cout << "this->msocket: " << this->msocket << endl;
 		return (true);
 	}
 	else
@@ -262,7 +266,7 @@ bool		Server::acceptNewConnection()
 	client_socket = accept(this->msocket, (struct sockaddr*)&sockaddr, (socklen_t*)&socketlen);
 	if (client_socket == -1)
 	{
-		std::cerr << "Could not create socket." << std::endl;
+		// std::cerr << "Could not create socket." << std::endl;
 		return (false);
 	}
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);

@@ -19,9 +19,9 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 	setsockopt(this->msocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	if (bind(this->msocket, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0)
 		return (-1);
-	if (listen(this->msocket, 10) < 0)
+	if (listen(this->msocket, 10000) < 0)
 	{
-		cout << "this->msocket: " << this->msocket << endl;
+		// cout << "this->msocket: " << this->msocket << endl;
 		return (-1);
 	}
 	// NOTE fcntl 부분 일단 넣어봄 왜 필요한지 여부는 아직 파악 못함
@@ -35,7 +35,7 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 int				Server::getUnuseConnectionFd()
 {
 	std::map<int, Connection>::iterator it = m_connections.begin();
-	cout << "getUnuseConnectionFd_connection size: "<< m_connections.size() << endl; 
+	// cout << "getUnuseConnectionFd_connection size: "<< m_connections.size() << endl; 
 	while (it != m_connections.end())
 	{
 		std::map<int, Connection>::iterator it2 = it++;
@@ -45,7 +45,7 @@ int				Server::getUnuseConnectionFd()
 		if ( (FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
 				it2->second.isKeepConnection() == false)
 		{
-			cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
+			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
 			return (it2->second.get_m_fd());
 		}
 	}
@@ -136,7 +136,7 @@ bool			Server::parseStartLine(Connection& connection)
 	{
 		return (false);
 	}
-	std::cout << "parseStartLine() called" << std::endl;
+	// std::cout << "parseStartLine() called" << std::endl;
 	// method 파싱
 	found = requestLine.find(' ');
 	if (found == std::string::npos)
@@ -144,7 +144,7 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 400;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	std::cout << "\t|" << tmp << "|" << std::endl;
+	// std::cout << "\t|" << tmp << "|" << std::endl;
 	request->SetMethod(tmp);
 	request->SetSeek(found + 1);
 
@@ -155,7 +155,7 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 414;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	std::cout << "\t|" << tmp << "|" << std::endl;
+	// std::cout << "\t|" << tmp << "|" << std::endl;
 
 	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
 	request->ParseURI(tmp);
@@ -169,7 +169,7 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 505;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	std::cout << "\t|" << tmp << "|" << std::endl;
+	// std::cout << "\t|" << tmp << "|" << std::endl;
 	// TODO 지원하지 않는 버전 관련 부분 추가해야함
 	// if (isUnsopportingVersion())
 	// {
@@ -188,7 +188,7 @@ bool			Server::parseHeader(Connection& connection)
 		return (false);
 	}
 
-	std::cout << "parseHeader() called" << std::endl;
+	// std::cout << "parseHeader() called" << std::endl;
 	while (true)
 	{
 		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
@@ -202,7 +202,7 @@ bool			Server::parseHeader(Connection& connection)
 			request->SetSeek(found + 2);
 			break ;
 		}
-		std::cout << "\t|" << line << "|" << std::endl;
+		// std::cout << "\t|" << line << "|" << std::endl;
 
 		if (request->isValidHeader(line))
 		{
@@ -215,7 +215,7 @@ bool			Server::parseHeader(Connection& connection)
 
 bool			Server::parseBody(Connection& connection)
 {
-	std::cout << "parseBody() called" << std::endl;
+	// std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing
@@ -266,7 +266,7 @@ bool			Server::parseBody(Connection& connection)
 		std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("content-length");
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
-		std::cout << contentLength << " " << bodyLength << std::endl;
+		// std::cout << contentLength << " " << bodyLength << std::endl;
 		if (contentLength > bodyLength)
 		{
 			return (false);
@@ -396,12 +396,17 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
+
+		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+			throw 413;
 		executePut(connection, request, target_uri, config_it);
 		connection.SetStatus(Connection::SEND_READY);
 
 	}
 	else if (request.GetURItype() == Request::DIRECTORY || (request.GetURItype() == Request::DIRECTORY && request.GetMethod() == "POST"))
 	{
+		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+			throw 413;
 		if (ft::access(absolute_path + root + relative_path) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
 			for (int i = 0; i < locationPath->mindex_pages.size(); i++)
@@ -419,7 +424,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
 			if (locationPath->mauto_index == true)
 			{
-				cout << "serverblock autoindex: " << locationPath->mauto_index << endl;
+				// cout << "serverblock autoindex: " << locationPath->mauto_index << endl;
 				std::string temp = root + relative_path;
 				executeAutoindex(connection, *connection.get_m_request(), ft::ReplaceAll_modified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);
@@ -461,6 +466,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 		else if (request.GetMethod().compare("POST") == 0)
 		{
+			if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+				throw 413;
 			executePost(connection, request, target_uri);
 			if (request.GetURItype() == Request::FILE)
 				connection.SetStatus(Connection::SEND_READY);
@@ -576,7 +583,7 @@ char**			Server::createCGIEnv(const Connection& connection) const
 			temp[i] = std::toupper(temp[i]);
 		}
 		http_cgi += temp;
-		cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
+		// cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
 		cgiEnv[http_cgi] = it_http->second;
 	}
 	
@@ -616,7 +623,7 @@ bool Server::isValidMethod(Request &request, config_iterator config_it)
 	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
 	for (size_t i = 0; i < locationPath->m_method.size(); i++)
 	{
-		cout << i <<  ": " << locationPath->m_method[i] << endl;
+		// cout << i <<  ": " << locationPath->m_method[i] << endl;
 		if (request.GetMethod() == locationPath->m_method[i])
 			return (true);
 	}

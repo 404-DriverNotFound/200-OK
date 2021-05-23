@@ -105,7 +105,7 @@ void								Request::addHeader(const std::string& header)
 			value = value.substr(0, found);
 		}
 	}
-	std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
+	// std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 	mHeaders.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 

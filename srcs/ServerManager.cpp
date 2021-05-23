@@ -31,7 +31,7 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 void		ServerManager::runServer(void)
 {
 	// signal(SIGINT, changeSignal);
-
+	// static int sum = 0;
 	cout << "Start runServer" << endl;
 	struct timeval	timeout; memset(&timeout, 0, sizeof(struct timeval));
 	// g_live = true;
@@ -64,6 +64,7 @@ void		ServerManager::runServer(void)
 			std::vector<int> write_set;
 			write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
 			std::cout << "select :" << cnt << endl;
+			// cout << "sum: " << sum << endl;
 		}
 
 		// ANCHOR 참고코드
