@@ -43,7 +43,7 @@ void		Server::run(void)
 		catch (const std::exception& e)
 		{
 			cout << e.what() << endl;
-			// closeConnection(it2->second.get_m_fd());
+			closeConnection(it2->second.get_m_fd());
 		}
 
 		// STUB 예시 코드
@@ -184,10 +184,10 @@ bool		Server::runRecvAndSolve(Connection& connection)
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
-	// catch (const Server::IOError& e)
-	// {
-	// 	throw (e);
-	// }
+	catch (const Server::IOError& e)
+	{
+		throw (e);
+	}
 	catch (const std::exception& e)
 	{
 		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());

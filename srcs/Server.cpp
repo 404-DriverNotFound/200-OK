@@ -114,7 +114,7 @@ void			Server::recvRequest(Connection& connection)
 	}
 	else
 	{
-		throw Server::ClientServerClose();
+		throw Server::IOError();
 	}
 }
 
@@ -490,7 +490,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 
 }
 
-const char* Server::ClientServerClose::what() const throw(){ return ("Client close Server!"); }
+const char* Server::IOError::what() const throw(){ return ("IO ERROR!!"); }
 
 char**			Server::createCGIEnv(const Connection& connection) const
 {
