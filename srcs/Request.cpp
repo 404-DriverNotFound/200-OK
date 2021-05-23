@@ -6,6 +6,7 @@ Request::Request(void)
 	, mURItype(DIRECTORY)
 	, mSeek(0)
 {
+	gettimeofday(&mStartTime, NULL);
 }
 
 void								Request::addOrigin(const std::string& added_origin)
@@ -105,7 +106,6 @@ void								Request::addHeader(const std::string& header)
 			value = value.substr(0, found);
 		}
 	}
-	// std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 	mHeaders.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
@@ -281,4 +281,33 @@ const Request::eURIType&			Request::GetURItype(void) const
 void								Request::SetURItype(const eURIType& uriType)
 {
 	mURItype = uriType;
+}
+
+const struct timeval&				Request::GetStartTime(void) const
+{
+	return (mStartTime);
+}
+
+void								Request::SetStartTime(const struct timeval& startTime)
+{
+	mStartTime = startTime;
+}
+
+void								Request::ShowMessage(void)
+{
+	// request line
+	std::cout << GetMethod() << " " << GetURI() << " " << GetVersion() << std::endl;
+
+	// request header
+	for (std::map<std::string, std::string>::iterator it = GetHeaders().begin(); it != GetHeaders().end(); ++it)
+	{
+		std::cout << it->first << ": " << it->second << std::endl;
+	}
+	std::cout << std::endl;
+
+	// body
+	if (getBody().empty() == false)
+	{
+		std::cout << getBody() << std::endl;
+	}
 }

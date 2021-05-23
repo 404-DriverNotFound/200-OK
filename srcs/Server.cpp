@@ -7,18 +7,21 @@ extern char**	g_env;
 int				Server::SetSocket(std::string ip, uint16_t port)
 {
 	if ((this->msocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-			return (-1);
-	sockaddr_in sockaddr;
-	ft::memset((sockaddr_in *)&sockaddr, 0, sizeof(sockaddr_in));
+	{
+		return (-1);
+	}
+	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_addr.s_addr = ft::ft_inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
-	// sockaddr.sin_addr.s_addr = INADDR_ANY;
-	sockaddr.sin_port = ft::ft_htons(this->mport); // htons is necessary to convert a number to
+	sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
+	sockaddr.sin_addr.s_addr = INADDR_ANY;
+	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
 	setsockopt(this->msocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	if (bind(this->msocket, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0)
+	if (bind(this->msocket, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr)) < 0)
+	{
 		return (-1);
+	}
 	if (listen(this->msocket, 10000) < 0)
 	{
 		// cout << "this->msocket: " << this->msocket << endl;
@@ -42,7 +45,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ( (FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
+		if ( (FT_FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
 				it2->second.isKeepConnection() == false)
 		{
 			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
@@ -62,8 +65,8 @@ void			Server::closeConnection(int client_fd)
 		std::map<int, Connection>::iterator it2 = it++;
 		if (it2->second.get_m_fd() == client_fd)
 		{
-			FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-			FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+			FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
+			FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
 			m_connections.erase(it2);
 			return ;
 		}
@@ -101,7 +104,6 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					// std::cout << "|" << request->getBody() << "|" << std::endl; // NOTE 남기면 터짐.
 				}
 			}
 			else
@@ -136,7 +138,6 @@ bool			Server::parseStartLine(Connection& connection)
 	{
 		return (false);
 	}
-	// std::cout << "parseStartLine() called" << std::endl;
 	// method 파싱
 	found = requestLine.find(' ');
 	if (found == std::string::npos)
@@ -144,7 +145,6 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 400;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	// std::cout << "\t|" << tmp << "|" << std::endl;
 	request->SetMethod(tmp);
 	request->SetSeek(found + 1);
 
@@ -155,7 +155,6 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 414;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	// std::cout << "\t|" << tmp << "|" << std::endl;
 
 	// ANCHOR URI 분석 (URI 구조를 몰라서 아직 못함) 작업중
 	request->ParseURI(tmp);
@@ -169,7 +168,7 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 505;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	// std::cout << "\t|" << tmp << "|" << std::endl;
+	request->SetVersion(tmp);
 	// TODO 지원하지 않는 버전 관련 부분 추가해야함
 	// if (isUnsopportingVersion())
 	// {
@@ -188,7 +187,6 @@ bool			Server::parseHeader(Connection& connection)
 		return (false);
 	}
 
-	// std::cout << "parseHeader() called" << std::endl;
 	while (true)
 	{
 		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
@@ -202,7 +200,6 @@ bool			Server::parseHeader(Connection& connection)
 			request->SetSeek(found + 2);
 			break ;
 		}
-		// std::cout << "\t|" << line << "|" << std::endl;
 
 		if (request->isValidHeader(line))
 		{
@@ -215,7 +212,6 @@ bool			Server::parseHeader(Connection& connection)
 
 bool			Server::parseBody(Connection& connection)
 {
-	// std::cout << "parseBody() called" << std::endl;
 	Request*		request = connection.get_m_request();
 
 	// NOTE chunked parsing
@@ -364,7 +360,6 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 
 void			Server::solveRequest(Connection& connection, Request& request)
 {
-	cout << "solveRequest()" << endl;
 	char temp[500];
 	getcwd(temp, 500);
 	std::string absolute_path(temp);
@@ -554,18 +549,12 @@ char**			Server::createCGIEnv(const Connection& connection) const
 
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
 
-	struct sockaddr_in temp;
-	char remote_addr[16];
-	socklen_t temp_len = sizeof(struct sockaddr_in);
-
-	getsockname(connection.get_m_fd(), (sockaddr *)&temp, &temp_len); // NOTE 반환값이 존재하여 에러를 체크할 수는 있으나, fd에 의한 에러를 발생할 가능성 거의 없다.
-	strncpy(remote_addr, inet_ntoa(temp.sin_addr), 16); // NOTE  반듯이 buffer에 복사해서 사용해야함. 반환값이 동적할당없는 포인터임.
-	cgiEnv["REMOTE_ADDR"] = remote_addr;														// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
-
+	cgiEnv["REMOTE_ADDR"] = connection.get_m_client_ip();									// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
-	cgiEnv["SCRIPT_NAME"] = "/cgi-bin/script.cgi";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
-	cgiEnv["SERVER_NAME"] = "YKK_Server"; 													// STUB "host name of the server, may be dot-decimal IP address.";
+	cgiEnv["SCRIPT_NAME"] = "ft_tester/cgi_tester";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
+
+	cgiEnv["SERVER_NAME"] = "FIXME";														// FIXME server_name을 가져다 쓰지 못하고 있다..
 	cgiEnv["SERVER_PORT"] = ft::itos(mport);
 	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";

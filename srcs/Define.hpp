@@ -10,6 +10,11 @@
 
 #define BUFIZE_HTMLFILE 300
 
+#define NC "\e[0m"
+#define RED "\e[0;31m"
+#define GRN "\e[0;32m"
+#define REDB "\e[41m"
+
 enum TYPE_HTML
 {
 	ERROR_HTML,
