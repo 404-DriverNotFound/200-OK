@@ -9,6 +9,16 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+// #include <cstring>
+// #include <sys/select.h>
+
+#define FT_NBBY			8                               /* bits in a byte */
+#define FT_NFDBITS		(sizeof(__int32_t) * FT_NBBY) /* bits per mask */
+#define FT_FD_SET(n, p)		ft::fd_set((n), (p))
+#define FT_FD_CLR(n, p)		ft::fd_clr((n), (p))
+#define FT_FD_ISSET(n, p)	ft::fd_isset((n), (p))
+#define FT_FD_ZERO(p)		std::memset(p, 0, sizeof(*(p)))
+#define FT_FD_COPY(f, t)	std::memmove(f, t, sizeof(*(f)))
 
 namespace ft
 {
@@ -29,7 +39,7 @@ namespace ft
 	std::string getHTTPTimeFormat(time_t time);
 	std::string getCurrentTime();
 
-	std::vector<int> getVector_changedFD(fd_set *fdset, size_t fdset_size);
+	std::vector<int> getVector_changedFD(struct fd_set *fdset, size_t fdset_size);
 
 	// 서브젝트 허용 매크로함수로 변경됨.
 	u_int32_t ft_htonl(u_int32_t ip_addr);
@@ -43,6 +53,22 @@ namespace ft
 
 	std::string getBody_from_file(std::string uri_plus_file);
 	std::string getBody_from_fd(int fd);
+
+	static inline int	fd_isset(int _fd, const struct fd_set *_p)
+	{
+		return (_p->fds_bits[(unsigned long)_fd / FT_NFDBITS] & ((__int32_t)(((unsigned long)1) << ((unsigned long)_fd % FT_NFDBITS))));
+	}
+
+	static inline void	fd_set(int _fd, struct fd_set *const _p)
+	{
+		(_p->fds_bits[(unsigned long)_fd / FT_NFDBITS] |= ((__int32_t)(((unsigned long)1) << ((unsigned long)_fd % FT_NFDBITS))));
+	}
+
+	static inline void	fd_clr(int _fd, struct fd_set *const _p)
+	{
+		(_p->fds_bits[(unsigned long)_fd / FT_NFDBITS] &= ~((__int32_t)(((unsigned long)1) << ((unsigned long)_fd % FT_NFDBITS))));
+	}
+
 }
 
 #endif
