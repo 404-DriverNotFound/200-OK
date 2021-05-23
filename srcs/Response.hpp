@@ -38,6 +38,8 @@ public:
 	void		set_m_transfer_type(enum TransferType);
 	void		set_m_body(const std::string& body);
 
+	void		ShowMessage(void);
+
 	void		clear_m_headers();
 	void		make_m_firstline();
 	void		copy_m_headers(std::map<std::string, std::string> &ref);
