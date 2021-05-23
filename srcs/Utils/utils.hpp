@@ -18,7 +18,7 @@
 #define FT_FD_CLR(n, p)		ft::fd_clr((n), (p))
 #define FT_FD_ISSET(n, p)	ft::fd_isset((n), (p))
 #define FT_FD_ZERO(p)		std::memset(p, 0, sizeof(*(p)))
-#define FT_FD_COPY(f, t)	std::memmove(f, t, sizeof(*(f)))
+#define FT_FD_COPY(f, t)	std::memmove(t, f, sizeof(*(f)))
 
 namespace ft
 {
