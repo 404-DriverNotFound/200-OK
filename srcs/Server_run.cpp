@@ -42,7 +42,7 @@ void		Server::run(void)
 		}
 		catch (const std::exception& e)
 		{
-			cout << e.what() << endl;
+			std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << e.what() << NC << std::endl;
 			closeConnection(it2->second.get_m_fd());
 		}
 

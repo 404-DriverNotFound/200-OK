@@ -490,7 +490,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 
 }
 
-const char* Server::IOError::what() const throw(){ return ("IO ERROR!!"); }
+const char* Server::IOError::what() const throw(){ return ("I/O error occurred."); }
 
 char**			Server::createCGIEnv(const Connection& connection) const
 {
