@@ -3,8 +3,8 @@
 
 ServerManager::ServerManager(void)
 {
-	FD_ZERO(&m_read_set);
-	FD_ZERO(&m_write_set);
+	FT_FD_ZERO(&m_read_set);
+	FT_FD_ZERO(&m_write_set);
 }
 
 void		ServerManager::exitServer(const std::string& msg) const
@@ -117,12 +117,12 @@ void		ServerManager::fdCopy(SetType fdset)
 {
 	if (fdset == WRITE_SET || fdset == ALL_SET)
 	{
-		FD_ZERO(&m_write_copy_set);
+		FT_FD_ZERO(&m_write_copy_set);
 		m_write_copy_set = m_write_set;
 	}
 	if (fdset == READ_SET || fdset == ALL_SET)
 	{
-		FD_ZERO(&m_read_copy_set);
+		FT_FD_ZERO(&m_read_copy_set);
 		m_read_copy_set = m_read_set;
 	}
 }
@@ -131,7 +131,7 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 {
 	if (fdset == WRITE_SET)
 	{
-		if (FD_ISSET(fd, &m_write_copy_set))
+		if (FT_FD_ISSET(fd, &m_write_copy_set))
 	{
 			return (true);
 	}
@@ -142,7 +142,7 @@ bool		ServerManager::fdIsset(int fd, SetType fdset)
 	}
 	else if (fdset == READ_SET)
 	{
-		if (FD_ISSET(fd, &m_read_copy_set))
+		if (FT_FD_ISSET(fd, &m_read_copy_set))
 		{
 			return (true);
 		}
@@ -366,8 +366,8 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		{
 			cout << "closeOldConnection: " << it2->second.get_m_fd() << endl;
 			close (it2->second.get_m_fd());
-			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
-			FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
+			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
+			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
 			server_it->m_connections.erase(it2);
 			return ;
 		}
