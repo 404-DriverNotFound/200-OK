@@ -127,7 +127,7 @@ public:
 	std::vector<LocationPath>::iterator return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str);
 
 
-	class ClientServerClose : public std::exception
+	class IOError : public std::exception
 	{
 		public:
 			const char* what() const throw();

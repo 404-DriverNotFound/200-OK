@@ -38,8 +38,8 @@ void		Server::run(void)
 		}
 		catch (const std::exception& e)
 		{
-			cout << e.what() << endl;
-			// closeConnection(it2->second.get_m_fd());
+			std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << e.what() << NC << std::endl;
+			closeConnection(it2->second.get_m_fd());
 		}
 
 		// STUB 예시 코드
@@ -232,6 +232,15 @@ bool		Server::runRecvAndSolve(Connection& connection)
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
+	}
+	catch (const Server::IOError& e)
+	{
+		throw (e);
+	}
+	catch (const std::exception& e)
+	{
+		// ft::log(ServerManager::log_fd, std::string("[Failed][Request] Failed to create request because ") + e.what());
+		// createResponse(connection, 50001);
 	}
 
 	try
