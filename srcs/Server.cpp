@@ -104,11 +104,13 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
+					FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
+				FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
 			}
 		}
 	}

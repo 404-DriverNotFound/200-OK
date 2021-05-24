@@ -73,7 +73,7 @@ void		ServerManager::runServer(void)
 		{
 			// cout << "loop_run?" << endl;
 			it->run();
-			// closeOldConnection(it);
+			closeOldConnection(it);
 		}
 		// resetMaxFd();
 		// cout << "-------------------------------" << endl;
@@ -371,15 +371,12 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		std::map<int, Connection>::iterator it2 = it++;
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == server_it->msocket)
+		{
 			continue ;
-		// cout << "loop_closeOldConnection?" << endl;
+		}
 		if (it2->second.isKeepConnection() == false) // ANCHOR
 		{
-			cout << "closeOldConnection: " << it2->second.get_m_fd() << endl;
-			close (it2->second.get_m_fd());
-			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
-			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
-			server_it->m_connections.erase(it2);
+			server_it->closeConnection(it2->second.get_m_fd());
 			return ;
 		}
 	}

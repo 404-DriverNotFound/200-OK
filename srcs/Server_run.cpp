@@ -32,13 +32,13 @@ void		Server::run(void)
 				if (it2->second.get_m_request() == NULL)
 				{
 					it2->second.set_m_request(new Request());
+					it2->second.set_m_last_reqeust_at(it2->second.get_m_request()->GetStartTime());
 				}
 				runRecvAndSolve(it2->second);
 			}
 		}
 		catch (const std::exception& e)
 		{
-			std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << e.what() << NC << std::endl;
 			closeConnection(it2->second.get_m_fd());
 		}
 
@@ -144,8 +144,6 @@ bool		Server::runSend(Connection& connection)
 			return (false);
 		}
 	}
-	send_number++;
-	cout << "send_nubmer: " << send_number << endl;
 
 	int	statusCode = response->get_m_status_code();
 	if (statusCode >= 200 && statusCode < 300)
@@ -161,7 +159,20 @@ bool		Server::runSend(Connection& connection)
 
 	// request->ShowMessage(); // ANCHOR request message debugging 용
 	// response->ShowMessage(); // ANCHOR response message debugging 용
-	closeConnection(connection.get_m_fd());
+
+	send_number++;
+	cout << "send_nubmer: " << send_number << endl;
+
+	// ANCHOR 작업중
+	delete request;
+	connection.set_m_request(NULL);
+	delete response;
+	connection.set_m_response(NULL);
+	connection.SetStatus(Connection::REQUEST_READY);
+	FT_FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+	// closeConnection(connection.get_m_fd());
+	// ANCHOR 작업중
+
 	return (true);
 }
 

@@ -9,6 +9,7 @@ Connection::Connection(int client_fd, std::string client_ip, int client_port)
 	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
+	std::cerr << GRNB "[" << ft::getCurrentTime() << "] [connection] " << "[ESTABLISHED]" << NC << std::endl;
 }
 
 Connection::Connection(void)
@@ -20,6 +21,7 @@ Connection::Connection(void)
 	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
+	std::cerr << GRNB "[" << ft::getCurrentTime() << "] [connection] " << "[ESTABLISHED]" << NC << std::endl;
 }
 
 Connection::~Connection(void)
@@ -34,6 +36,7 @@ Connection::~Connection(void)
 		delete (this->mResponse);
 		this->mResponse = NULL;
 	}
+	std::cerr << REDB "[" << ft::getCurrentTime() << "] [connection] " << "[DISCONNECTED]" << NC << std::endl;
 }
 
 
@@ -45,17 +48,17 @@ const std::string&			Connection::get_m_client_ip(void) const{	return (this->m_cl
 
 const int&					Connection::get_m_client_port(void) const{	return (this->m_client_port);}
 
-void						Connection::set_m_last_reqeust_at(void)
+void						Connection::set_m_last_reqeust_at(const struct timeval& time)
 {
-	gettimeofday(&(this->m_last_request_at), NULL);
-	return ;
+	m_last_request_at = time;
 }
 
 bool						Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_request를 갱신해야함.
 {
-	struct timeval now;
+	struct timeval	now;
 	gettimeofday(&now, NULL);
-	struct timeval before;
+
+	struct timeval	before;
 	before = this->m_last_request_at;
 	if (before.tv_sec + KEEP_ALIVE_LIMIT < now.tv_sec)
 		return (false);
