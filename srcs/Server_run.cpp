@@ -306,6 +306,7 @@ bool		Server::acceptNewConnection()
 	FT_FD_SET(client_socket, &(this->m_manager->GetReadSet()));
 	FT_FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
 	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
+	std::cerr << GRNB "[" << ft::getCurrentTime() << "][connection]" << "[ESTABLISHED]" << "[" << client_socket << "]" << NC << std::endl;
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
 	return (true);
 }

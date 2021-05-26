@@ -9,7 +9,6 @@ Connection::Connection(int client_fd, std::string client_ip, int client_port)
 	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
-	std::cerr << GRNB "[" << ft::getCurrentTime() << "] [connection] " << "[ESTABLISHED]" << NC << std::endl;
 }
 
 Connection::Connection(void)
@@ -21,7 +20,6 @@ Connection::Connection(void)
 	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->m_last_request_at), NULL);
-	std::cerr << GRNB "[" << ft::getCurrentTime() << "] [connection] " << "[ESTABLISHED]" << NC << std::endl;
 }
 
 Connection::~Connection(void)
@@ -36,7 +34,6 @@ Connection::~Connection(void)
 		delete (this->mResponse);
 		this->mResponse = NULL;
 	}
-	std::cerr << REDB "[" << ft::getCurrentTime() << "] [connection] " << "[DISCONNECTED]" << NC << std::endl;
 }
 
 

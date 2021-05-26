@@ -67,6 +67,7 @@ void			Server::closeConnection(int client_fd)
 		{
 			FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
 			FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+			std::cerr << REDB "[" << ft::getCurrentTime() << "][connection]" << "[DISCONNECTED]" << "[" << client_fd << "]" << NC << std::endl;
 			m_connections.erase(it2);
 			return ;
 		}
