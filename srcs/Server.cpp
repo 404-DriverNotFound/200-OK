@@ -58,6 +58,10 @@ int				Server::getUnuseConnectionFd()
 void			Server::closeConnection(int client_fd)
 {
 	close(client_fd);
+	FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
+	FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+	FT_FD_CLR(client_fd, &(this->m_manager->GetReadCopySet()));
+	FT_FD_CLR(client_fd, &(this->m_manager->GetWriteCopySet()));
 
 	std::map<int, Connection>::iterator it = m_connections.begin();
 	while (it != m_connections.end())
@@ -65,8 +69,6 @@ void			Server::closeConnection(int client_fd)
 		std::map<int, Connection>::iterator it2 = it++;
 		if (it2->second.get_m_fd() == client_fd)
 		{
-			FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-			FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
 			std::cerr << REDB "[" << ft::getCurrentTime() << "][connection]" << "[DISCONNECTED]" << "[" << client_fd << "]" << NC << std::endl;
 			m_connections.erase(it2);
 			return ;
@@ -106,12 +108,14 @@ void			Server::recvRequest(Connection& connection)
 				{
 					request->SetPhase(Request::COMPLETE);
 					FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+					FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
 				FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+				FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 			}
 		}
 	}

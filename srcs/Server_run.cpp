@@ -20,6 +20,9 @@ void		Server::run(void)
 			if (hasSendWork(it2->second))
 			{
 				runSend(it2->second);
+				struct timeval	time;
+				gettimeofday(&time, NULL);
+				it2->second.set_m_last_reqeust_at(time);
 			 	continue ; // FIXME 어떻게 처리할지...
 			}
 			if (hasExecuteWork(it2->second))
@@ -32,7 +35,6 @@ void		Server::run(void)
 				if (it2->second.get_m_request() == NULL)
 				{
 					it2->second.set_m_request(new Request());
-					it2->second.set_m_last_reqeust_at(it2->second.get_m_request()->GetStartTime());
 				}
 				runRecvAndSolve(it2->second);
 			}
@@ -86,7 +88,7 @@ bool		Server::hasSendWork(Connection& connection)
 	{
 		if (FT_FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
 		{
-			closeConnection(connection.get_m_fd());
+			// closeConnection(connection.get_m_fd());
 			return (false);
 		}
 		return (true);
@@ -170,6 +172,7 @@ bool		Server::runSend(Connection& connection)
 	connection.set_m_response(NULL);
 	connection.SetStatus(Connection::REQUEST_READY);
 	FT_FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+	FT_FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 	// closeConnection(connection.get_m_fd());
 	// ANCHOR 작업중
 
@@ -305,6 +308,8 @@ bool		Server::acceptNewConnection()
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);
 	FT_FD_SET(client_socket, &(this->m_manager->GetReadSet()));
 	FT_FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
+	FT_FD_SET(client_socket, &(this->m_manager->GetReadCopySet()));
+	FT_FD_SET(client_socket, &(this->m_manager->GetWriteCopySet()));
 	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
 	std::cerr << GRNB "[" << ft::getCurrentTime() << "][connection]" << "[ESTABLISHED]" << "[" << client_socket << "]" << NC << std::endl;
 	// close(client_socket); // NOTE 이제 keep-alive로 관리

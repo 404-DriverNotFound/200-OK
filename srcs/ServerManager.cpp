@@ -47,6 +47,7 @@ void		ServerManager::runServer(void)
 		resetMaxFd();
 		// cout << "m_max_fd: " << m_max_fd << endl;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+		std::cout << "\n-------------------------------" << std::endl;
 		if (cnt < 0)
 		{
 			// std::cout << "Select error\n";
@@ -55,7 +56,11 @@ void		ServerManager::runServer(void)
 		}
 		else if (cnt == 0)
 		{
-			// std::cout << "timeout\n";
+			for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
+			{
+				closeOldConnection(it);
+			}
+			std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
@@ -63,9 +68,9 @@ void		ServerManager::runServer(void)
 			read_set = ft::getVector_changedFD(&m_read_copy_set, m_max_fd + 1);
 			std::vector<int> write_set;
 			write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
-			std::cout << "select :" << cnt << endl;
-			// cout << "sum: " << sum << endl;
 		}
+		std::cout << "select : " << cnt << endl;
+		std::cout << "-------------------------------" << std::endl;
 
 		// ANCHOR 참고코드
 		// writeServerHealthLog();
@@ -73,7 +78,7 @@ void		ServerManager::runServer(void)
 		{
 			// cout << "loop_run?" << endl;
 			it->run();
-			closeOldConnection(it);
+			// closeOldConnection(it);
 		}
 		// resetMaxFd();
 		// cout << "-------------------------------" << endl;
