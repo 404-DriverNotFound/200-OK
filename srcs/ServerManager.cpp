@@ -35,7 +35,7 @@ void		ServerManager::runServer(void)
 	initMaxFd();
 	for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
 	{
-		FD_SET(it->get_m_fd(), &m_read_set);
+		FT_FD_SET(it->get_m_fd(), &m_read_set);
 	}
 	while (true	/* g_live */)
 	{
