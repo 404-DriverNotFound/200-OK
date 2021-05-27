@@ -45,7 +45,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ( (FT_FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
+		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) == 0) &&
 				it2->second.isKeepConnection() == false)
 		{
 			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
@@ -58,10 +58,10 @@ int				Server::getUnuseConnectionFd()
 void			Server::closeConnection(int client_fd)
 {
 	close(client_fd);
-	FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-	FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
-	FT_FD_CLR(client_fd, &(this->m_manager->GetReadCopySet()));
-	FT_FD_CLR(client_fd, &(this->m_manager->GetWriteCopySet()));
+	FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
+	FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+	FD_CLR(client_fd, &(this->m_manager->GetReadCopySet()));
+	FD_CLR(client_fd, &(this->m_manager->GetWriteCopySet()));
 
 	std::map<int, Connection>::iterator it = m_connections.begin();
 	while (it != m_connections.end())
@@ -107,15 +107,15 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
-					FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
+					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
-				FT_FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
+				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 			}
 		}
 	}

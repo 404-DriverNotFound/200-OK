@@ -249,23 +249,27 @@ std::string ft::makeAutoindexHTML(std::string url)
 std::vector<int> ft::getVector_changedFD(struct fd_set *fdset, size_t fdset_size)
 {
 	std::vector<int> ret;
-	for (size_t i = 0; i < fdset_size; i++)
+	for (size_t i = 0; i < 1024; i++)
 	{
 		int temp = i;
-		if (((fdset->fds_bits[temp / 32]) & (1 << (temp % 32))) > 0)
-		{
-			ret.push_back((int)i);
-			std::cout << i << " ";
-		}
-		// if (FT_FD_ISSET(i, fdset) > 0)
+		// if (((fdset->fds_bits[temp / 32]) & (1 << (temp % 32))) > 0)
 		// {
 		// 	ret.push_back((int)i);
 		// 	std::cout << i << " ";
 		// }
+		if (FD_ISSET(i, fdset) != 0)
+		{
+			ret.push_back((int)i);
+			std::cout << i << " ";
+		}
 	}
 	int sum = 0;
 	for (size_t i = 0; i < 32; i++)
 	{
+		if (fdset->fds_bits[i] != 0)
+		{
+			std::cout << i << ": fds_bits: " << fdset->fds_bits[i] << std::endl;
+		}
 		sum += (int)fdset->fds_bits[i];
 	}
 	std::cout << "getVector sum: " << sum << std::endl;
