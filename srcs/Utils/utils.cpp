@@ -251,12 +251,24 @@ std::vector<int> ft::getVector_changedFD(struct fd_set *fdset, size_t fdset_size
 	std::vector<int> ret;
 	for (size_t i = 0; i < fdset_size; i++)
 	{
-		if (FT_FD_ISSET(i, fdset) > 0)
+		int temp = i;
+		if (((fdset->fds_bits[temp / 32]) & (1 << (temp % 32))) > 0)
 		{
 			ret.push_back((int)i);
 			std::cout << i << " ";
 		}
+		// if (FT_FD_ISSET(i, fdset) > 0)
+		// {
+		// 	ret.push_back((int)i);
+		// 	std::cout << i << " ";
+		// }
 	}
+	int sum = 0;
+	for (size_t i = 0; i < 32; i++)
+	{
+		sum += (int)fdset->fds_bits[i];
+	}
+	std::cout << "getVector sum: " << sum << std::endl;
 	if (ret.size() == 0)
 	{
 		std::cout << "empty | size: 0" << std::endl;

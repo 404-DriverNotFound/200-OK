@@ -393,7 +393,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string root = locationPath->mroot.getPath();
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string target_uri = absolute_path + root + relative_path;
-	cout << "target_uri: " << target_uri << endl;
+	// cout << "target_uri: " << target_uri << endl;
 
 	if (isValidMethod(request, config_it) == false)
 	{

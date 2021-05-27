@@ -46,8 +46,9 @@ void		ServerManager::runServer(void)
 		FT_FD_COPY(&m_write_set, &m_write_copy_set);
 		resetMaxFd();
 		// cout << "m_max_fd: " << m_max_fd << endl;
+		errno = 0;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
-		std::cout << "\n-------------------------------" << std::endl;
+		perror("errno: ");
 		if (cnt < 0)
 		{
 			// std::cout << "Select error\n";
