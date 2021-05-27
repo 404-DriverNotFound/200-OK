@@ -19,6 +19,7 @@ Response::Response(Connection* connection, int status_code, std::string body)
 	this->make_m_firstline();	
 	this->set_m_transfer_type(GENERAL); // REVIEW chunked 일때, 값을 넣어줘야함.
 	this->set_m_body(body);
+	this->set_m_headers("Content-Length", ft::itos(body.length()));
 }
 
 const Connection*								Response::get_m_connection(void) const{return (this->m_connection);}

@@ -12,6 +12,7 @@ void		Server::executeAutoindex(Connection& connection, const Request& request, s
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Connection", "keep-alive");
 	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+	response->set_m_headers("Content-Length", ft::itos(connection.get_m_response()->get_m_body().length()));
 
 	connection.SetStatus(Connection::SEND_READY);
 }
@@ -146,6 +147,7 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 			connection.set_m_response(new Response(&connection, status_code, request.getBody()));
 			std::string errorpage_body = Response::makeStatusPage(status_code, connection.get_m_request()->GetMethod());
 			connection.get_m_response()->set_m_body(errorpage_body);
+			connection.get_m_response()->set_m_headers("Content-Length", ft::itos(errorpage_body.length()));
 			unlink(target_uri.c_str());
 			temp = errno;
 		}
@@ -362,11 +364,12 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 				int status_code = std::atoi(status_code_str.c_str());
 				if (status_code != 200)
 				{
-					delete (connection.get_m_response());
-					//STUB CGI의 반환 header를 하나만 넣어준다면, 아래로 설정하기
-					connection.set_m_response(new Response(&connection, status_code, Response::makeStatusPage(status_code, request.GetMethod())));
+					// STUB 1. CGI의 반환 header를 하나만 넣어준다면, 아래로 설정하기
+					// delete (connection.get_m_response());
+					// connection.set_m_response(new Response(&connection, status_code, Response::makeStatusPage(status_code, request.GetMethod())));
 
-					// this->create_Response_statuscode(connection, status_code);
+					// STUB 2. content_length가 필요해서 아래 있는 함수를 이용하는 것이 좋아보임.
+					this->create_Response_statuscode(connection, status_code);
 					return ; // REVIEW throw 를 status_code로 던져서 윗단에서 생성시키도록 해야하나.
 				}
 			}
@@ -380,6 +383,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		std::size_t seek_body = seek_cur;
 
 		response->set_m_body(fromCGI_str.substr(seek_body));
+		response->set_m_headers("Content-Length", ft::itos(response->get_m_body().length()));
 		close(fromCGI); //unlink(fromCGIfileName.c_str());
 		connection.SetStatus(Connection::SEND_READY);
 	}
