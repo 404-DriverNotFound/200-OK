@@ -1,6 +1,7 @@
 #include "ServerManager.hpp"
 
 ServerManager::ServerManager(void)
+	: mMaxFd(INIT_FD_MAX)
 {
 	FD_ZERO(&m_read_set);
 	FD_ZERO(&m_write_set);
@@ -24,34 +25,20 @@ void		ServerManager::CreateServers(const std::string& configurationFilePath, cha
 
 void		ServerManager::RunServers(void)
 {
-	// signal(SIGINT, changeSignal);
-	struct timeval	timeout; memset(&timeout, 0, sizeof(struct timeval));
-	// g_live = true;
-	initMaxFd();
-	for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
+	struct timeval	timeout;
+	for (std::vector<Server>::iterator it = m_servers.begin(); it != m_servers.end(); ++it)
 	{
 		FT_FD_SET(it->get_m_fd(), &m_read_set);
 	}
-	while (true	/* g_live */)
+	while (true)
 	{
 		timeout.tv_sec = SELECT_TIMEOUT_SEC; timeout.tv_usec = SELECT_TIMEOUT_USEC;
-		// fdCopy(ALL_SET);
-		// memset((void *)&m_write_copy_set, 0, 4*32);
-		// memset((void *)&m_read_copy_set, 0, 4*32);
-		// cout << "isset: " <<FD_ISSET(31, &m_read_set) << endl;
-		// cout << "isset: " <<FD_ISSET(63, &m_read_set) << endl;
-		// cout << "isset: " <<FD_ISSET(95, &m_read_set) << endl;
-		// cout << "isset: " <<FD_ISSET(127, &m_read_set) << endl;
-		// FD_CLR(31, &m_read_set);
-		// FD_CLR(63, &m_read_set);
-		// FD_CLR(95, &m_read_set);
-		// FD_CLR(127, &m_read_set);
+
 		FD_COPY(&m_read_set, &m_read_copy_set);
 		FD_COPY(&m_write_set, &m_write_copy_set);
-		resetMaxFd();
-		// cout << "m_max_fd: " << m_max_fd << endl;
+		updateMaxFd();
 		errno = 0;
-		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+		int	cnt = select(mMaxFd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
 		perror("errno: ");
 		if (cnt < 0)
 		{
@@ -70,9 +57,9 @@ void		ServerManager::RunServers(void)
 		else if (cnt > 0)
 		{
 			// std::vector<int> read_set;
-			// read_set = ft::getVector_changedFD(&m_read_copy_set, m_max_fd + 1);
+			// read_set = ft::getVector_changedFD(&m_read_copy_set, mMaxFd + 1);
 			// std::vector<int> write_set;
-			// write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
+			// write_set = ft::getVector_changedFD(&m_write_copy_set, mMaxFd + 1);
 		}
 		std::cout << "select : " << cnt << endl;
 		std::cout << "-------------------------------" << std::endl;
@@ -85,26 +72,26 @@ void		ServerManager::RunServers(void)
 			it->run();
 			// closeOldConnection(it);
 		}
-		// resetMaxFd();
+		// updateMaxFd();
 		// cout << "-------------------------------" << endl;
 	}
 }
 
-const int&	ServerManager::get_m_max_fd(void) const{return (this->m_max_fd);}
+// const int&	ServerManager::get_mMaxFd(void) const{return (this->mMaxFd);}
 
-void		ServerManager::set_m_max_fd(const int& fd)
-{
-	m_max_fd = fd;
-}
+// void		ServerManager::set_mMaxFd(const int& fd)
+// {
+// 	mMaxFd = fd;
+// }
 
-void		ServerManager::initMaxFd()
-{
-	set_m_max_fd(1023);
-	memset((void *)&m_read_set, 0, 4*32);
-	memset((void *)&m_write_set, 0, 4*32);
-}
+// void		ServerManager::initMaxFd()
+// {
+// 	set_mMaxFd(1023);
+// 	memset((void *)&m_read_set, 0, 4*32);
+// 	memset((void *)&m_write_set, 0, 4*32);
+// }
 
-void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
+void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
 {
 	// STUB 하향식. 연결된 fd가 많으면, 이 방법이 더 효율적임
 	for (int i = 1023; i >= 0; --i)
@@ -112,7 +99,7 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 		// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
 		if (FD_ISSET(i, &m_read_set) || FD_ISSET(i, &m_write_set))
 		{
-			m_max_fd = i;
+			mMaxFd = i;
 			break ;
 		}
 	}
@@ -123,7 +110,7 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 	// {
 	// 	if (fdIsset(i, READ_SET) == false && fdIsset(i, WRITE_SET) == false)
 	// 	{
-	// 		m_max_fd = i - 1;
+	// 		mMaxFd = i - 1;
 	// 		break ;
 	// 	}
 	// }
@@ -354,9 +341,9 @@ int ServerManager::SetServers()
 
 
 // REVIEW Socket 클래스에서 단순히 int msocket(fd)를 쓰는 것으로 변경되었으므로 다시한번 확인이 필요함.
-void ServerManager::SetFdMax(int maxfd){this->m_max_fd = maxfd;}
+void ServerManager::SetFdMax(int maxfd){this->mMaxFd = maxfd;}
 
-int ServerManager::GetFdMax(){return (this->m_max_fd);}
+int ServerManager::GetFdMax(){return (this->mMaxFd);}
 
 fd_set& ServerManager::GetReadCopySet() {return (this->m_read_copy_set);}
 

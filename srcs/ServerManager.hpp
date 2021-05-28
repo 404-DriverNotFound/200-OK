@@ -1,9 +1,9 @@
 #ifndef SERVERMANAGER_HPP
 #define SERVERMANAGER_HPP
 
-#include "Define.hpp"
+#define INIT_FD_MAX 1023
 
-// #define INIT_FD_MAX 512
+#include "Define.hpp"
 #include <iostream>
 #include <vector>
 #include <netinet/in.h>
@@ -28,17 +28,17 @@ class ServerManager
 		ServerManager(void);
 
 		// const Config&		get_m_config(void) const;
-		const int&				get_m_max_fd(void) const;
+		// const int&				get_mMaxFd(void) const;
 		// void					set_m_config(const Config& config);
-		void					set_m_max_fd(const int& fd);
+		// void					set_mMaxFd(const int& fd);
 
 		// enum SetType		{ WRITE_SET, WRITE_COPY_SET, READ_SET, READ_COPY_SET, ERROR_SET, ERROR_COPY_SET, ALL_SET };
 
 		// bool				fdIsset(int fd, SetType fdset);
 		// void				fdCopy(SetType fdset);
 
-		void				initMaxFd();
-		void				resetMaxFd();
+		// void				initMaxFd();
+		void				updateMaxFd(void);
 
 		void				CreateServers(const std::string& configurationFilePath, char** envp);
 		void				RunServers(void);
@@ -78,7 +78,7 @@ class ServerManager
 		// std::set<int>			m_server_fdset;		// FIXME: 존재이유 파악못했고, set 컨테이너 사용 불가
 		std::vector<Server>		m_servers;			// NOTE: server 객체들
 		// Config					m_config;			// NOTE: configuration 파일을 파싱한 결과
-		int						m_max_fd;			// NOTE: 관리하는 서버의 max_fd 중 가장 큰 fd
+		int						mMaxFd;			// NOTE: 관리하는 서버의 max_fd 중 가장 큰 fd
 		fd_set					m_read_set;			// NOTE: 요청 발생여부 확인을 위한 fd_set
 		fd_set					m_write_set;		// NOTE: 응답 송신 가능여부 확인을 위한 fd_set, enum 0 번.
 		fd_set					m_write_copy_set;	// NOTE: select에 실제 인자로 넣을 write_set
