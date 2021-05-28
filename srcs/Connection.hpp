@@ -45,14 +45,13 @@ public:
 	//ANCHOR yunslee
 	bool					isKeepConnection(void);
 private:
-	eStatus					mStatus;
-	int						m_fd;
-	struct timeval			m_last_request_at;
 	std::string				m_client_ip;
 	int						m_client_port;
-	
+	int						m_fd;
 	Request*				mRequest;
 	Response*				mResponse;
+	eStatus					mStatus;
+	struct timeval			m_last_request_at;
 };
 
 #endif

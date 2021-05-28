@@ -12,7 +12,6 @@
 #include "Config.hpp" // REVIEW: 일단 추가
 #include "Server.hpp" // REVIEW: 일단 추가
 class Server;
-#include "Location.hpp"  // REVIEW: 일단 추가
 
 #include "ServerConfigIdx/ServerConfigIdx.hpp"
 #include "Utils/utils.hpp"
@@ -76,9 +75,9 @@ class ServerManager
 		// bool					isValidLocationBlock(std::string location_block); // NOTE: location block 유효성 확인, ServerManager::creator 에 있는 함수 타입 참고하여 타입 수정
 
 		fd_set					m_read_copy_set;	// NOTE: select에 실제 인자로 넣을 read_set
-		std::set<int>			m_server_fdset;		// FIXME: 존재이유 파악못했고, set 컨테이너 사용 불가
+		// std::set<int>			m_server_fdset;		// FIXME: 존재이유 파악못했고, set 컨테이너 사용 불가
 		std::vector<Server>		m_servers;			// NOTE: server 객체들
-		Config					m_config;			// NOTE: configuration 파일을 파싱한 결과
+		// Config					m_config;			// NOTE: configuration 파일을 파싱한 결과
 		int						m_max_fd;			// NOTE: 관리하는 서버의 max_fd 중 가장 큰 fd
 		fd_set					m_read_set;			// NOTE: 요청 발생여부 확인을 위한 fd_set
 		fd_set					m_write_set;		// NOTE: 응답 송신 가능여부 확인을 위한 fd_set, enum 0 번.

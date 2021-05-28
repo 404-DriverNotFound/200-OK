@@ -21,7 +21,7 @@ public:
 	Path&						operator=(const std::string&);
 	Path&						operator=(const Path&);
 	bool						operator==(const Path&);
-	std::string&				operator[](int i);
+	std::string&				operator[](std::size_t i);
 
 	class OutOfRange : public std::exception
 	{

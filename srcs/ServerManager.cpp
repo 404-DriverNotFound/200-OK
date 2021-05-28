@@ -14,6 +14,7 @@ void		ServerManager::exitServer(const std::string& msg) const
 
 void		ServerManager::createServer(const std::string& configuration_file_path, char** envp)
 {
+	(void)envp;
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configuration_file_path.c_str());
 	configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,

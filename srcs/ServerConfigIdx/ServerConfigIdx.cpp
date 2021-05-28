@@ -42,7 +42,7 @@ bool ServerConfigIdx::check_bracket_syntax(std::vector<std::string> &gnl, int st
 
 void ServerConfigIdx::SetServerBracket(std::vector<std::string> &gnl, ServerConfigIdx &configidx, int start)
 {
-	int i = start;
+	std::size_t	i = start;
 	bool startCheck = false;
 	bool endCheck = false;
 	ServerBracket temp;
@@ -99,8 +99,7 @@ void ServerConfigIdx::SetLocationBracket(std::vector<std::string> &gnl, ServerCo
 
 int ServerConfigIdx::Step1(ServerConfigIdx &configidx, std::vector<std::string> &gnl)
 {
-	int i = 0;
-	int j = 0;
+	std::size_t	i = 0;
 	while (i < gnl.size())
 	{
 		if (gnl[i].compare("server") == 0) // server block 단위 하나 처리
@@ -236,8 +235,8 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
-			int i = 1;
-			std::vector<Path> index_pages;
+			std::size_t	i = 1;
+			std::vector<Path>	index_pages;
 			while (i < split_vector.size())
 			{
 				
@@ -282,7 +281,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 		{
 			if (split_vector.size() < 2)
 				return (-1);
-			int i = 1;
+			std::size_t	i = 1;
 			std::vector<std::string> method;
 			while (i < split_vector.size())
 			{
@@ -302,7 +301,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 		{
 			if (split_vector.size() < 2)
 				return (-1);
-			int i = 1;
+			std::size_t	i = 1;
 			std::vector<std::string> cgi_extension;
 			while (i < split_vector.size())
 			{
@@ -365,7 +364,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
-			int i = 1;
+			std::size_t	i = 1;
 			std::vector<Path> index_pages;
 			while (i < split_vector.size())
 			{
@@ -394,7 +393,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 		{
 			if (split_vector.size() < 2)
 				return (-1);
-			int i = 1;
+			std::size_t	i = 1;
 			std::vector<std::string> method;
 			while (i < split_vector.size())
 			{
@@ -425,7 +424,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 		{
 			if (split_vector.size() < 2)
 				return (-1);
-			int i = 1;
+			std::size_t	i = 1;
 			std::vector<std::string> cgi_extension;
 			while (i < split_vector.size())
 			{

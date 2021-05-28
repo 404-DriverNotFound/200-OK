@@ -2,9 +2,9 @@
 
 Request::Request(void)
 	: mPhase(READY)
-	, mTransferType(GENERAL)
-	, mURItype(DIRECTORY)
 	, mSeek(0)
+	, mURItype(DIRECTORY)
+	, mTransferType(GENERAL)
 {
 	gettimeofday(&mStartTime, NULL);
 }

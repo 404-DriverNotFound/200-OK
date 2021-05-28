@@ -1,7 +1,18 @@
 #include "./ConfigFile.hpp"
 
-ConfigFile::ConfigFile() : mserver_name("localhost"), mroot(), mport(8000), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
-					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0), mclient_max_body_size(0)
+ConfigFile::ConfigFile()
+	: mserver_name("localhost")
+	, mport(8000)
+	, mtimeout(0)
+	, mlocation_path()
+	, mauto_index(false)
+	, mroot()
+	, mindex_pages()
+	, merror_page()
+	, mclient_max_body_size(0)
+	, mhead_length_max(8000)
+	, mbody_length_max(10000)
+	, mauth()
 {
 	this->m_method.push_back("GET");
 	this->m_method.push_back("HEAD");

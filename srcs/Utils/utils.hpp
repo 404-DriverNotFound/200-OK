@@ -39,7 +39,7 @@ namespace ft
 	std::string getHTTPTimeFormat(time_t time);
 	std::string getCurrentTime();
 
-	std::vector<int> getVector_changedFD(struct fd_set *fdset, size_t fdset_size);
+	std::vector<int> getVector_changedFD(struct fd_set *fdset);
 
 	// 서브젝트 허용 매크로함수로 변경됨.
 	u_int32_t ft_htonl(u_int32_t ip_addr);

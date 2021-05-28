@@ -102,19 +102,16 @@ bool		Server::hasSendWork(Connection& connection)
 bool		Server::runSend(Connection& connection)
 {
 	static int send_number = 0;
-	int clinet_socket = connection.get_m_fd();
 	Request *request = connection.get_m_request();
 	Response *response = connection.get_m_response();
-	bool send_complete = false;
 
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
 		response->set_m_response(response->makeResponse()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
 		errno = 0;
 
-		int count = 1000000;
-		int snd_buf= count * 1, rcv_buf= count * 3;
-		int state;
+		// int count = 1000000;
+		// int snd_buf= count * 1, rcv_buf= count * 3;
 
 		// NOTE  최적화1. 수신 버퍼의 크기 조절하기
 		// state=setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
@@ -122,7 +119,7 @@ bool		Server::runSend(Connection& connection)
 		// cout << "state: " << state << endl;
 
 		// NOTE  최적화1. Nagle 알고리즘 해제하기
-		int opt_val = true;
+		// int opt_val = true;
 		// state = setsockopt(connection.get_m_fd(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
 		// cout << "state: " << state << endl;
 
@@ -137,7 +134,12 @@ bool		Server::runSend(Connection& connection)
 	{
 		errno = 0;
 		// perror("what?:");
-		int write_size = write(connection.get_m_fd(), response->get_m_response().c_str(), response->get_m_response().length());
+		ssize_t	count = write(connection.get_m_fd(), response->get_m_response().c_str(), response->get_m_response().length());
+		if (count <= 0)
+		{
+			throw IOError();
+		}
+		std::size_t	write_size = count;
 		if (write_size != response->get_m_response().length())
 		{
 			// cout << "write_size: " << write_size << endl;
@@ -199,8 +201,8 @@ bool		Server::runExecute(Connection& connection)
 	{
 		if (connection.get_m_request()->GetURItype() == Request::CGI_PROGRAM)
 		{
-		executeCGI(connection, *(connection.get_m_request()));
-		return (true);
+			executeCGI(connection);
+			return (true);
 		}
 		else
 		{
@@ -213,12 +215,12 @@ bool		Server::runExecute(Connection& connection)
 		// std::cout << "runExecute catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
 		connection.SetStatus(Connection::SEND_READY);
-		return (false);
 	}
 	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
 	}
+	return (false);
 }
 
 bool		Server::hasRequest(const Connection& connection)

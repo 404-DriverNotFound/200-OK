@@ -16,7 +16,6 @@
 #include <cstring>
 #include <netinet/tcp.h>
 
-#include "Location.hpp"
 #include "Config.hpp"
 #include "Path/Path.hpp"
 #include "Utils/utils.hpp"
@@ -46,7 +45,7 @@ public:
 	std::vector<Path>	mindex_pages;		// def = index.html
 	Path				merror_page;		// def = error.html
 	bool				mauto_index;
-	int					mclient_max_body_size;
+	size_t				mclient_max_body_size;
 
 	std::vector<std::string>	m_method;
 	std::vector<std::string>	mcgi_extension;
@@ -103,15 +102,15 @@ public:
 	void						run(void);
 	void						solveRequest(Connection& connection, Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
 	// void						executeAutoindex(Connection& connection, const Request& request);
-	void						executeAutoindex(Connection& connection, const Request& request, std::string uri_copy); // NOTE 살짝 변형함.
-	void						executeGet(Connection& connection, const Request& request, std::string target_uri);
-	void						executeHead(Connection& connection, const Request& request, std::string target_uri);
-	void						executePost(Connection& connection, const Request& request, std::string target_uri);
-	void						executePut(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it);
+	void						executeAutoindex(Connection& connection, std::string uri_copy); // NOTE 살짝 변형함.
+	void						executeGet(Connection& connection, std::string target_uri);
+	void						executeHead(Connection& connection, std::string target_uri);
+	void						executePost(Connection& connection, const Request& request);
+	void						executePut(Connection& connection, const Request& request, std::string target_uri);
 	void						executeDelete(Connection& connection, const Request& request, std::string target_uri);
-	void						executeOptions(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it);
-	void						executeTrace(Connection& connection, const Request& request);
-	void						executeCGI(Connection& connection, const Request& request);
+	void						executeOptions(Connection& connection, std::string target_uri, config_iterator config_it);
+	void						aexecuteTrace(Connection& connection);
+	void						executeCGI(Connection& connection);
 	void						create_Response_statuscode(Connection& connection, int status_code);
 	void						create_Response_0(Connection &connection, std::string uri_plus_file);
 	void						create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type);
