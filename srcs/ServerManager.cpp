@@ -6,13 +6,7 @@ ServerManager::ServerManager(void)
 	FD_ZERO(&m_write_set);
 }
 
-void		ServerManager::exitServer(const std::string& msg) const
-{
-	std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << msg << NC << std::endl;
-	exit(1);
-}
-
-void		ServerManager::createServer(const std::string& configuration_file_path, char** envp)
+void		ServerManager::CreateServers(const std::string& configuration_file_path, char** envp)
 {
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configuration_file_path.c_str());
@@ -27,7 +21,7 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 	// writeCreateServerLog();
 }
 
-void		ServerManager::runServer(void)
+void		ServerManager::RunServers(void)
 {
 	// signal(SIGINT, changeSignal);
 	struct timeval	timeout; memset(&timeout, 0, sizeof(struct timeval));
@@ -93,7 +87,6 @@ void		ServerManager::runServer(void)
 		// resetMaxFd();
 		// cout << "-------------------------------" << endl;
 	}
-	exitServer("server exited.\n");
 }
 
 const int&	ServerManager::get_m_max_fd(void) const{return (this->m_max_fd);}
