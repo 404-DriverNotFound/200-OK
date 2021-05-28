@@ -1,7 +1,7 @@
 #include "./ConfigFile.hpp"
 
 ConfigFile::ConfigFile() : mserver_name("localhost"), mroot(), mport(8000), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
-					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0)
+					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0), mclient_max_body_size(0)
 {
 	this->m_method.push_back("GET");
 	this->m_method.push_back("HEAD");
@@ -38,5 +38,6 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->mtimeout = ref.mtimeout;
 	this->m_method = ref.m_method;
 	this->mcgi_extension = ref.mcgi_extension;
+	this->mclient_max_body_size = ref.mclient_max_body_size;
 	return (*this);
 }

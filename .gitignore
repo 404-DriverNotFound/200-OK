@@ -33,3 +33,8 @@
 .*
 *.dSYM
 webserv
+
+# CGI files
+from*
+to*
+YoupiBanane*

@@ -30,7 +30,7 @@ public:
 	const struct timeval&	get_m_last_request_at(void) const;
 	const std::string&		get_m_client_ip(void) const;
 	const int&				get_m_client_port(void) const;
-	void					set_m_last_reqeust_at(void);
+	void					set_m_last_reqeust_at(const struct timeval& time);
 	
 	Request*				get_m_request(void) const;
 	void					set_m_request(Request* request);

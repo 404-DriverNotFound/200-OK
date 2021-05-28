@@ -15,16 +15,11 @@ Response::Response(Connection* connection, int status_code, std::string body)
 {
 	// init_status_map(); 초기화는 메인 문에서 한번 해주고 있음. 안해줘도 됨
 	this->set_m_connection(connection);
-	this->set_m_status_code(status_code);
-	if (this->m_status_map.find(status_code) != this->m_status_map.end())
-		this->set_m_status_description(this->m_status_map[status_code]);
-	else
-	{
-		std::cout << "There is no status " << status_code << " code" << std::endl; // FIXME try catch로 throw를 던져야할 것 같음.
-	}
+	this->set_m_status_code(status_code); // NOTE status_code 인자값이 잘못된 인자 값이 들어오진 않는다 Server클래스의 함수를 통해 생성되기 때문에!
 	this->make_m_firstline();	
 	this->set_m_transfer_type(GENERAL); // REVIEW chunked 일때, 값을 넣어줘야함.
 	this->set_m_body(body);
+	this->set_m_headers("Content-Length", ft::itos(body.length()));
 }
 
 const Connection*								Response::get_m_connection(void) const{return (this->m_connection);}
@@ -41,7 +36,10 @@ const std::string&								Response::get_m_body(void) const{	return (this->m_body
 
 const std::string&								Response::get_m_firstline(void) const { return (this->m_firstline);}
 
-const std::string								Response::getResponse(void)
+const std::string&								Response::get_m_response(void) const {return (this->m_response);};
+
+
+const std::string								Response::makeResponse(void)
 {
 	std::string all;
 	
@@ -77,6 +75,10 @@ std::string										Response::makeStatusPage(int status_code, std::string metho
 }
 
 
+void		Response::set_m_response(std::string response)
+{
+	this->m_response = response;
+}
 
 void		Response::set_m_connection(Connection *connect)
 {

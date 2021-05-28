@@ -21,17 +21,18 @@ public :
 		std::string			mserver_name;		// localhost
 		uint16_t			mport;				// def = 8000;
 
-		bool				mauto_index;		// def = false;
 		int					mtimeout;			// def = 5s
 
 		Path				mlocation_path;		// def = 
 		// NOTE - location에서 덮어씌워지는 요소들
+		bool				mauto_index;		// def = false;
 		Path				mroot;				// def = 
 		std::vector<Path>	mindex_pages;		// def = index.html
 		Path				merror_page;		// def = error.html
 		std::vector<std::string> m_method;		// def = GET HEAD PUT POST DELETE OPTIONS
 		std::vector<std::string> mcgi_extension;// def = .bla
-	
+
+		int					mclient_max_body_size; //def 0 NOT checking size
 	// REVIEW 현재 사용하지 않는 설정
 		uint64_t			mhead_length_max;	// def = 8k // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
 		uint64_t			mbody_length_max;	// def = 1M // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음

@@ -228,6 +228,12 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				return (-1);
 			default_location.mport = std::atoi(split_vector[1].c_str());
 		}
+		else if (split_vector[0].compare("client_max_body_size") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			default_location.mclient_max_body_size = std::atoi(split_vector[1].c_str());
+		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
 			int i = 1;
@@ -255,7 +261,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			Path error_page(split_vector[1]);
 			default_location.merror_page = error_page;
 		}
-		else if (split_vector[0].compare("auto_index") == 0)
+		else if (split_vector[0].compare("autoindex") == 0)
 		{
 			bool value;
 			if (split_vector.size() != 2)
@@ -291,7 +297,6 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				default_location.m_method = method;
 				exist_method = true;
 			}
-
 		}
 		else if (split_vector[0].compare("cgi_extension") == 0)
 		{
@@ -352,6 +357,12 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				return (-1);
 			default_location.mport = std::atoi(split_vector[1].c_str());
 		}
+		else if (split_vector[0].compare("client_max_body_size") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			default_location.mclient_max_body_size = std::atoi(split_vector[1].c_str());
+		}
 		else if (split_vector[0].compare("index_pages") == 0)
 		{
 			int i = 1;
@@ -398,7 +409,17 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				default_location.m_method = method;
 				exist_method = true;
 			}
-
+		}
+		else if (split_vector[0].compare("autoindex") == 0)
+		{
+			bool value;
+			if (split_vector.size() != 2)
+				return (-1);
+			if (split_vector[1].compare("off") == 0)
+				value = false;
+			if (split_vector[1].compare("on") == 0)
+				value = true;
+			default_location.mauto_index = value;
 		}
 		else if (split_vector[0].compare("cgi_extension") == 0)
 		{

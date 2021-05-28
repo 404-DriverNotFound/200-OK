@@ -22,7 +22,17 @@ int		main(int argc, char* argv[], char* envp[])
 		{
 			if (argc == 2)
 			{
-				manager.createServer(std::string(argv[1]), envp);
+				int fd = 0; fd = open(argv[1], O_RDONLY);
+				if (fd > 2)
+				{
+					close(fd);
+					manager.createServer(std::string(argv[1]), envp);
+				}
+				else
+				{
+					// cout << "No such a file: \"" << argv[1] << "\"" << endl;
+					return (-1);
+				}
 			}
 			else
 			{

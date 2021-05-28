@@ -13,7 +13,7 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
-	// sockaddr.sin_addr.s_addr = INADDR_ANY;
+	sockaddr.sin_addr.s_addr = INADDR_ANY;
 	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
@@ -22,9 +22,9 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 	{
 		return (-1);
 	}
-	if (listen(this->msocket, 10) < 0)
+	if (listen(this->msocket, 10000) < 0)
 	{
-		cout << "this->msocket: " << this->msocket << endl;
+		// cout << "this->msocket: " << this->msocket << endl;
 		return (-1);
 	}
 	// NOTE fcntl 부분 일단 넣어봄 왜 필요한지 여부는 아직 파악 못함
@@ -38,17 +38,17 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 int				Server::getUnuseConnectionFd()
 {
 	std::map<int, Connection>::iterator it = m_connections.begin();
-	cout << "getUnuseConnectionFd_connection size: "<< m_connections.size() << endl; 
+	// cout << "getUnuseConnectionFd_connection size: "<< m_connections.size() << endl; 
 	while (it != m_connections.end())
 	{
 		std::map<int, Connection>::iterator it2 = it++;
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ( (FT_FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) <= 0) &&
+		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) == 0) &&
 				it2->second.isKeepConnection() == false)
 		{
-			cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
+			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
 			return (it2->second.get_m_fd());
 		}
 	}
@@ -58,6 +58,10 @@ int				Server::getUnuseConnectionFd()
 void			Server::closeConnection(int client_fd)
 {
 	close(client_fd);
+	FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
+	FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+	FD_CLR(client_fd, &(this->m_manager->GetReadCopySet()));
+	FD_CLR(client_fd, &(this->m_manager->GetWriteCopySet()));
 
 	std::map<int, Connection>::iterator it = m_connections.begin();
 	while (it != m_connections.end())
@@ -65,8 +69,7 @@ void			Server::closeConnection(int client_fd)
 		std::map<int, Connection>::iterator it2 = it++;
 		if (it2->second.get_m_fd() == client_fd)
 		{
-			FT_FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-			FT_FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
+			std::cerr << REDB "[" << ft::getCurrentTime() << "][connection]" << "[DISCONNECTED]" << "[" << client_fd << "]" << NC << std::endl;
 			m_connections.erase(it2);
 			return ;
 		}
@@ -104,11 +107,15 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
+					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
+				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
+				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
 			}
 		}
 	}
@@ -266,7 +273,7 @@ bool			Server::parseBody(Connection& connection)
 		std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("content-length");
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
-		// std::cout << "contents-length : " << contentLength << " " << bodyLength << std::endl;
+		// std::cout << contentLength << " " << bodyLength << std::endl;
 		if (contentLength > bodyLength)
 		{
 			return (false);
@@ -386,18 +393,26 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string root = locationPath->mroot.getPath();
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string target_uri = absolute_path + root + relative_path;
-	cout << "target_uri: " << target_uri << endl;
-	// NOTE 무작위 값이 들어감
-	
-	// DIR *dir = opendir(target_uri.c_str()); closedir(dir);
+	// cout << "target_uri: " << target_uri << endl;
+
+	if (isValidMethod(request, config_it) == false)
+	{
+		throw 405;
+		return ;
+	}
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
+
+		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+			throw 413;
 		executePut(connection, request, target_uri, config_it);
 		connection.SetStatus(Connection::SEND_READY);
 
 	}
-	else if (request.GetURItype() == Request::DIRECTORY)
+	else if (request.GetURItype() == Request::DIRECTORY || (request.GetURItype() == Request::DIRECTORY && request.GetMethod() == "POST"))
 	{
+		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+			throw 413;
 		if (ft::access(absolute_path + root + relative_path) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
 			for (int i = 0; i < locationPath->mindex_pages.size(); i++)
@@ -413,9 +428,9 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 
 			// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
-			if (serverblock->mauto_index == true)
+			if (locationPath->mauto_index == true)
 			{
-				cout << "serverblock autoindex: " << serverblock->mauto_index << endl;
+				// cout << "serverblock autoindex: " << locationPath->mauto_index << endl;
 				std::string temp = root + relative_path;
 				executeAutoindex(connection, *connection.get_m_request(), ft::ReplaceAll_modified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);
@@ -423,7 +438,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 			else
 			{
-				throw 403;
+				throw 404;
 			}
 		}
 		else // NOTE 없는 폴더 경로에 접근 했을 때, error.html 보여주기
@@ -457,6 +472,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 		else if (request.GetMethod().compare("POST") == 0)
 		{
+			if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+				throw 413;
 			executePost(connection, request, target_uri);
 			if (request.GetURItype() == Request::FILE)
 				connection.SetStatus(Connection::SEND_READY);
@@ -553,6 +570,25 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
 
+	std::map<std::string, std::string> headers = request->GetHeaders();
+	std::map<string, string>::iterator it_http;
+	for (it_http = headers.begin(); it_http != headers.end(); it_http++)
+	{
+		std::string http_cgi = "HTTP_";
+		std::string temp = it_http->first;
+		for(std::string::size_type i = 0; i < temp.length(); i++)
+		{
+			if (temp[i] == '-')
+				temp[i] = '_';
+			temp[i] = std::toupper(temp[i]);
+		}
+		http_cgi += temp;
+		// cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
+		cgiEnv[http_cgi] = it_http->second;
+	}
+	
+
+
 	try
 	{
 		char**	ret = new char*[cgiEnv.size() + 1];
@@ -579,4 +615,17 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	{
 		throw 500; // NOTE 뭘 날려야할까요 500번대 에러는 맞는데...
 	}
+}
+
+bool Server::isValidMethod(Request &request, config_iterator config_it)
+{
+	std::vector<ServerBlock>::iterator serverblock = config_it.serverblock;
+	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
+	for (size_t i = 0; i < locationPath->m_method.size(); i++)
+	{
+		// cout << i <<  ": " << locationPath->m_method[i] << endl;
+		if (request.GetMethod() == locationPath->m_method[i])
+			return (true);
+	}
+	return (false);
 }

@@ -249,21 +249,37 @@ std::string ft::makeAutoindexHTML(std::string url)
 std::vector<int> ft::getVector_changedFD(struct fd_set *fdset, size_t fdset_size)
 {
 	std::vector<int> ret;
-	for (size_t i = 0; i < fdset_size; i++)
+	for (size_t i = 0; i < 1024; i++)
 	{
-		if (FT_FD_ISSET(i, fdset) > 0)
+		int temp = i;
+		// if (((fdset->fds_bits[temp / 32]) & (1 << (temp % 32))) > 0)
+		// {
+		// 	ret.push_back((int)i);
+		// 	std::cout << i << " ";
+		// }
+		if (FD_ISSET(i, fdset) != 0)
 		{
 			ret.push_back((int)i);
-			// std::cout << i << " ";
+			std::cout << i << " ";
 		}
 	}
+	int sum = 0;
+	for (size_t i = 0; i < 32; i++)
+	{
+		if (fdset->fds_bits[i] != 0)
+		{
+			std::cout << i << ": fds_bits: " << fdset->fds_bits[i] << std::endl;
+		}
+		sum += (int)fdset->fds_bits[i];
+	}
+	std::cout << "getVector sum: " << sum << std::endl;
 	if (ret.size() == 0)
 	{
-		// std::cout << "empty | size: 0" << std::endl;
+		std::cout << "empty | size: 0" << std::endl;
 	}
 	else
 	{
-		// std::cout << "| size: " << ret.size() << std::endl;
+		std::cout << "| size: " << ret.size() << std::endl;
 	}
 	return (ret);
 }
@@ -291,6 +307,7 @@ bool ft::access(std::string absolute_path)
 	{
 		DIR *dir;
 		dir = opendir(absolute_path.c_str());
+		closedir(dir); // NOTE 추가함
 		if (dir == NULL)
 			return (false);
 		else
@@ -338,7 +355,7 @@ std::string ft::getBody_from_file(std::string uri_plus_file)
 		return (body);
 	off_t sz_file;
 	sz_file  = lseek(fd, 0, SEEK_END);
-	printf("file size = %d\n", (int)sz_file);
+	// printf("file size = %d\n", (int)sz_file);
 	lseek(fd, 0, SEEK_SET);
 	char *buffer = (char *)malloc(sizeof(char) * sz_file);
 	int ret = read(fd, buffer, sz_file);
@@ -356,7 +373,7 @@ std::string ft::getBody_from_fd(int fd)
 		return (body);
 	off_t sz_file;
 	sz_file  = lseek(fd, 0, SEEK_END);
-	printf( "file size = %d\n", (int)sz_file);
+	// printf( "file size = %d\n", (int)sz_file);
 	lseek(fd, 0, SEEK_SET);
 	char *buffer = (char *)malloc(sizeof(char) * sz_file);
 	int ret = read(fd, buffer, sz_file);

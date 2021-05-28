@@ -1,10 +1,9 @@
 #include "ServerManager.hpp"
 
-
 ServerManager::ServerManager(void)
 {
-	FT_FD_ZERO(&m_read_set);
-	FT_FD_ZERO(&m_write_set);
+	FD_ZERO(&m_read_set);
+	FD_ZERO(&m_write_set);
 }
 
 void		ServerManager::exitServer(const std::string& msg) const
@@ -17,9 +16,10 @@ void		ServerManager::createServer(const std::string& configuration_file_path, ch
 {
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configuration_file_path.c_str());
-	// configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
+	configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
 	// ANCHOR 2단계 parsing
-	this->SetServers_value(&configfiles); // NOTE server로 구성된 값을 확인하고싶으면,this->ShowServers();
+	this->SetServers_value(&configfiles);
+	this->ShowServers(); // NOTE server로 구성된 값을 확인하고싶으면,
 	// // ANCHOR 3단계 parsing -> port에 대해서 listen 함수까지 호출함.
 	this->SetServers();
 
@@ -41,11 +41,23 @@ void		ServerManager::runServer(void)
 	{
 		timeout.tv_sec = SELECT_TIMEOUT_SEC; timeout.tv_usec = SELECT_TIMEOUT_USEC;
 		// fdCopy(ALL_SET);
-		FT_FD_COPY(&m_read_set, &m_read_copy_set);
-		FT_FD_COPY(&m_write_set, &m_write_copy_set);
+		// memset((void *)&m_write_copy_set, 0, 4*32);
+		// memset((void *)&m_read_copy_set, 0, 4*32);
+		// cout << "isset: " <<FD_ISSET(31, &m_read_set) << endl;
+		// cout << "isset: " <<FD_ISSET(63, &m_read_set) << endl;
+		// cout << "isset: " <<FD_ISSET(95, &m_read_set) << endl;
+		// cout << "isset: " <<FD_ISSET(127, &m_read_set) << endl;
+		// FD_CLR(31, &m_read_set);
+		// FD_CLR(63, &m_read_set);
+		// FD_CLR(95, &m_read_set);
+		// FD_CLR(127, &m_read_set);
+		FD_COPY(&m_read_set, &m_read_copy_set);
+		FD_COPY(&m_write_set, &m_write_copy_set);
 		resetMaxFd();
 		// cout << "m_max_fd: " << m_max_fd << endl;
+		errno = 0;
 		int	cnt = select(m_max_fd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+		perror("errno: ");
 		if (cnt < 0)
 		{
 			// std::cout << "Select error\n";
@@ -54,16 +66,21 @@ void		ServerManager::runServer(void)
 		}
 		else if (cnt == 0)
 		{
-			// std::cout << "timeout\n";
+			for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
+			{
+				closeOldConnection(it);
+			}
+			std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
-			std::vector<int> read_set;
-			read_set = ft::getVector_changedFD(&m_read_copy_set, m_max_fd + 1);
-			std::vector<int> write_set;
-			write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
-			std::cout << "select :" << cnt << endl;
+			// std::vector<int> read_set;
+			// read_set = ft::getVector_changedFD(&m_read_copy_set, m_max_fd + 1);
+			// std::vector<int> write_set;
+			// write_set = ft::getVector_changedFD(&m_write_copy_set, m_max_fd + 1);
 		}
+		std::cout << "select : " << cnt << endl;
+		std::cout << "-------------------------------" << std::endl;
 
 		// ANCHOR 참고코드
 		// writeServerHealthLog();
@@ -88,16 +105,18 @@ void		ServerManager::set_m_max_fd(const int& fd)
 
 void		ServerManager::initMaxFd()
 {
-	set_m_max_fd(INIT_FD_MAX);
+	set_m_max_fd(1023);
+	memset((void *)&m_read_set, 0, 4*32);
+	memset((void *)&m_write_set, 0, 4*32);
 }
 
 void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
 {
 	// STUB 하향식. 연결된 fd가 많으면, 이 방법이 더 효율적임
-	for (int i = 512; i >= 0; --i)
+	for (int i = 1023; i >= 0; --i)
 	{
 		// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
-		if (FT_FD_ISSET(i, &m_read_set) || FT_FD_ISSET(i, &m_write_set))
+		if (FD_ISSET(i, &m_read_set) || FD_ISSET(i, &m_write_set))
 		{
 			m_max_fd = i;
 			break ;
@@ -120,12 +139,12 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 // {
 // 	if (fdset == WRITE_SET || fdset == ALL_SET)
 // 	{
-// 		FT_FD_ZERO(&m_write_copy_set);
+// 		FD_ZERO(&m_write_copy_set);
 // 		m_write_copy_set = m_write_set;
 // 	}
 // 	if (fdset == READ_SET || fdset == ALL_SET)
 // 	{
-// 		FT_FD_ZERO(&m_read_copy_set);
+// 		FD_ZERO(&m_read_copy_set);
 // 		m_read_copy_set = m_read_set;
 // 	}
 // }
@@ -134,7 +153,7 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 // {
 // 	if (fdset == WRITE_SET)
 // 	{
-// 		if (FT_FD_ISSET(fd, &m_write_copy_set))
+// 		if (FD_ISSET(fd, &m_write_copy_set))
 // 	{
 // 			return (true);
 // 	}
@@ -145,7 +164,7 @@ void		ServerManager::resetMaxFd() // REVIEW m_max_fd에 대해서 +- 증감 연�
 // 	}
 // 	else if (fdset == READ_SET)
 // 	{
-// 		if (FT_FD_ISSET(fd, &m_read_copy_set))
+// 		if (FD_ISSET(fd, &m_read_copy_set))
 // 		{
 // 			return (true);
 // 		}
@@ -176,7 +195,6 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
 			temp.mtimeout = config.mtimeout;
-			temp.mauto_index = config.mauto_index;
 			server.mserverBlocks.push_back(temp);
 
 			LocationPath temp2;
@@ -184,6 +202,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mroot = config.mroot;
 			temp2.mindex_pages = config.mindex_pages;
 			temp2.merror_page = config.merror_page;
+			temp2.mauto_index = config.mauto_index;
+			temp2.mclient_max_body_size = config.mclient_max_body_size;
 
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
@@ -201,7 +221,6 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
 			temp.mtimeout = config.mtimeout;
-			temp.mauto_index = config.mauto_index;
 			server.mserverBlocks.push_back(temp);
 			
 			LocationPath temp2;
@@ -211,6 +230,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.merror_page = config.merror_page;
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
+			temp2.mauto_index = config.mauto_index;
+			temp2.mclient_max_body_size = config.mclient_max_body_size;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
 			continue;
@@ -227,6 +248,8 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.merror_page = config.merror_page;
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
+			temp2.mauto_index = config.mauto_index;
+			temp2.mclient_max_body_size = config.mclient_max_body_size;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
 			continue;
@@ -287,7 +310,6 @@ int ServerManager::ShowServers()
 			ServerBlock temp2 = temp.mserverBlocks[j];
 			std::cout << "server_name: " << temp2.mserverName << std::endl;
 			std::cout << "timeout: " << temp2.mtimeout << std::endl;
-			std::cout << "auto_index: " << temp2.mauto_index << std::endl;
 
 			std::cout << temp2.mserverName << ": " << "locationPathsize: " << temp2.mlocationPaths.size() << std::endl;
 			for (size_t k = 0; k < temp2.mlocationPaths.size(); k++)
@@ -296,6 +318,9 @@ int ServerManager::ShowServers()
 				std::cout << "mlocationpath: " << temp3.mlocationPath.getPath() << std::endl;
 				std::cout << "error_page: " << temp3.merror_page.getPath() << std::endl;
 				std::cout << "root: " << temp3.mroot.getPath() << std::endl;
+				std::cout << "auto_index: " << temp3.mauto_index << std::endl;
+				std::cout << "client_max_body_size: " << temp3.mclient_max_body_size << std::endl;
+				
 				for (size_t l = 0; l < temp3.mindex_pages.size(); l++)
 				{
 					std::cout << "index_pages: " << temp3.mindex_pages[l].getPath() << std::endl;	/* code */
@@ -363,15 +388,13 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		std::map<int, Connection>::iterator it2 = it++;
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == server_it->msocket)
-			continue ;
-		// cout << "loop_closeOldConnection?" << endl;
-		if (it2->second.isKeepConnection() == false) // ANCHOR
 		{
-			cout << "closeOldConnection: " << it2->second.get_m_fd() << endl;
-			close (it2->second.get_m_fd());
-			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetWriteSet()));
-			FT_FD_CLR(it2->second.get_m_fd(), &(server_it->m_manager->GetReadSet()));
-			server_it->m_connections.erase(it2);
+			continue ;
+		}
+		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->m_read_copy_set) == 0))
+		{
+			std::cout << "closeOldconnection: " << fd << std::endl;
+			server_it->closeConnection(it2->second.get_m_fd());
 			return ;
 		}
 	}
