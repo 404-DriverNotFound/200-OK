@@ -24,13 +24,13 @@ int		main(int argc, char* argv[], char* envp[])
 		try
 		{
 			// NOTE configuration file 경로 설정
-			std::string	path(DEFAULT_CONFIG_FILE_PATH);
+			std::string	configurationFilePath(DEFAULT_CONFIG_FILE_PATH);
 			if (argc == 2)
 			{
-				path = argv[1];
+				configurationFilePath = argv[1];
 			}
 			// NOTE 서버 생성
-			manager.CreateServers(path.c_str(), envp);
+			manager.CreateServers(configurationFilePath.c_str(), envp);
 			
 			// NOTE 서버 실행
 			manager.RunServers();

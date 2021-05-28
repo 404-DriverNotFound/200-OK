@@ -6,10 +6,10 @@ ServerManager::ServerManager(void)
 	FD_ZERO(&m_write_set);
 }
 
-void		ServerManager::CreateServers(const std::string& configuration_file_path, char** envp)
+void		ServerManager::CreateServers(const std::string& configurationFilePath, char** envp)
 {
 	// ANCHOR 1단계 parsing 전처리단계
-	ConfigFiles configfiles(configuration_file_path.c_str());
+	ConfigFiles configfiles(configurationFilePath.c_str());
 	configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
 	// ANCHOR 2단계 parsing
 	this->SetServers_value(&configfiles);

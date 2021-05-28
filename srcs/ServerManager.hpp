@@ -3,6 +3,7 @@
 
 #include "Define.hpp"
 
+// #define INIT_FD_MAX 512
 #include <iostream>
 #include <vector>
 #include <netinet/in.h>
@@ -40,8 +41,8 @@ class ServerManager
 		void				initMaxFd();
 		void				resetMaxFd();
 
-		void				CreateServers(const std::string& configuration_file_path, char** envp); // NOTE: 서버 객체 생성
-		void				RunServers(void); // NOTE: 관리하고 있는 전체 서버 실행
+		void				CreateServers(const std::string& configurationFilePath, char** envp);
+		void				RunServers(void);
 
 		// ANCHOR yunslee
 		int		SetServers_value(ConfigFiles *configfiles);
