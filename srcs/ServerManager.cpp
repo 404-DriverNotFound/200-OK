@@ -3,8 +3,8 @@
 ServerManager::ServerManager(void)
 	: mMaxFd(INIT_FD_MAX)
 {
-	FD_ZERO(&m_read_set);
-	FD_ZERO(&m_write_set);
+	FD_ZERO(&mReadFds);
+	FD_ZERO(&mWriteFds);
 }
 
 void		ServerManager::CreateServers(const std::string& configurationFilePath, char** envp)
@@ -28,17 +28,17 @@ void		ServerManager::RunServers(void)
 	struct timeval	timeout;
 	for (std::vector<Server>::iterator it = m_servers.begin(); it != m_servers.end(); ++it)
 	{
-		FT_FD_SET(it->get_m_fd(), &m_read_set);
+		FT_FD_SET(it->get_m_fd(), &mReadFds);
 	}
 	while (true)
 	{
 		timeout.tv_sec = SELECT_TIMEOUT_SEC; timeout.tv_usec = SELECT_TIMEOUT_USEC;
 
-		FD_COPY(&m_read_set, &m_read_copy_set);
-		FD_COPY(&m_write_set, &m_write_copy_set);
+		FD_COPY(&mReadFds, &mReadCopyFds);
+		FD_COPY(&mWriteFds, &mWriteCopyFds);
 		updateMaxFd();
 		errno = 0;
-		int	cnt = select(mMaxFd + 1, &m_read_copy_set, &m_write_copy_set, NULL, &timeout);
+		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeout);
 		perror("errno: ");
 		if (cnt < 0)
 		{
@@ -57,9 +57,9 @@ void		ServerManager::RunServers(void)
 		else if (cnt > 0)
 		{
 			// std::vector<int> read_set;
-			// read_set = ft::getVector_changedFD(&m_read_copy_set, mMaxFd + 1);
+			// read_set = ft::getVector_changedFD(&mReadCopyFds, mMaxFd + 1);
 			// std::vector<int> write_set;
-			// write_set = ft::getVector_changedFD(&m_write_copy_set, mMaxFd + 1);
+			// write_set = ft::getVector_changedFD(&mWriteCopyFds, mMaxFd + 1);
 		}
 		std::cout << "select : " << cnt << endl;
 		std::cout << "-------------------------------" << std::endl;
@@ -87,8 +87,8 @@ void		ServerManager::RunServers(void)
 // void		ServerManager::initMaxFd()
 // {
 // 	set_mMaxFd(1023);
-// 	memset((void *)&m_read_set, 0, 4*32);
-// 	memset((void *)&m_write_set, 0, 4*32);
+// 	memset((void *)&mReadFds, 0, 4*32);
+// 	memset((void *)&mWriteFds, 0, 4*32);
 // }
 
 void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
@@ -97,7 +97,7 @@ void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연�
 	for (int i = 1023; i >= 0; --i)
 	{
 		// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
-		if (FD_ISSET(i, &m_read_set) || FD_ISSET(i, &m_write_set))
+		if (FD_ISSET(i, &mReadFds) || FD_ISSET(i, &mWriteFds))
 		{
 			mMaxFd = i;
 			break ;
@@ -120,13 +120,13 @@ void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연�
 // {
 // 	if (fdset == WRITE_SET || fdset == ALL_SET)
 // 	{
-// 		FD_ZERO(&m_write_copy_set);
-// 		m_write_copy_set = m_write_set;
+// 		FD_ZERO(&mWriteCopyFds);
+// 		mWriteCopyFds = mWriteFds;
 // 	}
 // 	if (fdset == READ_SET || fdset == ALL_SET)
 // 	{
-// 		FD_ZERO(&m_read_copy_set);
-// 		m_read_copy_set = m_read_set;
+// 		FD_ZERO(&mReadCopyFds);
+// 		mReadCopyFds = mReadFds;
 // 	}
 // }
 
@@ -134,7 +134,7 @@ void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연�
 // {
 // 	if (fdset == WRITE_SET)
 // 	{
-// 		if (FD_ISSET(fd, &m_write_copy_set))
+// 		if (FD_ISSET(fd, &mWriteCopyFds))
 // 	{
 // 			return (true);
 // 	}
@@ -145,7 +145,7 @@ void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연�
 // 	}
 // 	else if (fdset == READ_SET)
 // 	{
-// 		if (FD_ISSET(fd, &m_read_copy_set))
+// 		if (FD_ISSET(fd, &mReadCopyFds))
 // 		{
 // 			return (true);
 // 		}
@@ -341,21 +341,21 @@ int ServerManager::SetServers()
 
 
 // REVIEW Socket 클래스에서 단순히 int msocket(fd)를 쓰는 것으로 변경되었으므로 다시한번 확인이 필요함.
-void ServerManager::SetFdMax(int maxfd){this->mMaxFd = maxfd;}
+// void ServerManager::SetFdMax(int maxfd){this->mMaxFd = maxfd;}
 
-int ServerManager::GetFdMax(){return (this->mMaxFd);}
+// int ServerManager::GetFdMax(){return (this->mMaxFd);}
 
-fd_set& ServerManager::GetReadCopySet() {return (this->m_read_copy_set);}
+// fd_set& ServerManager::GetReadFds() {return (this->mReadCopyFds);}
 
-fd_set & ServerManager::GetReadSet() {return (this->m_read_set);}
+// fd_set & ServerManager::GetReadSet() {return (this->mReadFds);}
 
-fd_set & ServerManager::GetWriteCopySet() {return (this->m_write_copy_set);}
+// fd_set & ServerManager::GetWriteCopySet() {return (this->mWriteCopyFds);}
 
-fd_set & ServerManager::GetWriteSet() {return (this->m_write_set);}
+// fd_set & ServerManager::GetWriteSet() {return (this->mWriteFds);}
 
-fd_set & ServerManager::GetErrorCopySet() {return (this->m_error_copy_set);}
+// fd_set & ServerManager::GetErrorCopySet() {return (this->m_error_copy_set);}
 
-fd_set & ServerManager::GetErrorSet() {return (this->m_error_set);}
+// fd_set & ServerManager::GetErrorSet() {return (this->m_error_set);}
 
 
 
@@ -372,7 +372,7 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		{
 			continue ;
 		}
-		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->m_read_copy_set) == 0))
+		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
 			std::cout << "closeOldconnection: " << fd << std::endl;
 			server_it->closeConnection(it2->second.get_m_fd());
@@ -380,4 +380,64 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		}
 	}
 	return ;
+}
+
+const fd_set&				ServerManager::GetReadCopyFds(void) const
+{
+	return (mReadCopyFds);
+}
+
+void						ServerManager::SetReadCopyFds(const int& fd)
+{
+	FD_SET(fd, &mReadCopyFds);
+}
+
+void						ServerManager::ClrReadCopyFds(const int& fd)
+{
+	FD_CLR(fd, &mReadCopyFds);
+}
+
+const fd_set&				ServerManager::GetReadFds(void) const
+{
+	return (mReadFds);
+}
+
+void						ServerManager::SetReadFds(const int& fd)
+{
+	FD_SET(fd, &mReadFds);
+}
+
+void						ServerManager::ClrReadFds(const int& fd)
+{
+	FD_CLR(fd, &mReadFds);
+}
+
+const fd_set&				ServerManager::GetWriteCopyFds(void) const
+{
+	return (mWriteCopyFds);
+}
+
+void						ServerManager::SetWriteCopyFds(const int& fd)
+{
+	FD_SET(fd, &mWriteCopyFds);
+}
+
+void						ServerManager::ClrWriteCopyFds(const int& fd)
+{
+	FD_CLR(fd, &mWriteCopyFds);
+}
+
+const fd_set&				ServerManager::GetWriteFds(void) const
+{
+	return (mWriteFds);
+}
+
+void						ServerManager::SetWriteFds(const int& fd)
+{
+	FD_SET(fd, &mWriteFds);
+}
+
+void						ServerManager::ClrWriteFds(const int& fd)
+{
+	FD_CLR(fd, &mWriteFds);
 }
