@@ -84,7 +84,7 @@ bool		Server::hasSendWork(Connection& connection)
 	
 	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
-		if (FT_FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) <= 0)
+		if (FT_FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet())) == 0)
 		{
 			closeConnection(connection.get_m_fd());
 			return (false);
