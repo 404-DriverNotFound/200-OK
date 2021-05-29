@@ -123,7 +123,7 @@ public:
 	bool isValidMethod(Request &request, config_iterator config_it);
 
 	// std::vector<Server>::iterator return_iterator_server(std::vector<Server> servers);
-	std::vector<ServerBlock>::iterator return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname);
+	std::vector<ServerBlock>::iterator return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string servername);
 	std::vector<LocationPath>::iterator return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str);
 
 

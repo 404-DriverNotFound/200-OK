@@ -311,6 +311,8 @@ bool		Server::acceptNewConnection()
 	// FD_SET(client_socket, &(this->m_manager->GetWriteSet()));
 	// FD_SET(client_socket, &(this->m_manager->GetWriteCopySet()));
 	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
+	// this->m_connections[client_socket] = Connection(client_socket, this->mhost, this->mport); // NOTE 이것도 됨
+
 	std::cerr << GRNB "[" << ft::getCurrentTime() << "][connection]" << "[ESTABLISHED]" << "[" << client_socket << "]" << NC << std::endl;
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
 	return (true);

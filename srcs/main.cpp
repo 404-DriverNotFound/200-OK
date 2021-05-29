@@ -39,9 +39,9 @@ int		main(int argc, char* argv[], char* envp[])
 				manager.createServer(std::string(DEFAULT_CONFIG_FILE_PATH), envp);
 			}
 		}
-		catch (std::exception& e)
+		catch (std::string e)
 		{
-			manager.exitServer(e.what());
+			manager.exitServer(e);
 		}
 	}
 	

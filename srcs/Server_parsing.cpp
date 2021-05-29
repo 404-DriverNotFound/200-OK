@@ -107,12 +107,12 @@ Server&	Server::operator=(const Server &ref)
 }
 
 
-std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname)
+std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string servername)
 {
 	std::vector<ServerBlock>::iterator it = serverblocks.begin();
 	while (it != serverblocks.end())
 	{
-		if (hostname == it->mserverName)
+		if (servername == it->mserverName)
 		{
 			return (it);
 		}
