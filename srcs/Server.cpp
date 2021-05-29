@@ -45,7 +45,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) == 0) &&
+		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadFds())) == 0) &&
 				it2->second.isKeepConnection() == false)
 		{
 			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
@@ -58,10 +58,14 @@ int				Server::getUnuseConnectionFd()
 void			Server::closeConnection(int client_fd)
 {
 	close(client_fd);
-	FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-	FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
-	FD_CLR(client_fd, &(this->m_manager->GetReadCopySet()));
-	FD_CLR(client_fd, &(this->m_manager->GetWriteCopySet()));
+	m_manager->ClrReadFds(client_fd);
+	m_manager->ClrReadCopyFds(client_fd);
+	m_manager->ClrWriteFds(client_fd);
+	m_manager->ClrWriteCopyFds(client_fd);
+	// FD_CLR(client_fd, &(this->m_manager->GetReadFds()));
+	// FD_CLR(client_fd, &(this->m_manager->GetWriteFds()));
+	// FD_CLR(client_fd, &(this->m_manager->GetReadFds()));
+	// FD_CLR(client_fd, &(this->m_manager->GetWriteCopyFds()));
 
 	std::map<int, Connection>::iterator it = m_connections.begin();
 	while (it != m_connections.end())
@@ -107,15 +111,19 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
-					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
+					// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteFds()));
+					// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
+					m_manager->SetWriteFds(connection.get_m_fd());
+					m_manager->SetWriteCopyFds(connection.get_m_fd());
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
-				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
+				m_manager->SetWriteFds(connection.get_m_fd());
+				m_manager->SetWriteCopyFds(connection.get_m_fd());
+				// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteFds()));
+				// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
 			}
 		}
 	}

@@ -1,6 +1,8 @@
+#include <iostream>
 #include "ServerManager.hpp"
 
-// bool	g_live; // REVIEW: g_live 를 쓰길래, 전역변수 느낌인 것같아서 여기에 선언함.
+// #define DEFAULT_CONFIG_FILE_PATH "default.config"
+
 std::map<int, std::string> Response::m_status_map; // NOTE static 변수도 전역변수라도 한번 선언을 해줘야함.
 
 char** g_env;
@@ -11,47 +13,33 @@ int		main(int argc, char* argv[], char* envp[])
 
 	Response::init_status_map();
 	ServerManager	manager;
-	// manager.openLog();
+
 	if (argc > 2)
 	{
-		manager.exitServer("There are many arguments.");
+		std::cerr << "There are many arguments." << std::endl;
+		return (1);
 	}
 	else
 	{
 		try
 		{
+			// NOTE configuration file 경로 설정
+			std::string	configurationFilePath(DEFAULT_CONFIG_FILE_PATH);
 			if (argc == 2)
 			{
-				int fd = 0; fd = open(argv[1], O_RDONLY);
-				if (fd > 2)
-				{
-					close(fd);
-					manager.createServer(std::string(argv[1]), envp);
-				}
-				else
-				{
-					// cout << "No such a file: \"" << argv[1] << "\"" << endl;
-					return (-1);
-				}
+				configurationFilePath = argv[1];
 			}
-			else
-			{
-				manager.createServer(std::string(DEFAULT_CONFIG_FILE_PATH), envp);
-			}
+			// NOTE 서버 생성
+			manager.CreateServers(configurationFilePath.c_str(), envp);
+			
+			// NOTE 서버 실행
+			manager.RunServers();
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
-			manager.exitServer(e.what());
+			std::cerr << "Exception occurred. Because of " << e.what() << std::endl;
+			return (1);
 		}
+		return (0);
 	}
-	
-	try
-	{
-		manager.runServer();
-	}
-	catch (std::exception& e)
-	{
-		manager.exitServer(e.what());
-	}
-	return (0);
 }
