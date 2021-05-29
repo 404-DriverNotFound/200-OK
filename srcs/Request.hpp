@@ -54,7 +54,6 @@ public:
 	void										addBody(const std::string& body);
 	void										addOrigin(const std::string& added_origin);
 	void										addHeader(const std::string& header);
-	bool										isValidHeader(const std::string& header);
 
 	// URI 관련된 친구들 //
 	void										ParseURI(std::string& uri);

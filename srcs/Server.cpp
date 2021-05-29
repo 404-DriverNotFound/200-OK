@@ -220,10 +220,7 @@ bool			Server::parseHeader(Connection& connection)
 			break ;
 		}
 
-		if (request->isValidHeader(line))
-		{
-			request->addHeader(line);
-		}
+		request->addHeader(line);
 		request->SetSeek(found + 2);
 	}
 	return (true);
