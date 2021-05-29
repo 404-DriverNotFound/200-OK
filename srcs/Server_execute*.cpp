@@ -4,7 +4,7 @@
 
 extern char**	g_env;
 
-void		Server::executeAutoindex(Connection& connection, const Request& request, std::string uri_copy)
+void		Server::executeAutoindex(Connection& connection, std::string uri_copy)
 {
 	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(uri_copy)));
 	Response *response = connection.get_m_response();
@@ -17,7 +17,7 @@ void		Server::executeAutoindex(Connection& connection, const Request& request, s
 	connection.SetStatus(Connection::SEND_READY);
 }
 
-void		Server::executeGet(Connection& connection, const Request& request, std::string target_uri)
+void		Server::executeGet(Connection& connection, std::string target_uri)
 {
 	if (ft::access(target_uri) == false)
 	{
@@ -30,9 +30,9 @@ void		Server::executeGet(Connection& connection, const Request& request, std::st
 	}
 }
 
-void		Server::executeHead(Connection& connection, const Request& request, std::string target_uri)
+void		Server::executeHead(Connection& connection, std::string target_uri)
 {
-	executeGet(connection, request, target_uri);
+	executeGet(connection, target_uri);
 	std::string null_str;
 	connection.get_m_response()->set_m_body(null_str);
 	Response *response = connection.get_m_response();
@@ -53,7 +53,7 @@ void		Server::executeHead(Connection& connection, const Request& request, std::s
 	
 }
 
-void		Server::executePost(Connection& connection, const Request& request, std::string target_uri)
+void		Server::executePost(Connection& connection, const Request& request)
 {
 	// int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	// int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
@@ -63,7 +63,7 @@ void		Server::executePost(Connection& connection, const Request& request, std::s
 	connection.set_m_response(new Response(&connection, 200, request.getBody()));
 }
 
-void		Server::executePut(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it)
+void		Server::executePut(Connection& connection, const Request& request, std::string target_uri)
 {
 	// NOTE 우선은 파일만 Put에 들어온다고 가정하자.
 	bool file_exist = 0;
@@ -182,7 +182,7 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	errno = 0; // NOTE 초기화!
 }
 
-void		Server::executeOptions(Connection& connection, const Request& request, std::string target_uri, config_iterator config_it)
+void		Server::executeOptions(Connection& connection, std::string target_uri, config_iterator config_it)
 {
 	int fd = open(target_uri.c_str(), O_RDONLY);
 	if (fd < 0)
@@ -205,12 +205,12 @@ void		Server::executeOptions(Connection& connection, const Request& request, std
 	}
 }
 
-void		Server::executeTrace(Connection& connection, const Request& request)
+void		Server::aexecuteTrace(Connection& connection)
 {
-
+	connection.get_m_fd();
 }
 
-void		Server::executeCGI(Connection& connection, const Request& request) // NOTE request는 전혀 사용되지 않음
+void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사용되지 않음
 {
 	Response*	response = connection.get_m_response();
 
@@ -304,9 +304,7 @@ void		Server::executeCGI(Connection& connection, const Request& request) // NOTE
 		}
 		char *buf = (char *)malloc(sizeof(char) * (statBuf.st_size + 1));
 		
-		int cnt;
-		int sum = 0;
-		cnt = read(fromCGI, buf, statBuf.st_size);
+		int cnt = read(fromCGI, buf, statBuf.st_size);
 		// cout << "cnt: " << cnt << endl;
 		buf[cnt] = 0;
 		if (cnt <= 0)

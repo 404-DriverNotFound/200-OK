@@ -11,7 +11,6 @@ class Connection;
 #include "Server.hpp"
 class Server;
 
-#include "Location.hpp"
 
 class Request
 {
