@@ -9,7 +9,7 @@ void		Server::run(void)
 	{
 		std::map<int, Connection>::iterator	it2 = it++;
 		int fd = this->mSocket;
-		if (it2->second.getSocket() == fd)
+		if (it2->second.GetSocket() == fd)
 		{
 			continue ;
 		}
@@ -20,7 +20,7 @@ void		Server::run(void)
 				runSend(it2->second);
 				struct timeval	time;
 				gettimeofday(&time, NULL);
-				it2->second.set_m_last_reqeust_at(time);
+				it2->second.SetLastRequestAt(time);
 			 	continue ; // FIXME 어떻게 처리할지...
 			}
 			if (hasExecuteWork(it2->second))
@@ -30,16 +30,16 @@ void		Server::run(void)
 			}
 			if (hasRequest(it2->second))
 			{
-				if (it2->second.get_m_request() == NULL)
+				if (it2->second.GetRequest() == NULL)
 				{
-					it2->second.set_m_request(new Request());
+					it2->second.SetRequest(new Request());
 				}
 				runRecvAndSolve(it2->second);
 			}
 		}
 		catch (const std::exception& e)
 		{
-			closeConnection(it2->second.getSocket());
+			closeConnection(it2->second.GetSocket());
 		}
 	}
 	if (hasNewConnection())
@@ -67,16 +67,16 @@ void		Server::run(void)
 
 bool		Server::hasSendWork(Connection& connection)
 {
-	// value = connection.get_m_request()->GetPhase();
+	// value = connection.GetRequest()->GetPhase();
 	// TODO COMPLETE로 가정하였으나, 실제로는 request의 진행상황에 따라서 { READY, ON_HEADER, ON_BODY, COMPLETE }; 단계로 나뉨.
-	if (connection.get_m_request() == NULL)
+	if (connection.GetRequest() == NULL)
 		return (false);
 	
 	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
-		if (FD_ISSET(connection.getSocket(), &(this->mManager->GetWriteCopyFds())))
+		if (FD_ISSET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds())))
 		{
-			// closeConnection(connection.getSocket());
+			// closeConnection(connection.GetSocket());
 			return (true);
 		}
 		return (false);
@@ -90,25 +90,25 @@ bool		Server::hasSendWork(Connection& connection)
 bool		Server::runSend(Connection& connection)
 {
 	static int send_number = 0;
-	Request *request = connection.get_m_request();
-	Response *response = connection.get_m_response();
+	Request *request = connection.GetRequest();
+	Response *response = connection.GetResponse();
 
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
-		response->set_m_response(response->makeResponse()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
+		response->SetResponse(response->MakeResponse()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
 		errno = 0;
 
 		// int count = 1000000;
 		// int snd_buf= count * 1, rcv_buf= count * 3;
 
 		// NOTE  최적화1. 수신 버퍼의 크기 조절하기
-		// state=setsockopt(connection.getSocket(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
-		// state = setsockopt(connection.getSocket(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
+		// state=setsockopt(connection.GetSocket(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
+		// state = setsockopt(connection.GetSocket(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
 		// cout << "state: " << state << std::endl;
 
 		// NOTE  최적화1. Nagle 알고리즘 해제하기
 		// int opt_val = true;
-		// state = setsockopt(connection.getSocket(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
+		// state = setsockopt(connection.GetSocket(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
 		// cout << "state: " << state << std::endl;
 
 		// perror("what?:");
@@ -122,22 +122,22 @@ bool		Server::runSend(Connection& connection)
 	{
 		errno = 0;
 		// perror("what?:");
-		ssize_t	count = write(connection.getSocket(), response->get_m_response().c_str(), response->get_m_response().length());
+		ssize_t	count = write(connection.GetSocket(), response->GetResponse().c_str(), response->GetResponse().length());
 		if (count <= 0)
 		{
 			throw IOError();
 		}
 		std::size_t	write_size = count;
-		if (write_size != response->get_m_response().length())
+		if (write_size != response->GetResponse().length())
 		{
 			// cout << "write_size: " << write_size << std::endl;
-			response->set_m_response(response->get_m_response().substr(write_size));
-			// cout << "now_length: " << response->get_m_response().length() << std::endl;
+			response->SetResponse(response->GetResponse().substr(write_size));
+			// cout << "now_length: " << response->GetResponse().length() << std::endl;
 			return (false);
 		}
 	}
 
-	int	statusCode = response->get_m_status_code();
+	int	statusCode = response->GetStatusCode();
 	if (statusCode >= 200 && statusCode < 300)
 	{
 		std::cout << GRN;
@@ -146,8 +146,8 @@ bool		Server::runSend(Connection& connection)
 	{
 		std::cout << RED;
 	}
-	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
-	std::cout << "[" << request->GetMethod() << "][" << response->get_m_status_code() << " " << response->m_status_map[statusCode] << "]" NC << std::endl;
+	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.GetIP() << ":" << connection.GetPort() << "]";
+	std::cout << "[" << request->GetMethod() << "][" << response->GetStatusCode() << " " << response->mStatusMap[statusCode] << "]" NC << std::endl;
 
 	// request->ShowMessage(); // ANCHOR request message debugging 용
 	// response->ShowMessage(); // ANCHOR response message debugging 용
@@ -157,15 +157,15 @@ bool		Server::runSend(Connection& connection)
 
 	// ANCHOR 작업중
 	delete request;
-	connection.set_m_request(NULL);
+	connection.SetRequest(NULL);
 	delete response;
-	connection.set_m_response(NULL);
+	connection.SetResponse(NULL);
 	connection.SetStatus(Connection::REQUEST_READY);
-	mManager->ClrWriteFds(connection.getSocket());
-	mManager->ClrWriteCopyFds(connection.getSocket());
-	// FD_CLR(connection.getSocket(), &(this->mManager->GetWriteFds()));
-	// FD_CLR(connection.getSocket(), &(this->mManager->GetWriteCopyFds()));
-	// closeConnection(connection.getSocket());
+	mManager->ClrWriteFds(connection.GetSocket());
+	mManager->ClrWriteCopyFds(connection.GetSocket());
+	// FD_CLR(connection.GetSocket(), &(this->mManager->GetWriteFds()));
+	// FD_CLR(connection.GetSocket(), &(this->mManager->GetWriteCopyFds()));
+	// closeConnection(connection.GetSocket());
 	// ANCHOR 작업중
 
 	return (true);
@@ -189,7 +189,7 @@ bool		Server::runExecute(Connection& connection)
 	// TODO cgi 여부에 따라 걸러주는 로직이 있어야함 cgi 아니면 send ready
 	try
 	{
-		if (connection.get_m_request()->GetURItype() == Request::CGI_PROGRAM)
+		if (connection.GetRequest()->GetURItype() == Request::CGI_PROGRAM)
 		{
 			executeCGI(connection);
 			return (true);
@@ -215,9 +215,9 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (FD_ISSET(connection.getSocket(), &(this->mManager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
+	if (FD_ISSET(connection.GetSocket(), &(this->mManager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
-		// std::cout << "client(" << connection.getSocket() << ") : has request" << std::endl;
+		// std::cout << "client(" << connection.GetSocket() << ") : has request" << std::endl;
 		return (true);
 	}
 	else
@@ -251,12 +251,12 @@ bool		Server::runRecvAndSolve(Connection& connection)
 
 	try
 	{
-		Request& request = *connection.get_m_request();
+		Request& request = *connection.GetRequest();
 		if (request.GetPhase() == Request::COMPLETE)
 		{
 		// 	writeCreateNewRequestLog(request);
 		// 	connection.set_m_status(Connection::ON_EXECUTE); //REVIEW 이게 맞나?
-			solveRequest(connection, *connection.get_m_request());
+			solveRequest(connection, *connection.GetRequest());
 			return (true);
 		}
 		return (false);

@@ -9,19 +9,19 @@ Request::Request(void)
 	gettimeofday(&mStartTime, NULL);
 }
 
-void								Request::addOrigin(const std::string& added_origin)
+void								Request::AddMessage(const std::string& added_origin)
 {
-	m_origin.append(added_origin);
+	mMessage.append(added_origin);
 }
 
-const std::string&					Request::get_m_origin(void) const
+const std::string&					Request::getMessage(void) const
 {
-	return (m_origin);
+	return (mMessage);
 }
 
 void								Request::SetOrigin(const std::string& origin)
 {
-	m_origin = origin;
+	mMessage = origin;
 }
 
 const std::string&					Request::GetMethod(void) const
@@ -44,7 +44,7 @@ void								Request::SetPhase(const ePhase& phase)
 	mPhase = phase;
 }
 
-bool								Request::isValidHeader(const std::string& header)
+bool								Request::IsValidHeader(const std::string& header)
 {
 	std::size_t	found = header.find(": ");
 	if (found == std::string::npos)
@@ -74,7 +74,7 @@ bool								Request::isValidHeader(const std::string& header)
 	return (false);
 }
 
-void								Request::addHeader(const std::string& header)
+void								Request::AddHeader(const std::string& header)
 {
 	std::size_t	found = header.find(": ");
 	if (found == std::string::npos)
@@ -94,7 +94,7 @@ void								Request::addHeader(const std::string& header)
 	{
 		if (value.find("chunked") != std::string::npos)
 		{
-			SetTransferType(CHUNKED);
+			setTransferType(CHUNKED);
 		}
 	}
 
@@ -109,7 +109,7 @@ void								Request::addHeader(const std::string& header)
 	mHeaders.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
 }
 
-const std::string&					Request::getBody(void) const
+const std::string&					Request::GetBody(void) const
 {
 	return (mBody);
 }
@@ -119,7 +119,7 @@ void								Request::SetBody(const std::string& body)
 	mBody = body;
 }
 
-void								Request::addBody(const std::string& body)
+void								Request::AddBody(const std::string& body)
 {
 	mBody.append(body);
 }
@@ -153,7 +153,7 @@ const Request::eTransferType&		Request::GetTransferType(void) const
 	return (mTransferType);
 }
 
-void								Request::SetTransferType(const eTransferType& trasferType)
+void								Request::setTransferType(const eTransferType& trasferType)
 {
 	mTransferType = trasferType;
 }
@@ -306,8 +306,8 @@ void								Request::ShowMessage(void)
 	std::cout << std::endl;
 
 	// body
-	if (getBody().empty() == false)
+	if (GetBody().empty() == false)
 	{
-		std::cout << getBody() << std::endl;
+		std::cout << GetBody() << std::endl;
 	}
 }

@@ -1,16 +1,13 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include "Define.hpp"
-
 #include <string>
 #include <map>
+#include "Define.hpp"
 #include "Connection.hpp"
 class Connection;
-
 #include "Server.hpp"
 class Server;
-
 
 class Request
 {
@@ -20,21 +17,16 @@ public:
 	enum ePhase									{ READY, ON_HEADER, ON_BODY, COMPLETE };
 
 	Request(void);
-	// Request(Connection* connection, Server* server, std::string start_line);
-
-	// const Connection*							get_m_connection(void) const;
-	// const Server*								get_m_server(void) const;
-	// const Location*								get_m_location(void) const;
 
 	std::map<std::string, std::string>&			GetHeaders(void);
 
 	const eTransferType&						GetTransferType(void) const;
-	void										SetTransferType(const eTransferType& trasferType);
+	void										setTransferType(const eTransferType& trasferType);
 
-	const std::string&							getBody(void) const;
+	const std::string&							GetBody(void) const;
 	void										SetBody(const std::string& body);
 	
-	const std::string&							get_m_origin(void) const;
+	const std::string&							getMessage(void) const;
 	void										SetOrigin(const std::string& origin);
 
 	const ePhase&								GetPhase(void) const;
@@ -50,11 +42,10 @@ public:
 	const std::string&							GetVersion(void) const;
 	void										SetVersion(const std::string& version);
 
-	// const struct timeval&						isOverTime(void) const;
-	void										addBody(const std::string& body);
-	void										addOrigin(const std::string& added_origin);
-	void										addHeader(const std::string& header);
-	bool										isValidHeader(const std::string& header);
+	void										AddBody(const std::string& body);
+	void										AddMessage(const std::string& added_origin);
+	void										AddHeader(const std::string& header);
+	bool										IsValidHeader(const std::string& header);
 
 	// URI 관련된 친구들 //
 	void										ParseURI(std::string& uri);
@@ -79,15 +70,11 @@ public:
 
 	void										ShowMessage(void);
 private:
-	// Connection*									m_connection;
-	// Server*										m_server;
-	// Location*									m_location;
-
 	struct timeval								mStartTime;
 
 	ePhase										mPhase;
 	std::size_t									mSeek;
-	std::string									m_origin;	//FIXME http message 전문을 담고 있음 이부분은 나중에 수정해야함
+	std::string									mMessage;
 
 	std::string									mMethod;
 	/* uri 친구들 */

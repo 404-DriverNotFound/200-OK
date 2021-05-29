@@ -150,7 +150,7 @@ std::vector<LocationPath>::iterator Server::returnIteratorLocationPath(std::vect
 	return (it);
 }
 
-const int&	Server::getSocket(void) const
+const int&	Server::GetSocket(void) const
 {
 	return (this->mSocket);
 }

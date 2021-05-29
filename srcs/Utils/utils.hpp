@@ -51,8 +51,8 @@ namespace ft
 	std::string		inet_ntos(struct in_addr in);
 
 
-	std::string getBody_from_file(std::string uri_plus_file);
-	std::string getBody_from_fd(int fd);
+	std::string GetBody_from_file(std::string uri_plus_file);
+	std::string GetBody_from_fd(int fd);
 
 	static inline int	fd_isset(int _fd, const struct fd_set *_p)
 	{

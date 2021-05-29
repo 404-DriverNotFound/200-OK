@@ -106,7 +106,7 @@ public:
 	void								create_Response_0(Connection &connection, std::string uri_plus_file);
 	void								create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type);
 
-	const int&							getSocket(void) const;
+	const int&							GetSocket(void) const;
 
 	//ANCHOR yunslee
 	std::vector<ServerBlock>&			getServerBlocks(void);

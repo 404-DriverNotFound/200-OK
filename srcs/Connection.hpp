@@ -21,37 +21,37 @@ public:
 	Connection(int client_fd, std::string client_ip, int client_port);
 	Connection(void);
 	
-	// std::map<int, Connection>	mConnections;
 	// TODO map에서 컨낵션이 끊어졌을 때, *mRequest free 해줘야함(not NULL 일 때,)
 	// TODO map에서 컨낵션이 끊어지지는 않았으나(keep-alive), 한번의 요청을 처리해줫을 때( ePhase== COMPLETE), delete 후 NULL값 할당.
 	virtual ~Connection(void);
 
-	const int&				getSocket(void) const;
-	const struct timeval&	get_m_last_request_at(void) const;
-	const std::string&		get_m_client_ip(void) const;
-	const int&				get_m_client_port(void) const;
-	void					set_m_last_reqeust_at(const struct timeval& time);
+	const int&				GetSocket(void) const;
+	const std::string&		GetIP(void) const;
+	const int&				GetPort(void) const;
+	const struct timeval&	GetLastRequestAt(void) const;
+	void					SetLastRequestAt(const struct timeval& time);
 	
-	Request*				get_m_request(void) const;
-	void					set_m_request(Request* request);
-	Response*				get_m_response(void) const;
-	void					set_m_response(Response* response);
+	Request*				GetRequest(void) const;
+	void					SetRequest(Request* request);
+	Response*				GetResponse(void) const;
+	void					SetResponse(Response* response);
 
 	const eStatus&			GetStatus(void) const;
 	void					SetStatus(const eStatus& status);
 
-	void					addRbufFromClient(char* buf, size_t count);
+	void					AddRbufFromClient(char* buf, size_t count);
 
 	//ANCHOR yunslee
-	bool					isKeepConnection(void);
+	bool					IsKeepConnection(void);
+
 private:
-	std::string				m_client_ip;
-	int						m_client_port;
-	int						m_fd;
+	std::string				mIP;
+	int						mPort;
+	int						mSocket;
 	Request*				mRequest;
 	Response*				mResponse;
 	eStatus					mStatus;
-	struct timeval			m_last_request_at;
+	struct timeval			mLastRequestAt;
 };
 
 #endif

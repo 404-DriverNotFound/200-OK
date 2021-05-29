@@ -26,7 +26,7 @@ void		ServerManager::RunServers(void)
 	struct timeval	timeOut;
 	for (std::vector<Server>::iterator it = mServers.begin(); it != mServers.end(); ++it)
 	{
-		FT_FD_SET(it->getSocket(), &mReadFds);
+		FT_FD_SET(it->GetSocket(), &mReadFds);
 	}
 	while (true)
 	{
@@ -284,14 +284,14 @@ void					ServerManager::closeOldConnection(std::vector<Server>::iterator server_
 	{
 		std::map<int, Connection>::iterator	it2 = it++;
 		int fd = it2->first;
-		if (it2->second.getSocket() == server_it->mSocket)
+		if (it2->second.GetSocket() == server_it->mSocket)
 		{
 			continue ;
 		}
-		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
+		if (it2->second.IsKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
 			std::cout << "closeOldconnection: " << fd << std::endl;
-			server_it->closeConnection(it2->second.getSocket());
+			server_it->closeConnection(it2->second.GetSocket());
 			return ;
 		}
 	}
