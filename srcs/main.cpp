@@ -30,8 +30,7 @@ int		main(int argc, char* argv[], char* envp[])
 				}
 				else
 				{
-					// cout << "No such a file: \"" << argv[1] << "\"" << endl;
-					return (-1);
+					throw (static_cast<const string>("No such a file"));
 				}
 			}
 			else
@@ -39,7 +38,7 @@ int		main(int argc, char* argv[], char* envp[])
 				manager.createServer(std::string(DEFAULT_CONFIG_FILE_PATH), envp);
 			}
 		}
-		catch (std::string e)
+		catch (const std::string e)
 		{
 			manager.exitServer(e);
 		}
