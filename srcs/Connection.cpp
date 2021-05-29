@@ -37,7 +37,7 @@ Connection::~Connection(void)
 }
 
 
-const int&					Connection::get_m_fd(void) const{return (this->m_fd);}
+const int&					Connection::getSocket(void) const{return (this->m_fd);}
 
 const struct timeval&		Connection::get_m_last_request_at(void) const{	return (this->m_last_request_at);}
 

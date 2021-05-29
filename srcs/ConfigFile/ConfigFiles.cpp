@@ -15,12 +15,12 @@ void ConfigFiles::ShowConfigs()
 
 		
 		std::cout << "index_pages: ";
-		for (size_t j = 0; j < this->mconfigs[i].mindex_pages.size(); j++)
+		for (size_t j = 0; j < this->mconfigs[i].mIndexPages.size(); j++)
 		{
-			std::cout << this->mconfigs[i].mindex_pages[j].getPath() << " ";
+			std::cout << this->mconfigs[i].mIndexPages[j].getPath() << " ";
 		}
 		std::cout << std::endl;
-		std::cout << "error_page: " << this->mconfigs[i].merror_page.getPath() << std::endl;
+		std::cout << "error_page: " << this->mconfigs[i].mErrorPage.getPath() << std::endl;
 		std::cout << "method: ";
 		for (size_t j = 0; j < this->mconfigs[i].m_method.size(); j++)
 		{

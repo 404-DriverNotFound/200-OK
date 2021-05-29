@@ -2,16 +2,14 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
-extern char**	g_env;
-
 void		Server::run(void)
 {
-	std::map<int, Connection>::iterator	it = m_connections.begin();
-	while (it != m_connections.end())
+	std::map<int, Connection>::iterator	it = mConnections.begin();
+	while (it != mConnections.end())
 	{
-		std::map<int, Connection>::iterator it2 = it++;
-		int fd = this->msocket;
-		if (it2->second.get_m_fd() == fd)
+		std::map<int, Connection>::iterator	it2 = it++;
+		int fd = this->mSocket;
+		if (it2->second.getSocket() == fd)
 		{
 			continue ;
 		}
@@ -41,22 +39,12 @@ void		Server::run(void)
 		}
 		catch (const std::exception& e)
 		{
-			closeConnection(it2->second.get_m_fd());
+			closeConnection(it2->second.getSocket());
 		}
-
-		// STUB 예시 코드
-		// } catch (Server::IOError& e) {
-		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + e.location() + std::string("\n"));
-		// 	closeConnection(fd);
-		// } catch (...) {
-		// 	ft::log(ServerManager::log_fd, ft::getTimestamp() + "detected some error" + std::string("\n"));
-		// 	closeConnection(fd);				
-		// }
 	}
-	// cout << "m_connections.size()" << m_connections.size() << endl;
 	if (hasNewConnection())
 	{
-		if (m_connections.size() >= (INIT_FD_MAX / m_manager->GetServers().size()))
+		if (mConnections.size() >= (INIT_FD_MAX / mManager->GetServers().size()))
 		{
 			int fd = getUnuseConnectionFd();
 			if (fd == -1)
@@ -66,15 +54,15 @@ void		Server::run(void)
 		
 		if (false == acceptNewConnection())
 		{
-			// cout << "accpetNewconnection(): Fail" << endl;
+			// cout << "accpetNewconnection(): Fail" << std::endl;
 			// reportCreateNewConnectionLog();
 		}
 		else
 		{
-			// cout << "accpetNewconnection(): Success" << endl;
+			// cout << "accpetNewconnection(): Success" << std::endl;
 		}
 	}
-	// cout << this->mport << "'s connection_size: "<< m_connections.size() << endl; 
+	// cout << this->mport << "'s connection_size: "<< mConnections.size() << std::endl; 
 }
 
 bool		Server::hasSendWork(Connection& connection)
@@ -86,9 +74,9 @@ bool		Server::hasSendWork(Connection& connection)
 	
 	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
-		if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds())))
+		if (FD_ISSET(connection.getSocket(), &(this->mManager->GetWriteCopyFds())))
 		{
-			// closeConnection(connection.get_m_fd());
+			// closeConnection(connection.getSocket());
 			return (true);
 		}
 		return (false);
@@ -114,14 +102,14 @@ bool		Server::runSend(Connection& connection)
 		// int snd_buf= count * 1, rcv_buf= count * 3;
 
 		// NOTE  최적화1. 수신 버퍼의 크기 조절하기
-		// state=setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
-		// state = setsockopt(connection.get_m_fd(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
-		// cout << "state: " << state << endl;
+		// state=setsockopt(connection.getSocket(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
+		// state = setsockopt(connection.getSocket(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
+		// cout << "state: " << state << std::endl;
 
 		// NOTE  최적화1. Nagle 알고리즘 해제하기
 		// int opt_val = true;
-		// state = setsockopt(connection.get_m_fd(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
-		// cout << "state: " << state << endl;
+		// state = setsockopt(connection.getSocket(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
+		// cout << "state: " << state << std::endl;
 
 		// perror("what?:");
 		errno = 0;
@@ -134,7 +122,7 @@ bool		Server::runSend(Connection& connection)
 	{
 		errno = 0;
 		// perror("what?:");
-		ssize_t	count = write(connection.get_m_fd(), response->get_m_response().c_str(), response->get_m_response().length());
+		ssize_t	count = write(connection.getSocket(), response->get_m_response().c_str(), response->get_m_response().length());
 		if (count <= 0)
 		{
 			throw IOError();
@@ -142,9 +130,9 @@ bool		Server::runSend(Connection& connection)
 		std::size_t	write_size = count;
 		if (write_size != response->get_m_response().length())
 		{
-			// cout << "write_size: " << write_size << endl;
+			// cout << "write_size: " << write_size << std::endl;
 			response->set_m_response(response->get_m_response().substr(write_size));
-			// cout << "now_length: " << response->get_m_response().length() << endl;
+			// cout << "now_length: " << response->get_m_response().length() << std::endl;
 			return (false);
 		}
 	}
@@ -165,7 +153,7 @@ bool		Server::runSend(Connection& connection)
 	// response->ShowMessage(); // ANCHOR response message debugging 용
 
 	send_number++;
-	cout << "send_nubmer: " << send_number << endl;
+	std::cout << "send_nubmer: " << send_number << std::endl;
 
 	// ANCHOR 작업중
 	delete request;
@@ -173,11 +161,11 @@ bool		Server::runSend(Connection& connection)
 	delete response;
 	connection.set_m_response(NULL);
 	connection.SetStatus(Connection::REQUEST_READY);
-	m_manager->ClrWriteFds(connection.get_m_fd());
-	m_manager->ClrWriteCopyFds(connection.get_m_fd());
-	// FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteFds()));
-	// FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
-	// closeConnection(connection.get_m_fd());
+	mManager->ClrWriteFds(connection.getSocket());
+	mManager->ClrWriteCopyFds(connection.getSocket());
+	// FD_CLR(connection.getSocket(), &(this->mManager->GetWriteFds()));
+	// FD_CLR(connection.getSocket(), &(this->mManager->GetWriteCopyFds()));
+	// closeConnection(connection.getSocket());
 	// ANCHOR 작업중
 
 	return (true);
@@ -227,9 +215,9 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
+	if (FD_ISSET(connection.getSocket(), &(this->mManager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
-		// std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
+		// std::cout << "client(" << connection.getSocket() << ") : has request" << std::endl;
 		return (true);
 	}
 	else
@@ -288,9 +276,9 @@ bool		Server::runRecvAndSolve(Connection& connection)
 
 bool		Server::hasNewConnection()
 {
-	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadCopyFds())))
+	if (FD_ISSET(this->mSocket, &(this->mManager->GetReadCopyFds())))
 	{
-		// cout << "this->msocket: " << this->msocket << endl;
+		// cout << "this->msocket: " << this->msocket << std::endl;
 		return (true);
 	}
 	else
@@ -303,20 +291,20 @@ bool		Server::acceptNewConnection()
 {
 	sockaddr_in	sockaddr;
 	socklen_t	socketlen = sizeof(struct sockaddr);
-	int			client_socket = accept(this->msocket, reinterpret_cast<struct sockaddr*>(&sockaddr), reinterpret_cast<socklen_t*>(&socketlen));
+	int			client_socket = accept(this->mSocket, reinterpret_cast<struct sockaddr*>(&sockaddr), reinterpret_cast<socklen_t*>(&socketlen));
 	if (client_socket == -1)
 	{
 		// std::cerr << "Could not create socket." << std::endl;
 		return (false);
 	}
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);
-	m_manager->SetReadFds(client_socket);
-	m_manager->SetReadCopyFds(client_socket);
-	// FD_SET(client_socket, &(this->m_manager->GetReadFds()));
-	// FD_SET(client_socket, &(this->m_manager->GetReadCopyFds()));
-	// FD_SET(client_socket, &(this->m_manager->GetWriteFds()));
-	// FD_SET(client_socket, &(this->m_manager->GetWriteCopyFds()));
-	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
+	mManager->SetReadFds(client_socket);
+	mManager->SetReadCopyFds(client_socket);
+	// FD_SET(client_socket, &(this->mManager->GetReadFds()));
+	// FD_SET(client_socket, &(this->mManager->GetReadCopyFds()));
+	// FD_SET(client_socket, &(this->mManager->GetWriteFds()));
+	// FD_SET(client_socket, &(this->mManager->GetWriteCopyFds()));
+	this->mConnections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mPort);
 	std::cerr << GRNB "[" << ft::getCurrentTime() << "][connection]" << "[ESTABLISHED]" << "[" << client_socket << "]" << NC << std::endl;
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
 	return (true);

@@ -21,7 +21,7 @@ int main()
 	temp_str.pop_back();
 	ft::ReplaceAll(temp_str, "1", "2");
 
-	cout << "Status: 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n";
-	cout << temp_str << "\r\n";
+	std::cout << "Status: 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n";
+	std::cout << temp_str << "\r\n";
 	return (1);
 }

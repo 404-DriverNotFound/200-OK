@@ -1,22 +1,20 @@
 #include <iostream>
 #include "ServerManager.hpp"
 
-// #define DEFAULT_CONFIG_FILE_PATH "default.config"
+// #define DEFAULT_CONFIG_FILE_PATH "tester.config"
 
 std::map<int, std::string> Response::m_status_map; // NOTE static 변수도 전역변수라도 한번 선언을 해줘야함.
+char**	g_envp;
 
-char** g_env;
 
 int		main(int argc, char* argv[], char* envp[])
 {
-	g_env = envp; // FIXME env 임시로 전역변수로
-
 	Response::init_status_map();
-	ServerManager	manager;
+	g_envp = envp;
 
 	if (argc > 2)
 	{
-		std::cerr << "There are many arguments." << std::endl;
+		std::cerr << REDB "[" << ft::getCurrentTime() << "][error]" << "[There are many arguments.]" << NC << std::endl;
 		return (1);
 	}
 	else
@@ -29,15 +27,17 @@ int		main(int argc, char* argv[], char* envp[])
 			{
 				configurationFilePath = argv[1];
 			}
+			ServerManager	manager;
+
 			// NOTE 서버 생성
-			manager.CreateServers(configurationFilePath.c_str(), envp);
+			manager.CreateServers(configurationFilePath.c_str());
 			
 			// NOTE 서버 실행
 			manager.RunServers();
 		}
 		catch (const std::exception& e)
 		{
-			std::cerr << "Exception occurred. Because of " << e.what() << std::endl;
+			std::cerr << REDB "[" << ft::getCurrentTime() << "][error]" << "[Server exited unexpected reasons.]" << NC << std::endl;
 			return (1);
 		}
 		return (0);

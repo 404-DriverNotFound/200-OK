@@ -8,8 +8,8 @@ void				Path::setPath2(std::vector<std::string> &vec, const std::string& str)
 	while((after = str.find("/", before)) != std::string::npos)  //from을 찾을 수 없을 때까지
 	{
 		substr = str.substr(before, after - before);
-		// cout << "   str: " << str << endl;
-		// cout << "substr: " << substr << endl;
+		// cout << "   str: " << str << std::endl;
+		// cout << "substr: " << substr << std::endl;
 		if (substr.size() != 0)
 			vec.push_back(substr);
 		before = after + 1;

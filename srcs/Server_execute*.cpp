@@ -2,8 +2,6 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
-extern char**	g_env;
-
 void		Server::executeAutoindex(Connection& connection, std::string uri_copy)
 {
 	connection.set_m_response(new Response(&connection, 200, ft::makeAutoindexHTML(uri_copy)));
@@ -58,7 +56,7 @@ void		Server::executePost(Connection& connection, const Request& request)
 	// int fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	// int ret = write(fd, response->get_m_body().c_str(), response->get_m_body().length());
 	// close (fd); // REVIEW POST에서 request가 들어오던가? 왜 이걸 내가 파일에 저장해야하는지 모르겠어. 존재하는 .bla 파일을 이용하는거아닌가?
-	// cout << "ret: " << ret << endl;
+	// cout << "ret: " << ret << std::endl;
 	
 	connection.set_m_response(new Response(&connection, 200, request.getBody()));
 }
@@ -70,9 +68,9 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 	errno = 0;
 	if (target_uri.back() == '/') // NOTE 무조껀 파일경로로 open 하도록 함. 폴더 경로로 open하면, 동작이 조금 다르다.
 		target_uri.pop_back();
-	// cout << "pop_target_uri: target_uri" << target_uri << endl;
+	// cout << "pop_target_uri: target_uri" << target_uri << std::endl;
 	int open_fd = open(target_uri.c_str(), O_WRONLY | O_TRUNC);
-	// cout << "first open_fd: " << open_fd << endl;
+	// cout << "first open_fd: " << open_fd << std::endl;
 
 	if (open_fd > 2)
 	{
@@ -109,7 +107,7 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 			}
 			connection.set_m_response(new Response(&connection, 201, request.getBody()));	
 			int open_fd2 = open(target_uri.c_str(), O_WRONLY | O_CREAT, 0755);
-			// cout << "second open_fd: " << open_fd2 << endl;
+			// cout << "second open_fd: " << open_fd2 << std::endl;
 
 			write(open_fd2, connection.get_m_response()->get_m_body().c_str(), connection.get_m_response()->get_m_body().length());
 			close(open_fd2);
@@ -117,7 +115,7 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 		}
 	}
 	Response *response = connection.get_m_response();
-	// cout << "Response %p" << response << endl;
+	// cout << "Response %p" << response << std::endl;
 	response->set_m_headers("Date", ft::getCurrentTime().c_str());
 	response->set_m_headers("Server", "webserv");
 	if (errno == 0)
@@ -194,10 +192,10 @@ void		Server::executeOptions(Connection& connection, std::string target_uri, con
 		response->set_m_headers("Date", ft::getCurrentTime().c_str());
 		response->set_m_headers("Server", "webserv");
 		std::string value;
-		for (size_t i = 0; i < config_it.locationPath->m_method.size(); i++)
+		for (size_t i = 0; i < config_it.locationPath->mMethods.size(); i++)
 		{
-			value += config_it.locationPath->m_method[i];
-			if (i != config_it.locationPath->m_method.size() - 1)
+			value += config_it.locationPath->mMethods[i];
+			if (i != config_it.locationPath->mMethods.size() - 1)
 				value += " ";
 		}
 		response->set_m_headers("Allow", value);
@@ -207,14 +205,14 @@ void		Server::executeOptions(Connection& connection, std::string target_uri, con
 
 void		Server::aexecuteTrace(Connection& connection)
 {
-	connection.get_m_fd();
+	connection.getSocket();
 }
 
 void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사용되지 않음
 {
 	Response*	response = connection.get_m_response();
 
-	std::string connectionFD = ft::itos(connection.get_m_fd());
+	std::string connectionFD = ft::itos(connection.getSocket());
 	if (connectionFD.size() == 0)
 	{
 		throw 500;
@@ -238,8 +236,8 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			throw 500;
 		}
 		int	cnt = write(toCGI, response->get_m_body().c_str(), response->get_m_body().length());
-		// cout << "toCGI: " << toCGI << endl;
-		// cout << "fromCGI: " << fromCGI << endl;
+		// cout << "toCGI: " << toCGI << std::endl;
+		// cout << "fromCGI: " << fromCGI << std::endl;
 
 		if (cnt < 0)
 		{
@@ -294,7 +292,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 	else
 	{
 		int	fromCGI = open(fromCGIfileName.c_str(), O_RDONLY);
-		// cout << "fromCGIfilename: " << fromCGIfileName << endl;
+		// cout << "fromCGIfilename: " << fromCGIfileName << std::endl;
 		struct stat	statBuf;
 
 		if (fstat(fromCGI, &statBuf) == -1)
@@ -305,7 +303,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		char *buf = (char *)malloc(sizeof(char) * (statBuf.st_size + 1));
 		
 		int cnt = read(fromCGI, buf, statBuf.st_size);
-		// cout << "cnt: " << cnt << endl;
+		// cout << "cnt: " << cnt << std::endl;
 		buf[cnt] = 0;
 		if (cnt <= 0)
 		{

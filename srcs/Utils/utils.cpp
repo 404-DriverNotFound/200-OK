@@ -238,7 +238,7 @@ std::string ft::makeAutoindexHTML(std::string url)
 			res += "localhost:8000"; res +=url; res += curr->d_name; res += "\">";
 			res += curr->d_name; res += "</a><br>\n";
 		}
-		// cout << "1" << endl;
+		// cout << "1" << std::endl;
 	}
 	closedir(dir);
 	res += "</pre></hr></body>\n</html>\n";

@@ -27,8 +27,8 @@ public :
 		// NOTE - location에서 덮어씌워지는 요소들
 		bool				mauto_index;		// def = false;
 		Path				mroot;				// def = 
-		std::vector<Path>	mindex_pages;		// def = index.html
-		Path				merror_page;		// def = error.html
+		std::vector<Path>	mIndexPages;		// def = index.html
+		Path				mErrorPage;		// def = error.html
 		std::vector<std::string> m_method;		// def = GET HEAD PUT POST DELETE OPTIONS
 		std::vector<std::string> mcgi_extension;// def = .bla
 

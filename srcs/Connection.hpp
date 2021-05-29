@@ -21,12 +21,12 @@ public:
 	Connection(int client_fd, std::string client_ip, int client_port);
 	Connection(void);
 	
-	// std::map<int, Connection>	m_connections;
+	// std::map<int, Connection>	mConnections;
 	// TODO map에서 컨낵션이 끊어졌을 때, *mRequest free 해줘야함(not NULL 일 때,)
 	// TODO map에서 컨낵션이 끊어지지는 않았으나(keep-alive), 한번의 요청을 처리해줫을 때( ePhase== COMPLETE), delete 후 NULL값 할당.
 	virtual ~Connection(void);
 
-	const int&				get_m_fd(void) const;
+	const int&				getSocket(void) const;
 	const struct timeval&	get_m_last_request_at(void) const;
 	const std::string&		get_m_client_ip(void) const;
 	const int&				get_m_client_port(void) const;

@@ -7,8 +7,8 @@ ConfigFile::ConfigFile()
 	, mlocation_path()
 	, mauto_index(false)
 	, mroot()
-	, mindex_pages()
-	, merror_page()
+	, mIndexPages()
+	, mErrorPage()
 	, mclient_max_body_size(0)
 	, mhead_length_max(8000)
 	, mbody_length_max(10000)
@@ -39,8 +39,8 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->mroot = ref.mroot;
 	this->mlocation_path = ref.mlocation_path;
 	this->mport = ref.mport;
-	this->mindex_pages = ref.mindex_pages;
-	this->merror_page = ref.merror_page;
+	this->mIndexPages = ref.mIndexPages;
+	this->mErrorPage = ref.mErrorPage;
 	this->mhead_length_max = ref.mhead_length_max;
 	this->mbody_length_max = ref.mbody_length_max;
 	this->mauth = ref.mauth;

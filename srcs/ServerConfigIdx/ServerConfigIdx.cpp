@@ -143,7 +143,7 @@ int ServerConfigIdx::Step2(ServerConfigIdx &configidx, std::vector<std::string> 
 						configidx.SetLocationBracket(gnl, configidx, serverNum, start, end);
 						int location_idx = configidx.mserverBracket[serverNum].mlocationBlockNum - 1;
 						configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path = mlocation_path;
-						// cout << "mlocation_path: " << configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path.getPath() << endl;
+						// cout << "mlocation_path: " << configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mlocation_path.getPath() << std::endl;
 						start = configidx.mserverBracket[serverNum].mlocationBracket[location_idx].mend; // NOTE location '}' 이후에 바로 다음줄에 location이 나오는 경우 때문에 '+1'을 해주지 않음
 					}
 					else
@@ -242,14 +242,14 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				
 				Path index_page(split_vector[i]);
 				if (exist_index_pages == true)
-					default_location.mindex_pages.push_back(split_vector[i]);
+					default_location.mIndexPages.push_back(split_vector[i]);
 				else
 					index_pages.push_back(split_vector[i]);
 				i++;
 			}
 			if (exist_index_pages == false)
 			{
-				default_location.mindex_pages = index_pages;
+				default_location.mIndexPages = index_pages;
 				exist_index_pages = true;
 			}
 		}
@@ -258,7 +258,7 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 			if (split_vector.size() != 2)
 				return (-1);
 			Path error_page(split_vector[1]);
-			default_location.merror_page = error_page;
+			default_location.mErrorPage = error_page;
 		}
 		else if (split_vector[0].compare("autoindex") == 0)
 		{
@@ -371,14 +371,14 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				
 				Path index_page(split_vector[i]);
 				if (exist_index_pages == true)
-					default_location.mindex_pages.push_back(split_vector[i]);
+					default_location.mIndexPages.push_back(split_vector[i]);
 				else
 					index_pages.push_back(split_vector[i]);
 				i++;
 			}
 			if (exist_index_pages == false)
 			{
-				default_location.mindex_pages = index_pages;
+				default_location.mIndexPages = index_pages;
 				exist_index_pages = true;
 			}
 		}
@@ -387,7 +387,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 			if (split_vector.size() != 2)
 				return (-1);
 			Path error_page(split_vector[1]);
-			default_location.merror_page = error_page;
+			default_location.mErrorPage = error_page;
 		}
 		else if (split_vector[0].compare("method") == 0)
 		{
