@@ -10,13 +10,11 @@ SRCS	=	gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp \
 			srcs/Connection.cpp\
 			srcs/Request.cpp\
 			srcs/Response.cpp \
-			\
 			srcs/ConfigFile/ConfigFile.cpp \
 			srcs/ConfigFile/ConfigFiles.cpp \
 			srcs/Path/Path.cpp \
 			srcs/ServerConfigIdx/ServerConfigIdx.cpp \
 			srcs/Utils/utils.cpp
-#			srcs/Config.cpp\
 
 
 # $(wildcard ./srcs/*.cpp)

@@ -15,8 +15,6 @@
 #include <iostream>
 #include <cstring>
 #include <netinet/tcp.h>
-
-#include "Config.hpp"
 #include "Path/Path.hpp"
 #include "Utils/utils.hpp"
 #include "Connection.hpp"
