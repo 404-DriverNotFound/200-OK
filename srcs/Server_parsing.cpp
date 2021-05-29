@@ -79,13 +79,9 @@ Server::Server(void)
 {
 }
 
-Server::Server(ServerManager *serverManager)
-	: mport(8000)
-	// , mserverBlocks()
-	, m_manager(serverManager)
-	, msocket(0)
-	// , mPhase(READY)
+Server::Server(ServerManager *serverManager) : mport(8000) ,mhost("0.0.0.0") , m_manager(serverManager), msocket(0)
 {
+	
 }
 
 Server::~Server()
@@ -105,6 +101,7 @@ Server&	Server::operator=(const Server &ref)
 	this->mport = ref.mport;
 	this->mserverBlocks = ref.mserverBlocks;
 	this->msocket = ref.msocket;
+	this->mhost = ref.mhost;
 	this->m_connections = ref.m_connections;
 	return (*this);
 }

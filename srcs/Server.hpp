@@ -136,6 +136,7 @@ public:
 public :
 	ServerManager*				m_manager;
 	uint16_t					mport; // def = 8000;
+	std::string					mhost; // def = "0.0.0.0";
 	std::vector<ServerBlock>	mserverBlocks;
 
 	int							msocket; // NOTE m_connections의 첫번째 값이 모두 서버소켓의 fd임!

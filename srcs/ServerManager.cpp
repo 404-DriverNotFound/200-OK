@@ -191,6 +191,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			// NOTE port별로 서버도 없는 상황, 아예 새롭게 만들면 됨.
 			Server server(this); // FIXME ServerManager * 가 들어갈 것으로 예상했으나 들어가지 않음. 그래서 Setservers에서 처리해줌
 			server.mport = config.mport;
+			server.mhost = config.mhost;
 			
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
@@ -305,6 +306,7 @@ int ServerManager::ShowServers()
 	{
 		Server &temp = this->m_servers[i];
 		std::cout << "port: " << temp.mport << std::endl;
+		std::cout << "host: " << temp.mhost << std::endl;
 		for (size_t j = 0; j < temp.mserverBlocks.size(); j++)
 		{
 			ServerBlock temp2 = temp.mserverBlocks[j];

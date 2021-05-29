@@ -1,7 +1,7 @@
 #include "./ConfigFile.hpp"
 
 ConfigFile::ConfigFile() : mserver_name("localhost"), mroot(), mport(8000), mindex_pages(), merror_page(), mhead_length_max(8000), mlocation_path(),
-					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0), mclient_max_body_size(0)
+					mbody_length_max(10000), mauth(), mauto_index(false), mtimeout(0), mclient_max_body_size(0), mhost("0.0.0.0")
 {
 	this->m_method.push_back("GET");
 	this->m_method.push_back("HEAD");
@@ -26,6 +26,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 		return (*this);
 	this->mserver_name = ref.mserver_name;
 	this->mroot = ref.mroot;
+	this->mhost = ref.mhost;
 	this->mlocation_path = ref.mlocation_path;
 	this->mport = ref.mport;
 	this->mindex_pages = ref.mindex_pages;

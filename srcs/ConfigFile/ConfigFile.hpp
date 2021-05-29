@@ -20,6 +20,7 @@ public :
 		// NOTE - location에서 덮어씌워지는 않는 요소들
 		std::string			mserver_name;		// localhost
 		uint16_t			mport;				// def = 8000;
+		std::string			mhost;				// def = "0.0.0.0"
 
 		int					mtimeout;			// def = 5s
 

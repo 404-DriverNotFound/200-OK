@@ -12,6 +12,7 @@ void ConfigFiles::ShowConfigs()
 		std::cout << "auto_index: " << this->mconfigs[i].mauto_index << std::endl;
 		std::cout << "timeout: " << this->mconfigs[i].mtimeout << std::endl;
 		std::cout << "client_max_body_size: " << this->mconfigs[i].mclient_max_body_size << std::endl;
+		std::cout << "host: " << this->mconfigs[i].mhost << std::endl;
 
 		
 		std::cout << "index_pages: ";
