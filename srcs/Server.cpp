@@ -45,7 +45,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadFds())) == 0) &&
+		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopyFds())) == 0) &&
 				it2->second.isKeepConnection() == false)
 		{
 			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;

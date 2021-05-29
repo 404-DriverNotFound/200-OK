@@ -227,7 +227,7 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
+	if (FD_ISSET(connection.get_m_fd(), &(this->m_manager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
 		// std::cout << "client(" << connection.get_m_fd() << ") : has request" << std::endl;
 		return (true);
@@ -288,7 +288,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 
 bool		Server::hasNewConnection()
 {
-	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadFds())))
+	if (FD_ISSET(this->msocket, &(this->m_manager->GetReadCopyFds())))
 	{
 		// cout << "this->msocket: " << this->msocket << endl;
 		return (true);
