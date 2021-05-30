@@ -100,7 +100,7 @@ void		Response::make_m_firstline()
 	this->m_firstline += "HTTP/1.1 ";
 	this->m_firstline += ft::itos(m_status_code);
 	this->m_firstline += " ";
-	this->m_firstline += this->m_status_description;
+	this->m_firstline += m_status_map[m_status_code];
 }
 
 void		Response::set_m_headers(std::string header_key, std::string header_value)

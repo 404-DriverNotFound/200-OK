@@ -156,20 +156,20 @@ void								Request::ParseURI(std::string& uri)
 	}
 	// filename parsing
 	found = uri.find_last_of("/");
-	if (found != uri.length() - 1)
+	if (found != uri.length() - 1) //  localhost/eee/fff
 	{
+		mURItype = Request::FILE;
+		mFileName = uri.substr(found + 1);
 		std::size_t	dot = uri.substr(found + 1).rfind(".");
 		if (dot != std::string::npos)
 		{
-			mURItype = Request::FILE;
-			mFileName = uri.substr(found + 1);
 			std::string	extension = mFileName.substr(dot);
 			if (extension.compare(".bla") == 0/* || extension.compare(".php") == 0*/)
 			{
 				mURItype = Request::CGI_PROGRAM;
 			}
-			uri.resize(found);
 		}
+		uri.resize(found);
 	}
 	// directory parsing
 	mDirectory = uri;

@@ -19,7 +19,7 @@ void		Server::executeAutoindex(Connection& connection, std::string uri_copy)
 
 void		Server::executeGet(Connection& connection, std::string target_uri)
 {
-	if (ft::access(target_uri) == false)
+	if (ft::access(target_uri, 0) == -1)
 	{
 		throw 404;
 	}
