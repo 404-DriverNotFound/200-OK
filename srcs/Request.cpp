@@ -156,6 +156,10 @@ void								Request::ParseURI(std::string& uri)
 	}
 	// filename parsing
 	found = uri.find_last_of("/");
+	if (found == std::string::npos)
+	{
+		throw 400;
+	}
 	if (found != uri.length() - 1) //  localhost/eee/fff
 	{
 		mURItype = Request::FILE;
