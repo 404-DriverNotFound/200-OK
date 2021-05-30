@@ -3,6 +3,81 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+void	test413(const struct sockaddr_in& sockAddr)
+{
+	{
+		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
+		{
+			throw std::exception();
+		}
+		std::cout << "TEST 413 STATUS CODE" << std::endl;
+		std::cout << "When content-length 10 but, body 11" << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		std::string	message;
+		std::string	method("PUT");
+		std::string	uri("/put_test/temp2");
+		std::string	version("HTTP/1.1");
+		message += method + " " + uri + " " + version + "\r\n";
+		message += "content-length: 10\r\n";
+		message += "\r\n";
+		message += "kkkkkkkkkkk";
+		std::cout << message << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		write(clientSocket, message.c_str(), message.length());
+
+		char	buf[13];
+		ssize_t	ret = read(clientSocket, buf, 13);
+		std::string	returnStatusCode = std::string(buf).substr(9, 3);
+		std::cout << "expected 413" << " returned " << returnStatusCode << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		if (returnStatusCode.compare("413") != 0)
+		{
+			throw std::exception();
+		}
+		close(clientSocket);
+	}
+	std::cout << std::endl;
+	{
+		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
+		{
+			throw std::exception();
+		}
+		std::cout << "TEST 413 STATUS CODE" << std::endl;
+		std::cout << "When chunked," << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		std::string	message;
+		std::string	method("PUT");
+		std::string	uri("/put_test/414test2");
+		std::string	version("HTTP/1.1");
+		message += method + " " + uri + " " + version + "\r\n";
+		message += "Transfer-Encoding: chunked\r\n";
+		message += "\r\n";
+		message += "2\r\n";
+		message += "kk\r\n";
+		message += "3\r\n";
+		message += "kkkk\r\n";
+		message += "0\r\n";
+		message += "\r\n";
+		std::cout << message << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		write(clientSocket, message.c_str(), message.length());
+
+		char	buf[13];
+		ssize_t	ret = read(clientSocket, buf, 13);
+		std::string	returnStatusCode = std::string(buf).substr(9, 3);
+		std::cout << "expected 413" << " returned " << returnStatusCode << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		if (returnStatusCode.compare("413") != 0)
+		{
+			throw std::exception();
+		}
+		close(clientSocket);
+	}
+	std::cout << std::endl;
+}
+
 void	test411(const struct sockaddr_in& sockAddr)
 {
 	{
@@ -235,8 +310,8 @@ int	main(int argc, char* argv[])
 		//test400();
 		//test414(sockAddr);
 		//test505(sockAddr);
-		test411(sockAddr);
-		//test413();
+		//test411(sockAddr);
+		test413(sockAddr);
 		//test301();
 		//test404();
 		//test410();
