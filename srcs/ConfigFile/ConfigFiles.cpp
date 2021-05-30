@@ -40,7 +40,6 @@ void ConfigFiles::ShowConfigs()
 
 int ConfigFiles::ReadConfigFile(const char *fileName)
 {
-	char buffer[BUFSIZ];
 	this->mconfigFd = open(fileName, O_RDONLY);
 	if (this->mconfigFd < 0)
 	{
@@ -105,13 +104,13 @@ int ConfigFiles::SetConfigs()
 	if (-1 == configIdx.Step2(configIdx, this->mgnl)) // NOTE location block index로 나눔
 		return (-1);
 
-	for (size_t i = 0; i < configIdx.mserverNum; i++)
+	for (int i = 0; i < configIdx.mserverNum; i++)
 	{
 		configIdx.mtotalLocationNum += (configIdx.mserverBracket[i].mlocationBlockNum + 1); // NOTE location block 갯수에 default location을 더해야하기 때문에
 	}
 	
 	// ANCHOR Step2. 값 넣기
-	for (size_t i = 0; i < configIdx.mserverNum; i++)
+	for (int i = 0; i < configIdx.mserverNum; i++)
 	{
 		ConfigFile default_location; // NOTE 하나의 서버가 될 것임
 		std::string oneline;
@@ -127,7 +126,7 @@ int ConfigFiles::SetConfigs()
 
 		this->mconfigs.push_back(default_location); // NOTE (1)서버의 default location을 기본으로 넣어줌
 
-		for (size_t j = 0; j < configIdx.mserverBracket[i].mlocationBlockNum ; j++)
+		for (int j = 0; j < configIdx.mserverBracket[i].mlocationBlockNum ; j++)
 		{
 			ConfigFile temp = default_location;
 			int start2 = configIdx.mserverBracket[i].mlocationBracket[j].mstart + 1;

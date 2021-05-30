@@ -2,9 +2,9 @@
 
 Request::Request(void)
 	: mPhase(READY)
-	, mTransferType(GENERAL)
-	, mURItype(DIRECTORY)
 	, mSeek(0)
+	, mURItype(DIRECTORY)
+	, mTransferType(GENERAL)
 {
 	gettimeofday(&mStartTime, NULL);
 }
@@ -44,36 +44,6 @@ void								Request::SetPhase(const ePhase& phase)
 	mPhase = phase;
 }
 
-bool								Request::isValidHeader(const std::string& header)
-{
-	std::size_t	found = header.find(": ");
-	if (found == std::string::npos)
-	{
-		throw 400;
-	}
-
-	std::string	key = header.substr(0, found);
-
-	std::locale loc;
-	for(std::string::size_type i = 0; i < key.length(); i++)
-	{
-		key[i] = std::tolower(key[i], loc);
-	}
-
-	// FIXME request에 없는 헤더도 있는데, 그 부분을 수정해야할 듯 일단 다 넣음
-	std::string			headerSet[19] = {"accept-charsets", "accept-language", "allow", "authorization", "content-language", "content-length", "content-location", "content-type", "date", "host", "last-modified", "location", "referer", "retry-after", "server", "transfer-encoding", "user-agent", "www-authenticate", "x-secret-header-for-test"};
-	int					i;
-
-	for (i = 0 ; i < 19; i++)
-	{
-		if ((key.compare(headerSet[i]) == 0))
-		{
-			return (true);
-		}
-	}
-	return (false);
-}
-
 void								Request::addHeader(const std::string& header)
 {
 	std::size_t	found = header.find(": ");
@@ -106,7 +76,7 @@ void								Request::addHeader(const std::string& header)
 			value = value.substr(0, found);
 		}
 	}
-	mHeaders.insert(std::pair<std::string, std::string>(key, value)); // REVIEW pair 허용인지 확인해야함
+	mHeaders.insert(std::pair<std::string, std::string>(key, value));
 }
 
 const std::string&					Request::getBody(void) const
@@ -181,10 +151,10 @@ void								Request::ParseURI(std::string& uri)
 	found = uri.find_last_of("/");
 	if (found != uri.length() - 1)
 	{
-		mURItype = Request::FILE;
 		std::size_t	dot = uri.substr(found + 1).rfind(".");
 		if (dot != std::string::npos)
 		{
+			mURItype = Request::FILE;
 			mFileName = uri.substr(found + 1);
 			std::string	extension = mFileName.substr(dot);
 			if (extension.compare(".bla") == 0/* || extension.compare(".php") == 0*/)

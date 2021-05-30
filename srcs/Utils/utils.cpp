@@ -246,12 +246,11 @@ std::string ft::makeAutoindexHTML(std::string url)
 }
 
 
-std::vector<int> ft::getVector_changedFD(struct fd_set *fdset, size_t fdset_size)
+std::vector<int> ft::getVector_changedFD(struct fd_set *fdset)
 {
 	std::vector<int> ret;
 	for (size_t i = 0; i < 1024; i++)
 	{
-		int temp = i;
 		// if (((fdset->fds_bits[temp / 32]) & (1 << (temp % 32))) > 0)
 		// {
 		// 	ret.push_back((int)i);

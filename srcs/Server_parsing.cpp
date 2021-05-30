@@ -45,7 +45,10 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 	return (*this);
 }
 
-ServerBlock::ServerBlock() : mserverName("localhost"), mlocationPaths(), mtimeout(0)
+ServerBlock::ServerBlock()
+	: mlocationPaths()
+	, mserverName("localhost")
+	, mtimeout(0)
 {
 
 }
@@ -71,15 +74,21 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
 }
 
 Server::Server(void)
-	: mport(8000)
+	: m_manager(NULL)
+	, mport(8000)
 	// , mserverBlocks()
-	, m_manager(NULL)
 	, msocket(0)
 	// , mPhase(READY)
 {
 }
 
-Server::Server(ServerManager *serverManager) : mport(8000) ,mhost("0.0.0.0") , m_manager(serverManager), msocket(0)
+Server::Server(ServerManager *serverManager)
+	: m_manager(serverManager)
+	, mport(8000)
+	, mhost("0.0.0.0")
+	, msocket(0)
+	// , mserverBlocks()
+	// , mPhase(READY)
 {
 	
 }

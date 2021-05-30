@@ -4,7 +4,7 @@
 
 extern char**	g_env;
 
-int				Server::SetSocket(std::string ip, uint16_t port)
+int				Server::SetSocket()
 {
 	if ((this->msocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -12,7 +12,7 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 	}
 	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
+	sockaddr.sin_addr.s_addr = inet_addr(this->mhost.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
 	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
@@ -44,7 +44,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.get_m_fd() == fd)
 			continue ;
-		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopySet())) == 0) &&
+		if ((FD_ISSET(it2->second.get_m_fd(), &(this->m_manager->GetReadCopyFds())) == 0) &&
 				it2->second.isKeepConnection() == false)
 		{
 			// cout << "it2->second.get_m_fd() " << it2->second.get_m_fd() << endl;
@@ -57,10 +57,14 @@ int				Server::getUnuseConnectionFd()
 void			Server::closeConnection(int client_fd)
 {
 	close(client_fd);
-	FD_CLR(client_fd, &(this->m_manager->GetReadSet()));
-	FD_CLR(client_fd, &(this->m_manager->GetWriteSet()));
-	FD_CLR(client_fd, &(this->m_manager->GetReadCopySet()));
-	FD_CLR(client_fd, &(this->m_manager->GetWriteCopySet()));
+	m_manager->ClrReadFds(client_fd);
+	m_manager->ClrReadCopyFds(client_fd);
+	m_manager->ClrWriteFds(client_fd);
+	m_manager->ClrWriteCopyFds(client_fd);
+	// FD_CLR(client_fd, &(this->m_manager->GetReadFds()));
+	// FD_CLR(client_fd, &(this->m_manager->GetWriteFds()));
+	// FD_CLR(client_fd, &(this->m_manager->GetReadFds()));
+	// FD_CLR(client_fd, &(this->m_manager->GetWriteCopyFds()));
 
 	std::map<int, Connection>::iterator it = m_connections.begin();
 	while (it != m_connections.end())
@@ -106,15 +110,19 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
-					FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
+					// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteFds()));
+					// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
+					m_manager->SetWriteFds(connection.get_m_fd());
+					m_manager->SetWriteCopyFds(connection.get_m_fd());
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteSet()));
-				FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopySet()));
+				m_manager->SetWriteFds(connection.get_m_fd());
+				m_manager->SetWriteCopyFds(connection.get_m_fd());
+				// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteFds()));
+				// FD_SET(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
 			}
 		}
 	}
@@ -211,10 +219,7 @@ bool			Server::parseHeader(Connection& connection)
 			break ;
 		}
 
-		if (request->isValidHeader(line))
-		{
-			request->addHeader(line);
-		}
+		request->addHeader(line);
 		request->SetSeek(found + 2);
 	}
 	return (true);
@@ -404,7 +409,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 
 		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
 			throw 413;
-		executePut(connection, request, target_uri, config_it);
+		executePut(connection, request, target_uri);
 		connection.SetStatus(Connection::SEND_READY);
 
 	}
@@ -414,7 +419,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			throw 413;
 		if (ft::access(absolute_path + root + relative_path) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
-			for (int i = 0; i < locationPath->mindex_pages.size(); i++)
+			for (std::size_t i = 0; i < locationPath->mindex_pages.size(); i++)
 			{
 				std::string uri_indexhtml(absolute_path + root + request.GetDirectory());
 				uri_indexhtml += "/" + locationPath->mindex_pages[i].getPath();
@@ -431,7 +436,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			{
 				// cout << "serverblock autoindex: " << locationPath->mauto_index << endl;
 				std::string temp = root + relative_path;
-				executeAutoindex(connection, *connection.get_m_request(), ft::ReplaceAll_modified(temp, "//", "/"));
+				executeAutoindex(connection, ft::ReplaceAll_modified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
@@ -455,7 +460,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	{
 		if (request.GetMethod().compare("GET") == 0)
 		{
-			executeGet(connection, request, target_uri);
+			executeGet(connection, target_uri);
 			if (request.GetURItype() == Request::FILE)
 				connection.SetStatus(Connection::SEND_READY);
 			else
@@ -463,7 +468,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 		else if (request.GetMethod().compare("HEAD") == 0)
 		{
-			executeHead(connection, request, target_uri);
+			executeHead(connection, target_uri);
 			if (request.GetURItype() == Request::FILE)
 				connection.SetStatus(Connection::SEND_READY);
 			else
@@ -473,7 +478,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		{
 			if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
 				throw 413;
-			executePost(connection, request, target_uri);
+			executePost(connection, request);
 			if (request.GetURItype() == Request::FILE)
 				connection.SetStatus(Connection::SEND_READY);
 			else
@@ -486,7 +491,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 		else if (request.GetMethod().compare("OPTIONS") == 0)
 		{
-			executeOptions(connection, request, target_uri, config_it);
+			executeOptions(connection, target_uri, config_it);
 			connection.SetStatus(Connection::SEND_READY);
 		}
 		// else if (request.GetMethod().compare("TRACE") == 0)
@@ -618,7 +623,7 @@ char**			Server::createCGIEnv(const Connection& connection) const
 
 bool Server::isValidMethod(Request &request, config_iterator config_it)
 {
-	std::vector<ServerBlock>::iterator serverblock = config_it.serverblock;
+	// std::vector<ServerBlock>::iterator serverblock = config_it.serverblock;
 	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
 	for (size_t i = 0; i < locationPath->m_method.size(); i++)
 	{

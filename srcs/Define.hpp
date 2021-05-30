@@ -3,7 +3,7 @@
 
 #define DEFAULT_CONFIG_FILE_PATH "default.config"
 #define BUFFER_SIZE 100000
-#define INIT_FD_MAX 512
+#define INIT_FD_MAX 1023
 #define KEEP_ALIVE_LIMIT 10 // TODO 갱신처리 안됬음!
 #define SELECT_TIMEOUT_SEC 3
 #define SELECT_TIMEOUT_USEC 0
