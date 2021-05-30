@@ -61,6 +61,7 @@ void			Server::closeConnection(int client_fd)
 	m_manager->ClrReadCopyFds(client_fd);
 	m_manager->ClrWriteFds(client_fd);
 	m_manager->ClrWriteCopyFds(client_fd);
+	m_manager->SetTotalClients(m_manager->GetTotalClients() - 1);
 	// FD_CLR(client_fd, &(this->m_manager->GetReadFds()));
 	// FD_CLR(client_fd, &(this->m_manager->GetWriteFds()));
 	// FD_CLR(client_fd, &(this->m_manager->GetReadFds()));

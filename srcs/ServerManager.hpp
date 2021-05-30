@@ -82,6 +82,13 @@ class ServerManager
 		void								ClrWriteFds(const int& fd);
 
 
+		const int&							GetMaxFd(void) const;
+		void								SetMaxFd(const int &fd);
+
+		const uint16_t&						GetTotalClients(void) const;
+		void								SetTotalClients(const uint16_t &totalClient);
+
+
 		std::vector<Server> &GetServers();
 
 
@@ -100,6 +107,7 @@ class ServerManager
 		fd_set					mReadCopyFds;	// NOTE: select에 실제 인자로 넣을 read_set
 		fd_set					mWriteFds;		// NOTE: 응답 송신 가능여부 확인을 위한 fd_set, enum 0 번.
 		fd_set					mWriteCopyFds;	// NOTE: select에 실제 인자로 넣을 write_set
+		uint16_t				mTotalClients;	// NOTE: 전체 클라이언트의 수
 		// fd_set					m_error_set;		// NOTE: 예외 발생여부 확인을 위한 fd_set
 		// fd_set					m_error_copy_set;	// NOTE: select에 실제 인자로 넣을 error_set
 

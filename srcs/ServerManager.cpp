@@ -2,7 +2,7 @@
 #include <set>
 
 ServerManager::ServerManager(void)
-	: mMaxFd(INIT_FD_MAX)
+	: mMaxFd(INIT_FD_MAX), mTotalClients(0)
 {
 	FD_ZERO(&mReadFds);
 	FD_ZERO(&mWriteFds);
@@ -100,71 +100,22 @@ void		ServerManager::RunServers(void)
 
 void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
 {
-	// STUB 하향식. 연결된 fd가 많으면, 이 방법이 더 효율적임
-	for (int i = 1023; i >= 0; --i)
-	{
-		// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
-		if (FD_ISSET(i, &mReadFds) || FD_ISSET(i, &mWriteFds))
-		{
-			mMaxFd = i;
-			break ;
-		}
-	}
-
-	// FIXME 상향식으로는 체크할 수 없음... from yunslee
-	// STUB 상향식. 연결된 fd가 적으면, 이 방법이 더 효율적임
-	// for (int i = 3; i <= 512; i++)
+	// REVIEW 하향식으로 전체 탐색하는 것으로 MaxFd를 찾아냈었음. (+상향식으로는 체크할 수 없음)
+	// for (int i = INIT_FD_MAX; i >= 0; --i)
 	// {
-	// 	if (fdIsset(i, READ_SET) == false && fdIsset(i, WRITE_SET) == false)
+	// 	// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
+	// 	if (FD_ISSET(i, &mReadFds) || FD_ISSET(i, &mWriteFds))
 	// 	{
-	// 		mMaxFd = i - 1;
+	// 		mMaxFd = i;
 	// 		break ;
 	// 	}
 	// }
+
+	if (mTotalClients == 0)
+	{
+		mMaxFd = 2 + this->m_servers.size();
+	}
 }
-
-// void		ServerManager::fdCopy(SetType fdset)
-// {
-// 	if (fdset == WRITE_SET || fdset == ALL_SET)
-// 	{
-// 		FD_ZERO(&mWriteCopyFds);
-// 		mWriteCopyFds = mWriteFds;
-// 	}
-// 	if (fdset == READ_SET || fdset == ALL_SET)
-// 	{
-// 		FD_ZERO(&mReadCopyFds);
-// 		mReadCopyFds = mReadFds;
-// 	}
-// }
-
-// bool		ServerManager::fdIsset(int fd, SetType fdset)
-// {
-// 	if (fdset == WRITE_SET)
-// 	{
-// 		if (FD_ISSET(fd, &mWriteCopyFds))
-// 	{
-// 			return (true);
-// 	}
-// 		else
-// 	{
-// 			return (false);
-// 		}
-// 	}
-// 	else if (fdset == READ_SET)
-// 	{
-// 		if (FD_ISSET(fd, &mReadCopyFds))
-// 		{
-// 			return (true);
-// 		}
-// 		else
-// 		{
-// 			return (false);
-// 		}
-// 	}
-// 	return (false);
-// }
-
-
 
 //ANCHOR yunslee line: 160~332 추가
 
@@ -496,4 +447,16 @@ void						ServerManager::SetWriteFds(const int& fd)
 void						ServerManager::ClrWriteFds(const int& fd)
 {
 	FD_CLR(fd, &mWriteFds);
+}
+
+const int&					ServerManager::GetMaxFd(void) const{ return (this->mMaxFd);}
+void						ServerManager::SetMaxFd(const int &fd)
+{
+	this->mMaxFd = fd;
+}
+
+const uint16_t&					ServerManager::GetTotalClients(void) const{ return (this->mTotalClients);}
+void							ServerManager::SetTotalClients(const uint16_t &totalClient)
+{
+	this->mTotalClients = totalClient;
 }
