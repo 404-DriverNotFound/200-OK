@@ -16,7 +16,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
 		std::string	method("PUT");
-		std::string	uri("/put_test/temp");
+		std::string	uri("/put_test/temp2");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
 		message += "content-length: 10\r\n";
@@ -29,9 +29,9 @@ void	test411(const struct sockaddr_in& sockAddr)
 		char	buf[13];
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 200" << " returned " << returnStatusCode << std::endl;
+		std::cout << "expected 200, 201" << " returned " << returnStatusCode << std::endl;
 		std::cout << "--------------------------" << std::endl;
-		if (returnStatusCode.compare("200") != 0)
+		if (!(returnStatusCode.compare("200") == 0 || returnStatusCode.compare("201") == 0 || returnStatusCode.compare("204") == 0))
 		{
 			throw std::exception();
 		}
@@ -52,6 +52,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		std::string	uri("/put_test/414test2");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
+		message += "MyHeader: kkk\r\n";
 		message += "\r\n";
 		message += "kkkkkkkkkk";
 		std::cout << message << std::endl;
@@ -61,9 +62,9 @@ void	test411(const struct sockaddr_in& sockAddr)
 		char	buf[13];
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 505" << " returned " << returnStatusCode << std::endl;
+		std::cout << "expected 411" << " returned " << returnStatusCode << std::endl;
 		std::cout << "--------------------------" << std::endl;
-		if (returnStatusCode.compare("505") != 0)
+		if (returnStatusCode.compare("411") != 0)
 		{
 			throw std::exception();
 		}
@@ -232,8 +233,8 @@ int	main(int argc, char* argv[])
 		//test408();
 		//test503();
 		//test400();
-		test414(sockAddr);
-		test505(sockAddr);
+		//test414(sockAddr);
+		//test505(sockAddr);
 		test411(sockAddr);
 		//test413();
 		//test301();
