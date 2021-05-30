@@ -6,6 +6,7 @@
 std::map<int, std::string> Response::m_status_map; // NOTE static 변수도 전역변수라도 한번 선언을 해줘야함.
 
 char** g_env;
+int gTotalClients;
 
 int		main(int argc, char* argv[], char* envp[])
 {

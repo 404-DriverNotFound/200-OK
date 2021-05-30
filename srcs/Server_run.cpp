@@ -3,6 +3,7 @@
 #include "Response.hpp"
 
 extern char**	g_env;
+extern int		gTotalClients;
 
 void		Server::run(void)
 {
@@ -166,6 +167,7 @@ bool		Server::runSend(Connection& connection)
 
 	send_number++;
 	cout << "send_nubmer: " << send_number << endl;
+	cout << "fd_max: " << this->m_manager->GetMaxFd() << endl;
 
 	// ANCHOR 작업중
 	delete request;
@@ -322,6 +324,11 @@ bool		Server::acceptNewConnection()
 	// FD_SET(client_socket, &(this->m_manager->GetWriteCopyFds()));
 	this->m_connections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mport);
 	// this->m_connections[client_socket] = Connection(client_socket, this->mhost, this->mport); // NOTE 이것도 됨
+	gTotalClients++;
+	if (this->m_manager->GetMaxFd() < client_socket)
+	{
+		this->m_manager->SetMaxFd(client_socket);
+	}
 
 	std::cerr << GRNB "[" << ft::getCurrentTime() << "][connection]" << "[ESTABLISHED]" << "[" << client_socket << "]" << NC << std::endl;
 	// close(client_socket); // NOTE 이제 keep-alive로 관리
