@@ -74,7 +74,7 @@ public:
 	Server(const Server &);
 	Server&	operator=(const Server &);
 
-	int SetSocket(std::string ip, uint16_t port);
+	int SetSocket();
 
 	// ANCHOR 참고 코드
 	// bool						hasException(int client_fd);
@@ -122,7 +122,7 @@ public:
 	bool isValidMethod(Request &request, config_iterator config_it);
 
 	// std::vector<Server>::iterator return_iterator_server(std::vector<Server> servers);
-	std::vector<ServerBlock>::iterator return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname);
+	std::vector<ServerBlock>::iterator return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string servername);
 	std::vector<LocationPath>::iterator return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string locationpath_str);
 
 
@@ -135,6 +135,7 @@ public:
 public :
 	ServerManager*				m_manager;
 	uint16_t					mport; // def = 8000;
+	std::string					mhost; // def = "0.0.0.0";
 	std::vector<ServerBlock>	mserverBlocks;
 
 	int							msocket; // NOTE m_connections의 첫번째 값이 모두 서버소켓의 fd임!

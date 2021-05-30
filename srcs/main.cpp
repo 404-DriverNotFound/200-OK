@@ -23,22 +23,29 @@ int		main(int argc, char* argv[], char* envp[])
 	{
 		try
 		{
-			// NOTE configuration file 경로 설정
-			std::string	configurationFilePath(DEFAULT_CONFIG_FILE_PATH);
 			if (argc == 2)
 			{
-				configurationFilePath = argv[1];
+				int fd = 0; fd = open(argv[1], O_RDONLY);
+				if (fd > 2)
+				{
+					close(fd);
+					manager.CreateServers(std::string(argv[1]), envp);
+				}
+				else
+				{
+					throw (static_cast<const string>("No such a file"));
+				}
 			}
-			// NOTE 서버 생성
-			manager.CreateServers(configurationFilePath.c_str(), envp);
-			
+			else
+			{
+				manager.CreateServers(std::string(DEFAULT_CONFIG_FILE_PATH), envp);
+			}
 			// NOTE 서버 실행
 			manager.RunServers();
 		}
-		catch (const std::exception& e)
+		catch (const std::string e)
 		{
-			std::cerr << "Exception occurred. Because of " << e.what() << std::endl;
-			return (1);
+			manager.exitServer(e);
 		}
 		return (0);
 	}

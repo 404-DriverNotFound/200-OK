@@ -29,6 +29,7 @@ class ServerManager
 
 		void				CreateServers(const std::string& configurationFilePath, char** envp);
 		void				RunServers(void);
+		void				exitServer(const std::string& msg) const;
 		// const Config&		get_m_config(void) const;
 		// const int&				get_mMaxFd(void) const;
 		// void					set_m_config(const Config& config);
@@ -47,10 +48,11 @@ class ServerManager
 		int		SetServers_value(ConfigFiles *configfiles);
 		int		SetServers();
 		
-		int		GetIdxServer(int port);
+		int		GetIdxServer(int port, std::string host);
 		int		GetIdxServerBlock(std::vector<ServerBlock> &serverBlocks, std::string serverName);
 		int		GetIdxLocationPath(std::vector<LocationPath> &locationPaths, Path locationPath);
 		int		ShowServers();
+		bool	isOverlapedServer(ConfigFiles *);
 		void	closeOldConnection(std::vector<Server>::iterator server_it);
 
 		// Setter Getter

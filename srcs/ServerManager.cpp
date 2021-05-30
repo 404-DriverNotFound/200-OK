@@ -1,4 +1,5 @@
 #include "ServerManager.hpp"
+#include <set>
 
 ServerManager::ServerManager(void)
 	: mMaxFd(INIT_FD_MAX)
@@ -7,11 +8,19 @@ ServerManager::ServerManager(void)
 	FD_ZERO(&mWriteFds);
 }
 
+void		ServerManager::exitServer(const std::string& msg) const
+{
+	std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << msg << NC << std::endl;
+	exit(1);
+}
+
 void		ServerManager::CreateServers(const std::string& configurationFilePath, char** envp)
 {
 	(void)envp;
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configfiles(configurationFilePath.c_str());
+	if (this->isOverlapedServer(&configfiles) == true)
+		throw (static_cast<const string>("Overlaped port and host"));
 	configfiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
 	// ANCHOR 2단계 parsing
 	this->SetServers_value(&configfiles);
@@ -39,12 +48,10 @@ void		ServerManager::RunServers(void)
 		updateMaxFd();
 		errno = 0;
 		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeout);
-		perror("errno: ");
 		if (cnt < 0)
 		{
-			// std::cout << "Select error\n";
-			throw std::runtime_error("select error");
-			break ;
+			perror("errno: ");
+			throw (static_cast<const string>("Select Error"));
 		}
 		else if (cnt == 0)
 		{
@@ -167,11 +174,12 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 	{
 		ConfigFile &config = configs->mconfigs[configs->mconfigs.size() - 1];
 		int idxserver;
-		if (-1 == (idxserver = this->GetIdxServer(config.mport)))
+		if (-1 == (idxserver = this->GetIdxServer(config.mport, config.mhost)))
 		{
 			// NOTE port별로 서버도 없는 상황, 아예 새롭게 만들면 됨.
 			Server server(this); // FIXME ServerManager * 가 들어갈 것으로 예상했으나 들어가지 않음. 그래서 Setservers에서 처리해줌
 			server.mport = config.mport;
+			server.mhost = config.mhost;
 			
 			ServerBlock temp;
 			temp.mserverName = config.mserver_name;
@@ -242,13 +250,13 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 	return (1);
 }
 
-int ServerManager::GetIdxServer(int port)
+int ServerManager::GetIdxServer(int port, std::string host)
 {
 	if (this->m_servers.size() == 0)
 		return (-1);
 	for (size_t i = 0; i < m_servers.size(); i++)
 	{
-		if (this->m_servers[i].mport == port)
+		if (this->m_servers[i].mport == port && this->m_servers[i].mhost == host)
 			return (i);
 	}
 	return (-1);
@@ -286,6 +294,7 @@ int ServerManager::ShowServers()
 	{
 		Server &temp = this->m_servers[i];
 		std::cout << "port: " << temp.mport << std::endl;
+		std::cout << "host: " << temp.mhost << std::endl;
 		for (size_t j = 0; j < temp.mserverBlocks.size(); j++)
 		{
 			ServerBlock temp2 = temp.mserverBlocks[j];
@@ -332,9 +341,9 @@ int ServerManager::SetServers()
 	for (size_t i = 0; i < this->m_servers.size(); i++)
 	{
 		Server &server = this->m_servers[i];
-		server.SetSocket("0.0.0.0", server.mport);
+		server.SetSocket();
 		server.m_manager = this; 
-		server.m_connections[server.msocket] = Connection(server.msocket, "0.0.0.0", server.mport);
+		server.m_connections[server.msocket] = Connection(server.msocket, server.mhost, server.mport);
 	}
 	return (1);
 }
@@ -380,6 +389,53 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		}
 	}
 	return ;
+}
+
+class overlaped_value
+{
+	public:
+		std::string mhost;
+		uint16_t mport;
+		std::string mserverName;
+		overlaped_value(std::string a, uint16_t b, std::string c)
+		:
+			mhost(a),
+			mport(b),
+			mserverName(c)
+		{};
+
+		bool operator < (const overlaped_value& t) const
+		{
+			if (mhost < t.mhost || mport < t.mport || mserverName < t.mserverName)
+				return true;
+			else
+				return false;
+		}
+		bool operator > (const overlaped_value& t) const
+		{
+			if (mhost > t.mhost || mport > t.mport || mserverName > t.mserverName)
+				return true;
+			else
+				return false;
+		}
+};
+
+bool	ServerManager::isOverlapedServer(ConfigFiles* configfiles)
+{
+	std::set<overlaped_value> server_list; // FIXME set함수을 사용하지 못한다면, 수정해야 함.
+	for (size_t i = 0; i < configfiles->mconfigs.size(); i++)
+	{
+		ConfigFile &config = configfiles->mconfigs[i];
+		overlaped_value temp(config.mhost, config.mport, config.mserver_name);
+		size_t size = server_list.size();
+		server_list.insert(temp);
+		if (size == server_list.size())
+		{
+			if (config.mlocation_path.getSize() == 0)
+				return (true);
+		}
+	}
+	return (false);
 }
 
 const fd_set&				ServerManager::GetReadCopyFds(void) const

@@ -2,6 +2,7 @@
 
 ConfigFile::ConfigFile()
 	: mserver_name("localhost")
+	, mhost("0.0.0.0")
 	, mport(8000)
 	, mtimeout(0)
 	, mlocation_path()
@@ -37,6 +38,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 		return (*this);
 	this->mserver_name = ref.mserver_name;
 	this->mroot = ref.mroot;
+	this->mhost = ref.mhost;
 	this->mlocation_path = ref.mlocation_path;
 	this->mport = ref.mport;
 	this->mindex_pages = ref.mindex_pages;

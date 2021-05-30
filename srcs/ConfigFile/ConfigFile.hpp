@@ -19,6 +19,7 @@ public :
 	// REVIEW 현재 사용하는 설정
 		// NOTE - location에서 덮어씌워지는 않는 요소들
 		std::string			mserver_name;		// localhost
+		std::string			mhost;				// def = "0.0.0.0"
 		uint16_t			mport;				// def = 8000;
 
 		int					mtimeout;			// def = 5s

@@ -85,10 +85,12 @@ Server::Server(void)
 Server::Server(ServerManager *serverManager)
 	: m_manager(serverManager)
 	, mport(8000)
-	// , mserverBlocks()
+	, mhost("0.0.0.0")
 	, msocket(0)
+	// , mserverBlocks()
 	// , mPhase(READY)
 {
+	
 }
 
 Server::~Server()
@@ -108,17 +110,18 @@ Server&	Server::operator=(const Server &ref)
 	this->mport = ref.mport;
 	this->mserverBlocks = ref.mserverBlocks;
 	this->msocket = ref.msocket;
+	this->mhost = ref.mhost;
 	this->m_connections = ref.m_connections;
 	return (*this);
 }
 
 
-std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string hostname)
+std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string servername)
 {
 	std::vector<ServerBlock>::iterator it = serverblocks.begin();
 	while (it != serverblocks.end())
 	{
-		if (hostname == it->mserverName)
+		if (servername == it->mserverName)
 		{
 			return (it);
 		}

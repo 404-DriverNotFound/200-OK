@@ -4,7 +4,7 @@
 
 extern char**	g_env;
 
-int				Server::SetSocket(std::string ip, uint16_t port)
+int				Server::SetSocket()
 {
 	if ((this->msocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -12,9 +12,8 @@ int				Server::SetSocket(std::string ip, uint16_t port)
 	}
 	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_addr.s_addr = inet_addr(ip.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
-	sockaddr.sin_addr.s_addr = INADDR_ANY;
-	sockaddr.sin_port = htons(port); // htons is necessary to convert a number to
+	sockaddr.sin_addr.s_addr = inet_addr(this->mhost.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
+	sockaddr.sin_port = htons(this->mport); // htons is necessary to convert a number to
 
 	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
 	setsockopt(this->msocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -380,16 +379,16 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	getcwd(temp, 500);
 	std::string absolute_path(temp);
 	
-	std::string hostname;
+	std::string servername;
 	std::map<std::string, std::string>::iterator it;
 	it = request.GetHeaders().find("host");
 	if (it == request.GetHeaders().end())
-		hostname = "localhost";
+		servername = "localhost";
 	else
-		hostname = it->second;
+		servername = it->second;
 
 	config_iterator config_it; // NOTE configfile에 있는 내용을 전달하기위해서 구조체를 이용함
-	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), hostname);
+	std::vector<ServerBlock>::iterator serverblock = return_iterator_serverblock(this->get_m_serverBlocks(), servername);
 	config_it.serverblock = serverblock;
 	std::string relative_uri = request.GetDirectory() + "/" + request.GetFileName();
 	std::vector<LocationPath>::iterator locationPath = return_iterator_locationpathlocationPath(serverblock->mlocationPaths, relative_uri);

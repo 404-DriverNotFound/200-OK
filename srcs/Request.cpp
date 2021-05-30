@@ -154,8 +154,8 @@ void								Request::ParseURI(std::string& uri)
 		std::size_t	dot = uri.substr(found + 1).rfind(".");
 		if (dot != std::string::npos)
 		{
-			mFileName = uri.substr(found + 1);
 			mURItype = Request::FILE;
+			mFileName = uri.substr(found + 1);
 			std::string	extension = mFileName.substr(dot);
 			if (extension.compare(".bla") == 0/* || extension.compare(".php") == 0*/)
 			{
