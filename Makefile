@@ -33,7 +33,6 @@ CC		=	clang++
 # CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3
 # CFLAGS	=	-std=c++98 -g3 -fsanitize=address
 CFLAGS	=	-std=c++98 -Wall -Wextra -Werror
-# CFLAGS	=	-std=c++98
 
 
 RM		=	-rm -rf
