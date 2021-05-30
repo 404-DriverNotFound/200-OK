@@ -19,10 +19,10 @@ void		Server::run(void)
 		{
 			if (hasSendWork(it2->second))
 			{
-				runSend(it2->second);
 				struct timeval	time;
 				gettimeofday(&time, NULL);
 				it2->second.set_m_last_reqeust_at(time);
+				runSend(it2->second);
 			 	continue ; // FIXME 어떻게 처리할지...
 			}
 			if (hasExecuteWork(it2->second))
@@ -179,7 +179,10 @@ bool		Server::runSend(Connection& connection)
 	// FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
 	// closeConnection(connection.get_m_fd());
 	// ANCHOR 작업중
-
+	if (statusCode >= 400)
+	{
+		closeConnection(connection.get_m_fd());
+	}
 	return (true);
 }
 
@@ -248,6 +251,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	{
 		// std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
+		m_manager->SetWriteFds(connection.get_m_fd());
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
