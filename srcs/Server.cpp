@@ -187,12 +187,7 @@ bool			Server::parseStartLine(Connection& connection)
 		throw 505;
 	}
 	tmp = requestLine.substr(request->GetSeek(), found - request->GetSeek());
-	request->SetVersion(tmp);
-	// TODO 지원하지 않는 버전 관련 부분 추가해야함
-	// if (isUnsopportingVersion())
-	// {
-	// 	throw 505;
-	// }
+	request->ParseVersion(tmp);
 	request->SetSeek(found + 2);
 	return (true);
 }
