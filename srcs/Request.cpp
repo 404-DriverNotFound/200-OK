@@ -133,6 +133,13 @@ void								Request::ParseURI(std::string& uri)
 	// http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
 	std::size_t	found;
 	mURI = uri;
+
+	// NOTE 414
+	if (mURI.length() > 200)
+	{
+		throw 414;
+	}
+
 	// query parsing
 	found = uri.find_last_of("?");
 	if (found != std::string::npos)

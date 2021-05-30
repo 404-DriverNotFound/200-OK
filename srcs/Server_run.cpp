@@ -156,6 +156,7 @@ bool		Server::runSend(Connection& connection)
 	}
 	else
 	{
+		closeConnection(connection.get_m_fd());
 		std::cout << RED;
 	}
 	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
@@ -248,6 +249,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	{
 		// std::cout << "runRecvAndSolve catch: " << status_code << std::endl;
 		create_Response_statuscode(connection, status_code);
+		m_manager->SetWriteFds(connection.get_m_fd());
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
