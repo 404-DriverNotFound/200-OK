@@ -271,8 +271,12 @@ bool			Server::parseBody(Connection& connection)
 	}
 	else
 	{
-		// NOTE contents-length parsing
+		// NOTE content-length parsing
 		std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("content-length");
+		if (it == request->GetHeaders().end())
+		{
+			throw 411;
+		}
 		int												contentLength = std::atoi(it->second.c_str());
 		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
 		// std::cout << contentLength << " " << bodyLength << std::endl;
