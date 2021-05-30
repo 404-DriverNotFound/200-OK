@@ -1,6 +1,8 @@
 #include "ServerManager.hpp"
 #include <set>
 
+extern int gTotalClients;
+
 ServerManager::ServerManager(void)
 	: mMaxFd(INIT_FD_MAX), mTotalClients(0)
 {
@@ -111,7 +113,7 @@ void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연�
 	// 	}
 	// }
 
-	if (mTotalClients == 0)
+	if (gTotalClients == 0)
 	{
 		mMaxFd = 2 + this->m_servers.size();
 	}
