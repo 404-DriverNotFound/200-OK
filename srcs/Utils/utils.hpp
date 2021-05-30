@@ -31,7 +31,7 @@ namespace ft
 	std::string		itos(int n);
 	// int				atoi(const char *str); // NOTE std::atoi으로 대체가능 <iostream>
 
-	bool access(std::string absolute_path);
+	int	 access(std::string absolute_path, int temp);
 	bool isFilePath(const std::string &path);
 	bool isDirPath(const std::string &path);
 	std::string makeAutoindexHTML(std::string root);

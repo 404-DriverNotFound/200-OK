@@ -314,6 +314,13 @@ void			Server::create_Response_statuscode(Connection &connection, int status_cod
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Content-Length", ft::itos(errorpage_body.size()));
 	response->set_m_body(errorpage_body);
+	if (status_code == 301)
+	{
+		std::string url;
+		// url += "http://" + this->mhost + connection.get_m_request()->GetDirectory() + "/" + connection.get_m_request()->GetFileName() + "/";
+		// NOTE 상대 경로만 적어주어도 됨
+		response->set_m_headers("Location", connection.get_m_request()->GetDirectory() + "/" + connection.get_m_request()->GetFileName() + "/");
+	}
 }
 
 void			Server::create_Response_0(Connection &connection, std::string uri_plus_file)
@@ -415,13 +422,13 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	{
 		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
 			throw 413;
-		if (ft::access(absolute_path + root + relative_path) == true) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
+		if (ft::access(absolute_path + root + relative_path, 0) == 0) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
 			for (std::size_t i = 0; i < locationPath->mindex_pages.size(); i++)
 			{
 				std::string uri_indexhtml(absolute_path + root + request.GetDirectory());
 				uri_indexhtml += "/" + locationPath->mindex_pages[i].getPath();
-				if (ft::isFilePath(uri_indexhtml) == true && ft::access(uri_indexhtml) == true)
+				if (ft::isFilePath(uri_indexhtml) == true && ft::access(uri_indexhtml, 0) == 0)
 				{
 					create_Response_200(connection, uri_indexhtml, INDEX_HTML);
 					connection.SetStatus(Connection::SEND_READY);
@@ -443,70 +450,78 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				throw 404;
 			}
 		}
-		else // NOTE 없는 폴더 경로에 접근 했을 때, error.html 보여주기
+		else // NOTE 없는 "폴더경로"로 접근 했을 때, 404 page. 파일이건 폴더이건 신경쓰지 않음
 		{
-			std::string uri_errorhtml(target_uri);
-			uri_errorhtml += locationPath->merror_page.getPath();
-			// uri_errorhtml.clear();
-			// uri_errorhtml = "/Users/yunslee/webserv_200/flabc/error.html";
-			create_Response_0(connection, uri_errorhtml);
-			connection.SetStatus(Connection::SEND_READY);
-			return ;
+			throw 404;
 		}
 	}
 	else if (request.GetURItype() == Request::FILE || request.GetURItype() == Request::CGI_PROGRAM)
 	{
-		if (request.GetMethod().compare("GET") == 0)
+		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+			throw 413;
+		errno = 0;
+		if (ft::access(absolute_path + root + relative_path, 0) == 0)
 		{
-			executeGet(connection, target_uri);
-			if (request.GetURItype() == Request::FILE)
+			if (ft::isDirPath(absolute_path + root + relative_path) == true && ft::isFilePath(absolute_path + root + relative_path) == false)
+			{
+				throw 301;
+			}
+			if (request.GetMethod().compare("GET") == 0)
+			{
+				executeGet(connection, target_uri);
+				if (request.GetURItype() == Request::FILE)
+					connection.SetStatus(Connection::SEND_READY);
+				else
+					connection.SetStatus(Connection::CGI_READY);
+			}
+			else if (request.GetMethod().compare("HEAD") == 0)
+			{
+				executeHead(connection, target_uri);
+				if (request.GetURItype() == Request::FILE)
+					connection.SetStatus(Connection::SEND_READY);
+				else
+					connection.SetStatus(Connection::CGI_READY);
+			}
+			else if (request.GetMethod().compare("POST") == 0)
+			{
+				if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
+					throw 413;
+				executePost(connection, request);
+				if (request.GetURItype() == Request::FILE)
+					connection.SetStatus(Connection::SEND_READY);
+				else
+					connection.SetStatus(Connection::CGI_READY);
+			}
+			else if (request.GetMethod().compare("DELETE") == 0)
+			{
+				executeDelete(connection, request, target_uri);
 				connection.SetStatus(Connection::SEND_READY);
-			else
-				connection.SetStatus(Connection::CGI_READY);
-		}
-		else if (request.GetMethod().compare("HEAD") == 0)
-		{
-			executeHead(connection, target_uri);
-			if (request.GetURItype() == Request::FILE)
+			}
+			else if (request.GetMethod().compare("OPTIONS") == 0)
+			{
+				executeOptions(connection, target_uri, config_it);
 				connection.SetStatus(Connection::SEND_READY);
+			}
+			// else if (request.GetMethod().compare("TRACE") == 0)
+			// {
+			// 	// executeOptions(connection, request);
+			// 	connection.SetStatus(Connection::SEND_READY);
+			// }
 			else
-				connection.SetStatus(Connection::CGI_READY);
+			{
+				throw 405; // NOTE Method NOTE Allowed
+			}
 		}
-		else if (request.GetMethod().compare("POST") == 0)
-		{
-			if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
-				throw 413;
-			executePost(connection, request);
-			if (request.GetURItype() == Request::FILE)
-				connection.SetStatus(Connection::SEND_READY);
-			else
-				connection.SetStatus(Connection::CGI_READY);
-		}
-		else if (request.GetMethod().compare("DELETE") == 0)
-		{
-			executeDelete(connection, request, target_uri);
-			connection.SetStatus(Connection::SEND_READY);
-		}
-		else if (request.GetMethod().compare("OPTIONS") == 0)
-		{
-			executeOptions(connection, target_uri, config_it);
-			connection.SetStatus(Connection::SEND_READY);
-		}
-		// else if (request.GetMethod().compare("TRACE") == 0)
-		// {
-		// 	// executeOptions(connection, request);
-		// 	connection.SetStatus(Connection::SEND_READY);
-		// }
 		else
 		{
-			throw 405; // NOTE Method NOTE Allowed
+			if (errno == 2)
+				throw 404;
 		}
 	}
 	else
 	{
 		throw 0;
 	}
-
 }
 
 const char* Server::IOError::what() const throw(){ return ("I/O error occurred."); }

@@ -104,54 +104,6 @@ std::string ft::itos(int n)
 	return (temp_str);
 }
 
-
-
-/**
- * isFilePath : path가 file path인지 체크하는 함수
- * @param  {std::string} path : 경로
- * @return {bool}             : 1 : 파일 경로, 0 : 파일 경로 x
- */
-bool ft::isFilePath(const std::string &path)
-{
-	struct stat info;
-
-	if (stat(path.c_str(), &info) == 0)
-	{
-		if (S_ISREG(info.st_mode))
-			return 1;
-		else
-			return 0;
-	}
-	else
-		return 0;
-}
-
-/**
- * isDirPath : path가 directory path인지 체크하는 함수
- * @param  {std::string} path : 경로
- * @return {bool}             : 1 : 폴더 경로, 0 : 폴더 경로 x
- */
-bool ft::isDirPath(const std::string &path)
-{
-	struct stat info;
-
-	if (stat(path.c_str(), &info) == 0)
-	{
-		if (S_ISDIR(info.st_mode))
-			return 1;
-		else
-			return 0;
-	}
-	else
-		return 0;
-}
-/**
- * getStatusStr : 상태 코드에 따른 메세지 문자열을 구해주는 함수
- * @param  {uint16_t} code : 상태 코드
- * @return {std::string}   : 상태 코드에 따른 상태 메세지 문자열
- */
-
-
 u_int32_t ft::ft_htonl(u_int32_t addr)
 {
 	int num = 1;
@@ -300,29 +252,6 @@ std::string ft::getCurrentTime()
 	return (getHTTPTimeFormat(time.tv_sec));
 }
 
-bool ft::access(std::string absolute_path)
-{
-	if (ft::isDirPath(absolute_path) == true)
-	{
-		DIR *dir;
-		dir = opendir(absolute_path.c_str());
-		closedir(dir); // NOTE 추가함
-		if (dir == NULL)
-			return (false);
-		else
-			return (true);
-	}
-	else if (ft::isFilePath(absolute_path) == true)
-	{
-		int fd = open(absolute_path.c_str(), 0);
-		close(fd);
-		if (fd == -1)
-			return (false);
-		else
-			return (true);
-	}
-	return (false);
-}
 
 unsigned long	ft::stohex(const std::string &str)
 {
@@ -397,4 +326,59 @@ std::string		ft::inet_ntos(struct in_addr in)
     in.s_addr >>= 8;
 	ret += itos((in.s_addr & mask));
 	return (ret);
+}
+
+bool ft::isFilePath(const std::string &path)
+{
+	struct stat info;
+
+	if (stat(path.c_str(), &info) == 0)
+	{
+		if (S_ISREG(info.st_mode))
+			return 1;
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
+bool ft::isDirPath(const std::string &path)
+{
+	struct stat info;
+
+	if (stat(path.c_str(), &info) == 0)
+	{
+		if (S_ISDIR(info.st_mode))
+			return 1;
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
+int ft::access(std::string absolute_path, int temp)
+{
+	if (ft::isDirPath(absolute_path) == true)
+	{
+		DIR *dir;
+		dir = opendir(absolute_path.c_str());
+		closedir(dir); // NOTE 추가함
+		if (dir == NULL)
+			return (-1);
+		else
+			return (0);
+	}
+	else if (ft::isFilePath(absolute_path) == true)
+	{
+		int fd = open(absolute_path.c_str(), 0);
+		close(fd);
+		if (fd == -1)
+			return (-1);
+		else
+			return (0);
+	}
+	return (-1);
+	(void)temp;
 }
