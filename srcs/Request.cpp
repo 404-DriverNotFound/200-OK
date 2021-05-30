@@ -288,3 +288,26 @@ void								Request::ShowMessage(void)
 		std::cout << getBody() << std::endl;
 	}
 }
+
+void									Request::ParseVersion(std::string& version)
+{
+	mVersion = version;
+	std::size_t	found = version.find("/");
+	std::string	scheme = version.substr(0, found);
+	if (scheme.compare("HTTP") != 0)
+	{
+		throw 505;
+	}
+	version = version.substr(found + 1);
+	found = version.find(".");
+	if (found == std::string::npos)
+	{
+		throw 505;
+	}
+	version.erase(found, 1);
+	int num = std::atoi(version.c_str());
+	if (num > 11 || num <= 0)
+	{
+		throw 505;
+	}
+}

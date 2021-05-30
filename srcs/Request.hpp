@@ -72,6 +72,7 @@ public:
 	const eURIType&								GetURItype(void) const;
 	void										SetURItype(const eURIType& uriType);
 	// URI 관련된 친구들 //
+	void										ParseVersion(std::string& version);
 
 	const struct timeval&						GetStartTime(void) const;
 	void										SetStartTime(const struct timeval& startTime);
