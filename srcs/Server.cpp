@@ -407,7 +407,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		connection.SetStatus(Connection::SEND_READY);
 
 	}
-	else if (request.GetURItype() == Request::DIRECTORY || (request.GetURItype() == Request::DIRECTORY && request.GetMethod() == "POST"))
+	else if (request.GetURItype() == Request::DIRECTORY)
 	{
 		if (locationPath->mclient_max_body_size < request.getBody().length() && locationPath->mclient_max_body_size != 0)
 			throw 413;
