@@ -19,12 +19,11 @@ int				Server::SetSocket()
 	setsockopt(this->msocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	if (bind(this->msocket, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr)) < 0)
 	{
-		return (-1);
+		throw (static_cast<const std::string>("bind() error"));
 	}
 	if (listen(this->msocket, 10000) < 0)
 	{
-		// cout << "this->msocket: " << this->msocket << endl;
-		return (-1);
+		throw (static_cast<const std::string>("listen() error"));
 	}
 	// NOTE fcntl 부분 일단 넣어봄 왜 필요한지 여부는 아직 파악 못함
 	// if (fcntl(this->msocket, F_SETFL, O_NONBLOCK) == -1)
