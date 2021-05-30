@@ -19,10 +19,10 @@ void		Server::run(void)
 		{
 			if (hasSendWork(it2->second))
 			{
-				runSend(it2->second);
 				struct timeval	time;
 				gettimeofday(&time, NULL);
 				it2->second.set_m_last_reqeust_at(time);
+				runSend(it2->second);
 			 	continue ; // FIXME 어떻게 처리할지...
 			}
 			if (hasExecuteWork(it2->second))
@@ -156,7 +156,6 @@ bool		Server::runSend(Connection& connection)
 	}
 	else
 	{
-		closeConnection(connection.get_m_fd());
 		std::cout << RED;
 	}
 	std::cout << "[" << ft::getHTTPTimeFormat(request->GetStartTime().tv_sec) << "][access][" << connection.get_m_client_ip() << ":" << connection.get_m_client_port() << "]";
@@ -180,7 +179,10 @@ bool		Server::runSend(Connection& connection)
 	// FD_CLR(connection.get_m_fd(), &(this->m_manager->GetWriteCopyFds()));
 	// closeConnection(connection.get_m_fd());
 	// ANCHOR 작업중
-
+	if (statusCode >= 400)
+	{
+		closeConnection(connection.get_m_fd());
+	}
 	return (true);
 }
 
