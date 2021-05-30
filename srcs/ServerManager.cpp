@@ -1,5 +1,4 @@
 #include "ServerManager.hpp"
-#include <set>
 
 ServerManager::ServerManager(void)
 	: mMaxFd(INIT_FD_MAX)
@@ -418,22 +417,32 @@ class overlaped_value
 			else
 				return false;
 		}
+		bool operator == (const overlaped_value& t) const
+		{
+			if (mhost == t.mhost && mport == t.mport && mserverName == t.mserverName)
+				return true;
+			else
+				return false;
+		}
 };
 
 bool	ServerManager::isOverlapedServer(ConfigFiles* configfiles)
 {
-	std::set<overlaped_value> server_list; // FIXME set함수을 사용하지 못한다면, 수정해야 함.
+	std::vector<overlaped_value> server_list;
 	for (size_t i = 0; i < configfiles->mconfigs.size(); i++)
 	{
 		ConfigFile &config = configfiles->mconfigs[i];
 		overlaped_value temp(config.mhost, config.mport, config.mserver_name);
-		size_t size = server_list.size();
-		server_list.insert(temp);
-		if (size == server_list.size())
+		for (size_t j = 0; j < server_list.size(); j++)
 		{
-			if (config.mlocation_path.getSize() == 0)
-				return (true);
+			if (server_list[j] == temp)
+			{
+				if (config.mlocation_path.getSize() == 0)
+					return (true);
+			}
 		}
+		if (config.mlocation_path.getSize() == 0)
+			server_list.push_back(temp);
 	}
 	return (false);
 }
