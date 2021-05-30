@@ -60,7 +60,7 @@ void		ServerManager::RunServers(void)
 			{
 				closeOldConnection(it);
 			}
-			std::cout << "timeout\n";
+			//std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
@@ -68,7 +68,6 @@ void		ServerManager::RunServers(void)
 			// read_set = ft::getVector_changedFD(&mReadCopyFds, mMaxFd + 1);
 			// std::vector<int> write_set;
 			// write_set = ft::getVector_changedFD(&mWriteCopyFds, mMaxFd + 1);
-		}
 		std::cout << "select : " << cnt << endl;
 		std::cout << "-------------------------------" << std::endl;
 
@@ -82,6 +81,7 @@ void		ServerManager::RunServers(void)
 		}
 		// updateMaxFd();
 		// cout << "-------------------------------" << endl;
+		}
 	}
 }
 
@@ -335,7 +335,11 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		}
 		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
-			std::cout << "closeOldconnection: " << fd << std::endl;
+			//std::cout << "closeOldconnection: " << fd << std::endl;
+			server_it->create_Response_408(it2->second);
+			it2->second.get_m_response()->set_m_response(it2->second.get_m_response()->makeResponse());
+			// NOTE 보내줘도 그만 안보내줘도 그만이라 에러처리 별도로 필요없을 것같음 select당 1번이 맞는게 select 0 리턴인 턴에서 작동함
+			write(it2->first, it2->second.get_m_response()->get_m_response().c_str(), it2->second.get_m_response()->get_m_response().length());
 			server_it->closeConnection(it2->second.get_m_fd());
 			return ;
 		}

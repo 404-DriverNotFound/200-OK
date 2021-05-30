@@ -114,6 +114,7 @@ public:
 	void						create_Response_statuscode(Connection& connection, int status_code);
 	void						create_Response_0(Connection &connection, std::string uri_plus_file);
 	void						create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type);
+	void						create_Response_408(Connection &connection);
 
 	const int&					get_m_fd(void) const;
 

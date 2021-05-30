@@ -347,6 +347,31 @@ void			Server::create_Response_0(Connection &connection, std::string uri_plus_fi
 	return ;
 }
 
+void			Server::create_Response_408(Connection &connection)
+{
+	connection.set_m_response(new Response(&connection, 408));
+	Response*	response = connection.get_m_response();
+	response->set_m_headers("Server", "webserv");
+	response->set_m_headers("Date", ft::getCurrentTime().c_str());
+	response->set_m_headers("Connection", "close");
+	response->set_m_headers("Content-Type", "text/html");
+	response->set_m_headers("Content-Language", "en-US");
+
+	std::string body;
+	int fd = -1;
+	if (body.size() == 0)
+	{
+		fd = open("./error.html", O_RDONLY);
+		body = ft::getBody_from_fd(fd);
+	}
+	response->set_m_body(body);
+	response->set_m_headers("Content-Length", ft::itos(response->get_m_body().length()));
+	if (fd > 2)
+	{
+		close(fd);
+	}
+}
+
 void			Server::create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
 {
 	connection.set_m_response(new Response(&connection, 200));
