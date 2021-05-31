@@ -411,22 +411,22 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 
 	// NOTE AUTH 구현 (Basic만)
-	if (hasAuthModule(request, config_it)) // STUB 	일단 항상 참이게 구현
-	{
-		std::map<std::string, std::string>::iterator	it = request.GetHeaders().find("authorization");
-		if (it == request.GetHeaders().end())
-		{
-			throw 401; // NOTE 응답해줄 때 WWW-Authenticate 헤더 포함해야함
-		}
-		else
-		{
-			// 비교
-			if (!isRightCredentials(it->second))
-			{
-				throw 403; // NOTE 빨간약 포비돈
-			}
-		}
-	}
+	// if (hasAuthModule(request, config_it)) // STUB 	일단 항상 참이게 구현
+	// {
+	// 	std::map<std::string, std::string>::iterator	it = request.GetHeaders().find("authorization");
+	// 	if (it == request.GetHeaders().end())
+	// 	{
+	// 		throw 401; // NOTE 응답해줄 때 WWW-Authenticate 헤더 포함해야함
+	// 	}
+	// 	else
+	// 	{
+	// 		// 비교
+	// 		if (!isRightCredentials(it->second))
+	// 		{
+	// 			throw 403; // NOTE 빨간약 포비돈
+	// 		}
+	// 	}
+	// }
 
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
@@ -667,15 +667,15 @@ bool Server::isValidMethod(Request &request, config_iterator config_it)
 }
 
 // STUB
-bool		Server::hasAuthModule(const Request& request, const config_iterator& config_it)
-{
-	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
+// bool		Server::hasAuthModule(const Request& request, const config_iterator& config_it)
+// {
+// 	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
 
-	return (false);
-	return (true);
-	(void)request;
-	(void)config_it;
-}
+// 	return (false);
+// 	return (true);
+// 	(void)request;
+// 	(void)config_it;
+// }
 
 bool		Server::isRightCredentials(const std::string& authorization)
 {

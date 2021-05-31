@@ -22,6 +22,7 @@ void ConfigFiles::ShowConfigs()
 		}
 		std::cout << std::endl;
 		std::cout << "error_page: " << this->mconfigs[i].merror_page.getPath() << std::endl;
+		std::cout << "auth_basic_user_file: " << this->mconfigs[i].mauth_basic_user_file.getPath() << std::endl;
 		std::cout << "method: ";
 		for (size_t j = 0; j < this->mconfigs[i].m_method.size(); j++)
 		{

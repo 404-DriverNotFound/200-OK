@@ -147,6 +147,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mclient_max_body_size = config.mclient_max_body_size;
 
 			temp2.mcgi_extension = config.mcgi_extension;
+			temp2.mauth_basic_user_file = config.mauth_basic_user_file;
 			temp2.m_method = config.m_method;
 			server.mserverBlocks[0].mlocationPaths.push_back(temp2);
 
@@ -172,6 +173,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
 			temp2.mauto_index = config.mauto_index;
+			temp2.mauth_basic_user_file = config.mauth_basic_user_file;
 			temp2.mclient_max_body_size = config.mclient_max_body_size;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
@@ -190,6 +192,7 @@ int ServerManager::SetServers_value(ConfigFiles *configs)
 			temp2.mcgi_extension = config.mcgi_extension;
 			temp2.m_method = config.m_method;
 			temp2.mauto_index = config.mauto_index;
+			temp2.mauth_basic_user_file = config.mauth_basic_user_file;
 			temp2.mclient_max_body_size = config.mclient_max_body_size;
 			server.mserverBlocks[server.mserverBlocks.size() - 1].mlocationPaths.push_back(temp2);
 			configs->mconfigs.pop_back();
@@ -259,6 +262,7 @@ int ServerManager::ShowServers()
 				LocationPath temp3 = temp2.mlocationPaths[k];
 				std::cout << "mlocationpath: " << temp3.mlocationPath.getPath() << std::endl;
 				std::cout << "error_page: " << temp3.merror_page.getPath() << std::endl;
+				std::cout << "auth_basic_user_file: " << temp3.mauth_basic_user_file.getPath() << std::endl;
 				std::cout << "root: " << temp3.mroot.getPath() << std::endl;
 				std::cout << "auto_index: " << temp3.mauto_index << std::endl;
 				std::cout << "client_max_body_size: " << temp3.mclient_max_body_size << std::endl;

@@ -4,7 +4,7 @@
 
 extern char**	g_env;
 
-LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html"), mauto_index(false), mclient_max_body_size(0)
+LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html"), mauto_index(false), mclient_max_body_size(0), mauth_basic_user_file()
 {
 	Path temp("index.html");
 	this->mindex_pages.push_back(temp);
@@ -42,6 +42,7 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 	this->m_method = ref.m_method;
 	this->mcgi_extension = ref.mcgi_extension;
 	this->mclient_max_body_size = ref.mclient_max_body_size;
+	this->mauth_basic_user_file = ref.mauth_basic_user_file;
 	return (*this);
 }
 

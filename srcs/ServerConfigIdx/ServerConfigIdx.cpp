@@ -323,6 +323,13 @@ int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				exist_cgi_extension = true;
 			}
 		}
+		else if (split_vector[0].compare("auth_basic_user_file") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			Path auth_basic_user_file(split_vector[1]);
+			default_location.mauth_basic_user_file = auth_basic_user_file;
+		}
 		i++;
 	}
 	return (1);
@@ -445,6 +452,13 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				default_location.mcgi_extension = cgi_extension;
 				exist_cgi_extension = true;
 			}
+		}
+		else if (split_vector[0].compare("auth_basic_user_file") == 0)
+		{
+			if (split_vector.size() != 2)
+				return (-1);
+			Path auth_basic_user_file(split_vector[1]);
+			default_location.mauth_basic_user_file = auth_basic_user_file;
 		}
 		i++;
 	}

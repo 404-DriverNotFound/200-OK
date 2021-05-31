@@ -45,7 +45,8 @@ public:
 	std::vector<Path>	mindex_pages;		// def = index.html
 	Path				merror_page;		// def = error.html
 	bool				mauto_index;
-	size_t				mclient_max_body_size;
+	size_t				mclient_max_body_size; // def = 0
+	Path				mauth_basic_user_file; // def = 
 
 	std::vector<std::string>	m_method;
 	std::vector<std::string>	mcgi_extension;

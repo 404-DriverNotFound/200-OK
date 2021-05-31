@@ -11,9 +11,9 @@ ConfigFile::ConfigFile()
 	, mindex_pages()
 	, merror_page()
 	, mclient_max_body_size(0)
+	, mauth_basic_user_file()
 	, mhead_length_max(8000)
 	, mbody_length_max(10000)
-	, mauth()
 {
 	this->m_method.push_back("GET");
 	this->m_method.push_back("HEAD");
@@ -45,7 +45,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->merror_page = ref.merror_page;
 	this->mhead_length_max = ref.mhead_length_max;
 	this->mbody_length_max = ref.mbody_length_max;
-	this->mauth = ref.mauth;
+	this->mauth_basic_user_file = ref.mauth_basic_user_file;
 
 	this->mauto_index = ref.mauto_index;
 	this->mtimeout = ref.mtimeout;
