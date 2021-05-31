@@ -14,7 +14,7 @@ void	test408(const struct sockaddr_in& sockAddr)
 		std::cout << "TEST 408 STATUS CODE" << std::endl;
 		std::cout << "We will do nothing!!" << std::endl;
 		std::cout << "--------------------------" << std::endl;
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 408" << " returned " << returnStatusCode << std::endl;
