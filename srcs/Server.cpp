@@ -286,7 +286,7 @@ bool			Server::parseBody(Connection& connection)
 		}
 		else if (contentLength < bodyLength)
 		{
-			throw 414;
+			throw 413;
 		}
 		else
 		{
