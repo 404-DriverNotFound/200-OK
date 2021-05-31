@@ -10,7 +10,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/select.h> // REVIEW: FD_SET 을 위해 추가
-#include "Config.hpp" // REVIEW: 일단 추가
 #include "Server.hpp" // REVIEW: 일단 추가
 class Server;
 
