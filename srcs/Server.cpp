@@ -314,7 +314,11 @@ void			Server::create_Response_statuscode(Connection &connection, int status_cod
 	Response *response = connection.get_m_response();
 	response->set_m_headers("Server", "YKK_webserv");
 	response->set_m_headers("Date", ft::getCurrentTime());
-	std::string errorpage_body = Response::makeStatusPage(status_code, connection.get_m_request()->GetMethod());
+	std::string errorpage_body;
+	if (connection.get_m_request() != NULL)
+		errorpage_body = Response::makeStatusPage(status_code, connection.get_m_request()->GetMethod());
+	else
+		errorpage_body = Response::makeStatusPage(status_code, "");
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Content-Length", ft::itos(errorpage_body.size()));
 	response->set_m_body(errorpage_body);

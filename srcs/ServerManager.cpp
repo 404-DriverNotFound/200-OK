@@ -60,28 +60,28 @@ void		ServerManager::RunServers(void)
 			{
 				closeOldConnection(it);
 			}
-			std::cout << "timeout\n";
+			//std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
-			// std::vector<int> read_set;
-			// read_set = ft::getVector_changedFD(&mReadCopyFds, mMaxFd + 1);
-			// std::vector<int> write_set;
-			// write_set = ft::getVector_changedFD(&mWriteCopyFds, mMaxFd + 1);
-		}
-		std::cout << "select : " << cnt << endl;
-		std::cout << "-------------------------------" << std::endl;
+			std::vector<int> read_set;
+			read_set = ft::getVector_changedFD(&mReadCopyFds);
+			std::vector<int> write_set;
+			write_set = ft::getVector_changedFD(&mWriteCopyFds);
+			std::cout << "select : " << cnt << endl;
+			std::cout << "-------------------------------" << std::endl;
 
 		// ANCHOR 참고코드
 		// writeServerHealthLog();
-		for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
-		{
-			// cout << "loop_run?" << endl;
-			it->run();
-			// closeOldConnection(it);
-		}
+			for (std::vector<Server>::iterator it = m_servers.begin() ; it != m_servers.end() ; ++it)
+			{
+				// cout << "loop_run?" << endl;
+				it->run();
+				// closeOldConnection(it);
+			}
 		// updateMaxFd();
 		// cout << "-------------------------------" << endl;
+		}
 	}
 }
 
@@ -335,7 +335,17 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator server_it)
 		}
 		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
-			std::cout << "closeOldconnection: " << fd << std::endl;
+			//std::cout << "closeOldconnection: " << fd << std::endl;
+			if (it2->second.get_m_request() == NULL)
+			{
+				server_it->create_Response_statuscode(it2->second, 408);
+				it2->second.get_m_response()->set_m_response(it2->second.get_m_response()->makeResponse());
+				ssize_t	count = write(it2->first, it2->second.get_m_response()->get_m_response().c_str(), it2->second.get_m_response()->get_m_response().length());
+				if (count <= 0)
+				{
+					throw (static_cast<const std::string>("IO Error"));
+				}
+			}
 			server_it->closeConnection(it2->second.get_m_fd());
 			return ;
 		}
