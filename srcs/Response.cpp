@@ -11,7 +11,7 @@ Response::~Response()
 }
 
 Response::Response(Connection* connection, int statusCode, std::string body)
-	: mConnection(connection), mStatusCode(statusCode), mBody(body), mSeek(0), mResponseLength(0)
+	: mConnection(connection), mStatusCode(statusCode), mBody(body), mSeek(0), mHttpMessageLength(0)
 {
 	// initStatusMap(); 초기화는 메인 문에서 한번 해주고 있음. 안해줘도 됨
 	this->setConnection(connection);
@@ -36,10 +36,10 @@ const std::string&								Response::getBody(void) const{	return (this->mBody);}
 
 const std::string&								Response::getFirstLine(void) const { return (this->mFirstLine);}
 
-const std::string&								Response::getResponse(void) const {return (this->mResponse);};
+const std::string&								Response::getHttpMessage(void) const {return (this->mHttpMessage);};
 
 
-const std::string								Response::makeResponse(void)
+const std::string								Response::makeHttpMessage(void)
 {
 	std::string all;
 	
@@ -75,9 +75,9 @@ std::string										Response::makeStatusPage(int statusCode, std::string method
 }
 
 
-void		Response::setResponse(std::string response)
+void		Response::setHttpMessage(const std::string& message)
 {
-	this->mResponse = response;
+	this->mHttpMessage = message;
 }
 
 void		Response::setConnection(Connection *connect)
@@ -165,10 +165,10 @@ void								Response::SetSeek(const std::size_t& seek)
 
 const std::size_t&					Response::GetResponseLength(void) const
 {
-	return (mResponseLength);
+	return (mHttpMessageLength);
 }
 
 void								Response::SetResponseLength(const std::size_t& length)
 {
-	mResponseLength = length;
+	mHttpMessageLength = length;
 }

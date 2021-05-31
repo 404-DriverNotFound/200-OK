@@ -49,7 +49,7 @@ private:
 	int						mClientPort;
 	int						mFd;
 	Request*				mRequest;
-	Response*				mResponse;
+	Response*				mHttpMessage;
 	eStatus					mStatus;
 	struct timeval			mLastRequestAt;
 };

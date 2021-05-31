@@ -33,9 +33,9 @@ public:
 	const enum TransferType&						getTransferType(void) const;
 	const std::string&								getBody(void) const;
 
-	const std::string&								getResponse(void) const;
+	const std::string&								getHttpMessage(void) const;
 
-	void		setResponse(std::string);
+	void		setHttpMessage(const std::string& message);
 	void		setConnection(Connection *connect);
 	void		setStatusCode(int statusCode);
 	void		setStatusDescription(std::string &status_description);
@@ -49,8 +49,8 @@ public:
 	void		makeFirstLine();
 	void		copyHeaders(std::map<std::string, std::string> &ref);
 
-	// NOTE runSend 에서 보낼 것은 makeResponse()이 함수 내용을 보내면 끝!!!! 나지 않는다. 소켓이라 소켓송신버퍼이상 byte는 한번에 보낼 수 없다.
-	const std::string								makeResponse(void);
+	// NOTE runSend 에서 보낼 것은 makeHttpMessage()이 함수 내용을 보내면 끝!!!! 나지 않는다. 소켓이라 소켓송신버퍼이상 byte는 한번에 보낼 수 없다.
+	const std::string								makeHttpMessage(void);
 
 	// ANCHOR yunslee static 함수(error page 관련 함수)
 	// REVIEW const 처리를 해주는 것이 좋아보임.
@@ -125,9 +125,9 @@ private:
 	std::map<std::string, std::string>				mHeaders;
 	enum TransferType								eTransferType;
 	std::string										mBody;
-	std::string										mResponse;
+	std::string										mHttpMessage;
 	std::size_t										mSeek;
-	std::size_t										mResponseLength;
+	std::size_t										mHttpMessageLength;
 };
 
 #endif

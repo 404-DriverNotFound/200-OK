@@ -342,8 +342,8 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator serverItera
 			if (it2->second.getRequest() == NULL)
 			{
 				serverIterator->createResponseStatusCode(it2->second, 408);
-				it2->second.getResponse()->setResponse(it2->second.getResponse()->makeResponse());
-				ssize_t	count = write(it2->first, it2->second.getResponse()->getResponse().c_str(), it2->second.getResponse()->getResponse().length());
+				it2->second.getResponse()->setHttpMessage(it2->second.getResponse()->makeHttpMessage());
+				ssize_t	count = write(it2->first, it2->second.getResponse()->getHttpMessage().c_str(), it2->second.getResponse()->getHttpMessage().length());
 				if (count <= 0)
 				{
 					throw (static_cast<const std::string>("IO Error"));

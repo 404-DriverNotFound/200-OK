@@ -147,7 +147,7 @@ public :
 	// ANCHOR 참고코드
 	// REVIEW 어떻게 적용될지 생각해봐야함
 	std::map<int, Connection>	mConnections;
-	// std::queue<Response>		mResponses;
+	// std::queue<Response>		mHttpMessages;
 	// Config*						m_config;
 };
 

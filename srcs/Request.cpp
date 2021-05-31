@@ -9,19 +9,19 @@ Request::Request(void)
 	gettimeofday(&mStartTime, NULL);
 }
 
-void								Request::addOrigin(const std::string& added_origin)
+void								Request::addHttpMessage(const std::string& added)
 {
-	m_origin.append(added_origin);
+	mHttpMessage.append(added);
 }
 
-const std::string&					Request::get_m_origin(void) const
+const std::string&					Request::getHttpMessage(void) const
 {
-	return (m_origin);
+	return (mHttpMessage);
 }
 
-void								Request::SetOrigin(const std::string& origin)
+void								Request::SetHttpMessage(const std::string& message)
 {
-	m_origin = origin;
+	mHttpMessage = message;
 }
 
 const std::string&					Request::GetMethod(void) const

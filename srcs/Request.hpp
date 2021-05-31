@@ -34,8 +34,9 @@ public:
 	const std::string&							getBody(void) const;
 	void										SetBody(const std::string& body);
 	
-	const std::string&							get_m_origin(void) const;
-	void										SetOrigin(const std::string& origin);
+	const std::string&							getHttpMessage(void) const;
+	void										SetHttpMessage(const std::string& message);
+	void										addHttpMessage(const std::string& added);
 
 	const ePhase&								GetPhase(void) const;
 	void										SetPhase(const ePhase& phase);
@@ -50,9 +51,7 @@ public:
 	const std::string&							GetVersion(void) const;
 	void										SetVersion(const std::string& version);
 
-	// const struct timeval&						isOverTime(void) const;
 	void										addBody(const std::string& body);
-	void										addOrigin(const std::string& added_origin);
 	void										addHeader(const std::string& header);
 
 	// URI 관련된 친구들 //
@@ -87,7 +86,7 @@ private:
 
 	ePhase										mPhase;
 	std::size_t									mSeek;
-	std::string									m_origin;	//FIXME http message 전문을 담고 있음 이부분은 나중에 수정해야함
+	std::string									mHttpMessage;	//FIXME http message 전문을 담고 있음 이부분은 나중에 수정해야함
 
 	std::string									mMethod;
 	/* uri 친구들 */

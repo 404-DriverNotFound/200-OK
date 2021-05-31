@@ -85,7 +85,7 @@ void			Server::closeConnection(int clientFd)
 void			Server::recvRequest(Connection& connection)
 {
 	Request*	request = connection.getRequest();
-	char		buf[BUFFER_SIZE] = { 0, };
+	char		buf[BUFFER_SIZE];
 	
 	ssize_t		count = read(connection.getSocket(), buf, sizeof(buf));
 	if (count > 0)
@@ -150,7 +150,7 @@ bool			Server::isRequestHasBody(Request* request)
 bool			Server::parseStartLine(Connection& connection)
 {
 	Request*			request = connection.getRequest();
-	const std::string&	requestLine = request->get_m_origin();
+	const std::string&	requestLine = request->getHttpMessage();
 	std::size_t			found;
 	std::string			tmp;
 	
@@ -197,7 +197,7 @@ bool			Server::parseStartLine(Connection& connection)
 bool			Server::parseHeader(Connection& connection)
 {
 	Request*		request = connection.getRequest();
-	std::size_t		found = request->get_m_origin().find("\r\n\r\n", request->GetSeek());
+	std::size_t		found = request->getHttpMessage().find("\r\n\r\n", request->GetSeek());
 	if (found == std::string::npos)
 	{
 		return (false);
@@ -205,12 +205,12 @@ bool			Server::parseHeader(Connection& connection)
 
 	while (true)
 	{
-		std::size_t		found = request->get_m_origin().find("\r\n", request->GetSeek());
+		std::size_t		found = request->getHttpMessage().find("\r\n", request->GetSeek());
 		if (found == std::string::npos)
 		{
 			throw 400;
 		}
-		std::string	line = request->get_m_origin().substr(request->GetSeek(), found - request->GetSeek());
+		std::string	line = request->getHttpMessage().substr(request->GetSeek(), found - request->GetSeek());
 		if (line.empty())
 		{
 			request->SetSeek(found + 2);
@@ -233,7 +233,7 @@ bool			Server::parseBody(Connection& connection)
 		while (true)
 		{
 			// hex 기다림
-			std::size_t		foundHex = request->get_m_origin().find("\r\n", request->GetSeek());
+			std::size_t		foundHex = request->getHttpMessage().find("\r\n", request->GetSeek());
 			if (foundHex == std::string::npos)
 			{
 				return (false);
@@ -241,17 +241,17 @@ bool			Server::parseBody(Connection& connection)
 			else
 			{
 				// 바디 기다림
-				std::size_t	foundBody = request->get_m_origin().find("\r\n", foundHex + 2);
+				std::size_t	foundBody = request->getHttpMessage().find("\r\n", foundHex + 2);
 				if (foundBody == std::string::npos)
 				{
 					return (false);
 				}
 				else
 				{
-					std::string		hex = request->get_m_origin().substr(request->GetSeek(), foundHex - request->GetSeek());
+					std::string		hex = request->getHttpMessage().substr(request->GetSeek(), foundHex - request->GetSeek());
 					unsigned long	hexValue = ft::stohex(hex);
 					request->SetSeek(foundHex + 2);
-					std::string		body = request->get_m_origin().substr(request->GetSeek(), foundBody - request->GetSeek());
+					std::string		body = request->getHttpMessage().substr(request->GetSeek(), foundBody - request->GetSeek());
 					if (hexValue != body.length())
 					{
 						throw 413; // REVIEW payload too large 이거 맞는지 모르겠음
@@ -278,7 +278,7 @@ bool			Server::parseBody(Connection& connection)
 			throw 411;
 		}
 		int												contentLength = std::atoi(it->second.c_str());
-		int												bodyLength = request->get_m_origin().length() - request->GetSeek();
+		int												bodyLength = request->getHttpMessage().length() - request->GetSeek();
 		// std::cout << contentLength << " " << bodyLength << std::endl;
 		if (contentLength > bodyLength)
 		{
@@ -290,7 +290,7 @@ bool			Server::parseBody(Connection& connection)
 		}
 		else
 		{
-			request->SetBody(request->get_m_origin().substr(request->GetSeek()));
+			request->SetBody(request->getHttpMessage().substr(request->GetSeek()));
 			return (true);
 		}
 	}

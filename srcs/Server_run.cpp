@@ -108,8 +108,8 @@ bool		Server::runSend(Connection& connection)
 
 	if (connection.GetStatus() == Connection::SEND_READY)
 	{
-		response->setResponse(response->makeResponse()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
-		response->SetResponseLength(response->getResponse().length()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
+		response->setHttpMessage(response->makeHttpMessage()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
+		response->SetResponseLength(response->getHttpMessage().length()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
 		errno = 0;
 
 		// int count = 1000000;
@@ -136,10 +136,10 @@ bool		Server::runSend(Connection& connection)
 	{
 		errno = 0;
 		// perror("what?:");
-		ssize_t	count = write(connection.getSocket(), response->getResponse().c_str() + response->GetSeek(), response->GetResponseLength());
+		ssize_t	count = write(connection.getSocket(), response->getHttpMessage().c_str() + response->GetSeek(), response->GetResponseLength());
 		
 		// NOTE length를 구하는 cost가 생각보다 엄청 크진 않았다. 위아래 코드 실행시간 차이가 거의 미미
-		//ssize_t	count = write(connection.getSocket(), response->getResponse().c_str() + response->GetSeek(), response->getResponse().length() - response->GetSeek());
+		//ssize_t	count = write(connection.getSocket(), response->getHttpMessage().c_str() + response->GetSeek(), response->getHttpMessage().length() - response->GetSeek());
 
 		if (count <= 0)
 		{
