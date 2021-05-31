@@ -430,29 +430,33 @@ int	main(int argc, char* argv[])
 		sockAddr.sin_family = AF_INET;
 		sockAddr.sin_port = htons(std::stoi(port));
 		sockAddr.sin_addr.s_addr = inet_addr(host.c_str());
-		//test503();
-		//test400();
-		//test414(sockAddr);
-		//test505(sockAddr);
-		//test411(sockAddr);
-		//test413(sockAddr);
-		//test301(sockAddr);
-		//test405(sockAddr);
+		test414(sockAddr);
+		test505(sockAddr);
+		test411(sockAddr);
+		test413(sockAddr);
+		test301(sockAddr);
 		test405(sockAddr);
 		test301(sockAddr);
 		test413(sockAddr);
-		//test301();
-		//test404();
-		//test410();
-		//test401();
-		//test403();
-		//test500();
-		//test504();
-		//test200();
-		//test201();
-		//test205();
-		//test204();
 		test408(sockAddr);
+
+		// TODO 구현 될 것
+		// test403(); Auth
+		// test401(); UNAuth
+
+		// NOTE 구현되지 않은 것
+		// test410(); GONE
+
+		// NOTE 구현되었으나 테스터에서 보여주지 않는 것
+		// test205(); Reset content
+		// test204(); NO content
+		// test503();
+		// test400();
+		// test404();
+		// test201();
+		// test200();
+		// test500();
+		// test504();
 	}
 	catch(const std::exception& e)
 	{
