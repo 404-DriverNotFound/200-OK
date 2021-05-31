@@ -60,28 +60,28 @@ void		ServerManager::RunServers(void)
 			{
 				closeOldConnection(it);
 			}
-			std::cout << "timeout\n";
+			//std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
-			// std::vector<int> read_set;
-			// read_set = ft::getVectorChangedFD(&mReadCopyFds, mMaxFd + 1);
-			// std::vector<int> write_set;
-			// write_set = ft::getVectorChangedFD(&mWriteCopyFds, mMaxFd + 1);
-		}
-		std::cout << "select : " << cnt << endl;
-		std::cout << "-------------------------------" << std::endl;
+			std::vector<int> read_set;
+			read_set = ft::getVectorChangedFD(&mReadCopyFds);
+			std::vector<int> write_set;
+			write_set = ft::getVectorChangedFD(&mWriteCopyFds);
+			std::cout << "select : " << cnt << endl;
+			std::cout << "-------------------------------" << std::endl;
 
 		// ANCHOR 참고코드
 		// writeServerHealthLog();
-		for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
-		{
-			// cout << "loop_run?" << endl;
-			it->run();
-			// closeOldConnection(it);
-		}
+			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
+			{
+				// cout << "loop_run?" << endl;
+				it->run();
+				// closeOldConnection(it);
+			}
 		// updateMaxFd();
 		// cout << "-------------------------------" << endl;
+		}
 	}
 }
 
@@ -335,7 +335,17 @@ void	ServerManager::closeOldConnection(std::vector<Server>::iterator serverItera
 		}
 		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
-			std::cout << "closeOldconnection: " << fd << std::endl;
+			//std::cout << "closeOldconnection: " << fd << std::endl;
+			if (it2->second.getRequest() == NULL)
+			{
+				serverIterator->createResponseStatusCode(it2->second, 408);
+				it2->second.getResponse()->setResponse(it2->second.getResponse()->makeResponse());
+				ssize_t	count = write(it2->first, it2->second.getResponse()->getResponse().c_str(), it2->second.getResponse()->getResponse().length());
+				if (count <= 0)
+				{
+					throw (static_cast<const std::string>("IO Error"));
+				}
+			}
 			serverIterator->closeConnection(it2->second.getSocket());
 			return ;
 		}
