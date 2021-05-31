@@ -409,6 +409,25 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		throw 405;
 		return ;
 	}
+
+	// NOTE AUTH 구현 (Basic만)
+	if (hasAuthModule(request, config_it)) // STUB 	일단 항상 참이게 구현
+	{
+		std::map<std::string, std::string>::iterator	it = request.GetHeaders().find("authorization");
+		if (it == request.GetHeaders().end())
+		{
+			throw 401; // NOTE 응답해줄 때 WWW-Authenticate 헤더 포함해야함
+		}
+		else
+		{
+			// 비교
+			if (!isRightCredentials(it->second))
+			{
+				throw 403; // NOTE 빨간약 포비돈
+			}
+		}
+	}
+
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
 
@@ -645,4 +664,54 @@ bool Server::isValidMethod(Request &request, config_iterator config_it)
 			return (true);
 	}
 	return (false);
+}
+
+// STUB
+bool		Server::hasAuthModule(const Request& request, const config_iterator& config_it)
+{
+	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
+
+	return (false);
+	return (true);
+	(void)request;
+	(void)config_it;
+}
+
+bool		Server::isRightCredentials(const std::string& authorization)
+{
+	// NOTE authorization = "Basic asdf3r323if"
+	std::size_t found = authorization.find(" ");
+	if (found == std::string::npos)
+	{
+		return (false);
+	}
+	std::string	type = authorization.substr(0, found);
+	if (type.compare("Basic") != 0)
+	{
+		return (false);
+	}
+	std::string	credentials = authorization.substr(found + 1);
+	
+	// NOTE 파일에서 우리서버 인증정보 가져오기
+	int fd = open(".htpasswd", O_RDONLY);
+	if (fd < 0)
+	{
+		throw 500;
+	}
+	char	buf[BUFFER_SIZE];
+	ssize_t	cnt = read(fd, buf, sizeof(buf));
+	if (cnt < 0)
+	{
+		throw 500;
+	}
+	close(fd);
+	std::string	htpasswd(buf, cnt);
+
+	// NOTE 일치하는지 확인하기
+	found = htpasswd.find(credentials);
+	if (found == std::string::npos)
+	{
+		return (false);
+	}
+	return (true);
 }

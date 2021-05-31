@@ -132,6 +132,11 @@ public:
 			const char* what() const throw();
 	};
 
+private:
+	bool						hasAuthModule(const Request& request, const config_iterator& config_it);
+	bool						isRightCredentials(const std::string& authorization);
+
+
 public :
 	ServerManager*				m_manager;
 	uint16_t					mport; // def = 8000;
