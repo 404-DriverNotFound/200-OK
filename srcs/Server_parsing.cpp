@@ -4,7 +4,7 @@
 
 extern char**	gEnv;
 
-LocationPath::LocationPath() : mLocationPath(), mRoot(), mErrorPage("error.html"), mAutoIndex(false), mClientMaxBodySize(0)
+LocationPath::LocationPath() : mLocationPath(), mRoot(), mErrorPage("error.html"), mAutoIndex(false), mClientMaxBodySize(0), mAuthBasicUserFile()
 {
 	Path temp("index.html");
 	this->mIndexPages.push_back(temp);
@@ -42,6 +42,7 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 	this->mMethod = ref.mMethod;
 	this->mCgiExtension = ref.mCgiExtension;
 	this->mClientMaxBodySize = ref.mClientMaxBodySize;
+	this->mAuthBasicUserFile = ref.mAuthBasicUserFile;
 	return (*this);
 }
 

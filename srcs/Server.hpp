@@ -44,7 +44,8 @@ public:
 	std::vector<Path>	mIndexPages;		// def = index.html
 	Path				mErrorPage;		// def = error.html
 	bool				mAutoIndex;
-	size_t				mClientMaxBodySize;
+	size_t				mClientMaxBodySize;		//def = 0
+	Path				mAuthBasicUserFile;	//def =
 
 	std::vector<std::string>	mMethod;
 	std::vector<std::string>	mCgiExtension;
@@ -130,6 +131,10 @@ public:
 		public:
 			const char* what() const throw();
 	};
+
+private:
+	bool						hasAuthModule(const configIterator& config_it);
+	bool						isRightCredentials(const std::string& authorization);
 
 public :
 	ServerManager*				mManager;

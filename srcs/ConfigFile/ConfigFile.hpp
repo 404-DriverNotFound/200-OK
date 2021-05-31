@@ -31,11 +31,11 @@ public :
 		std::vector<Path>	mIndexPages;		// def = index.html
 		Path				mErrorPage;		// def = error.html
 		std::vector<std::string> mMethod;		// def = GET HEAD PUT POST DELETE OPTIONS
-		std::vector<std::string> mCgiExtension;// def = .bla
+		std::vector<std::string> mCgiExtension; // def = .bla
+		Path				mAuthBasicUserFile;	// def =
 
 		std::size_t			mClientMaxBodySize; //def 0 NOT checking size
 	// REVIEW 현재 사용하지 않는 설정
 		uint64_t			mHeadLengthMax;	// def = 8k // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
 		uint64_t			mBodyLengthMax;	// def = 1M // REVIEW request되는 head, body의 length라면, 가변적이니깐 의미가 없지 않나 싶음
-		Path				mAuth;				// REVIEW 뭔지 모르겠음 삭제해도 될 꺼 같음
 };

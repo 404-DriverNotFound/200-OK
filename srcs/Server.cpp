@@ -322,6 +322,10 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 	response->setHeaders("Content-Type", "text/html");
 	response->setHeaders("Content-Length", ft::itos(errorpage_body.size()));
 	response->setBody(errorpage_body);
+	if (statusCode == 401)
+	{
+		response->setHeaders("WWW-Authenticate", "Basic realm=\"Access to the auth source\"");
+	}
 	if (statusCode == 301)
 	{
 		std::string url;
@@ -401,6 +405,21 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	{
 		throw 405;
 		return ;
+	}
+	if (hasAuthModule(configIterator)) // STUB 	일단 항상 참이게 구현
+	{
+		std::map<std::string, std::string>::iterator	it = request.GetHeaders().find("authorization");
+		if (it == request.GetHeaders().end())
+		{
+			throw 401;
+		}
+		else
+		{
+			if (!isRightCredentials(it->second))
+			{
+				throw 403;
+			}
+		}
 	}
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
@@ -638,4 +657,53 @@ bool Server::isValidMethod(Request &request, configIterator configIterator)
 			return (true);
 	}
 	return (false);
+}
+
+bool		Server::hasAuthModule(const configIterator& config_it)
+{
+	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
+	if (locationPath->mAuthBasicUserFile.getSize() != 0)
+		return (true);
+	else
+		return (false);
+}
+
+bool		Server::isRightCredentials(const std::string& authorization)
+{
+	// NOTE authorization = "Basic asdf3r323if"
+	std::size_t found = authorization.find(" ");
+	if (found == std::string::npos)
+	{
+		return (false);
+	}
+	std::string	type = authorization.substr(0, found);
+	if (type.compare("Basic") != 0)
+	{
+		return (false);
+	}
+	std::string	credentials = authorization.substr(found + 1);
+	
+	// NOTE 파일에서 우리서버 인증정보 가져오기
+	int fd = open(".htpasswd", O_RDONLY);
+	if (fd < 0)
+	{
+		throw 500;
+	}
+	char	buf[BUFFER_SIZE];
+	ssize_t	cnt = read(fd, buf, sizeof(buf));
+	if (cnt < 0)
+	{
+		throw 500;
+	}
+	if (fd > 2)
+		close(fd);
+	std::string	htpasswd(buf, cnt);
+
+	// NOTE 일치하는지 확인하기
+	found = htpasswd.find(credentials + "\n");
+	if (found == std::string::npos)
+	{
+		return (false);
+	}
+	return (true);
 }

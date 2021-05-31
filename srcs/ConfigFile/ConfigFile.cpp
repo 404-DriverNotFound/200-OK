@@ -10,10 +10,10 @@ ConfigFile::ConfigFile()
 	, mRoot()
 	, mIndexPages()
 	, mErrorPage()
+	, mAuthBasicUserFile()
 	, mClientMaxBodySize(0)
 	, mHeadLengthMax(8000)
 	, mBodyLengthMax(10000)
-	, mAuth()
 {
 	this->mMethod.push_back("GET");
 	this->mMethod.push_back("HEAD");
@@ -45,7 +45,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->mErrorPage = ref.mErrorPage;
 	this->mHeadLengthMax = ref.mHeadLengthMax;
 	this->mBodyLengthMax = ref.mBodyLengthMax;
-	this->mAuth = ref.mAuth;
+	this->mAuthBasicUserFile = ref.mAuthBasicUserFile;
 
 	this->mAutoIndex = ref.mAutoIndex;
 	this->mTimeOut = ref.mTimeOut;
