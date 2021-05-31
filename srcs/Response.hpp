@@ -20,6 +20,11 @@ public:
 	virtual ~Response();
 	Response(Connection* connection, int statusCode, std::string body = "");
 
+	const std::size_t&								GetResponseLength(void) const;
+	void											SetResponseLength(const std::size_t& length);
+	const std::size_t&								GetSeek(void) const;
+	void											SetSeek(const std::size_t& seek);
+
 	const Connection*								getConnection(void) const;
 	const int&										getStatusCode(void) const;
 	const std::string&								getStatusDescription(void) const;
@@ -120,8 +125,9 @@ private:
 	std::map<std::string, std::string>				mHeaders;
 	enum TransferType								eTransferType;
 	std::string										mBody;
-
 	std::string										mResponse;
+	std::size_t										mSeek;
+	std::size_t										mResponseLength;
 };
 
 #endif
