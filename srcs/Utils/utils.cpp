@@ -203,27 +203,19 @@ std::vector<int> ft::getVectorChangedFD(struct fd_set *fdset)
 	std::vector<int> ret;
 	for (size_t i = 0; i < 1024; i++)
 	{
-		// if (((fdset->fds_bits[temp / 32]) & (1 << (temp % 32))) > 0)
-		// {
-		// 	ret.push_back((int)i);
-		// 	std::cout << i << " ";
-		// }
 		if (FD_ISSET(i, fdset) != 0)
 		{
 			ret.push_back((int)i);
 			std::cout << i << " ";
 		}
 	}
-	int sum = 0;
 	for (size_t i = 0; i < 32; i++)
 	{
 		if (fdset->fds_bits[i] != 0)
 		{
-			std::cout << i << ": fds_bits: " << fdset->fds_bits[i] << std::endl;
+			std::cout << "32번째중에서 " << i << "번째, " << "fds_bits(4byte): " << fdset->fds_bits[i] << std::endl;
 		}
-		sum += (int)fdset->fds_bits[i];
 	}
-	std::cout << "getVector sum: " << sum << std::endl;
 	if (ret.size() == 0)
 	{
 		std::cout << "empty | size: 0" << std::endl;

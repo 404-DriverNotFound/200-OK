@@ -112,17 +112,18 @@ bool		Server::runSend(Connection& connection)
 		response->SetResponseLength(response->getHttpMessage().length()); // NOTE 보낼 response 만들어서, 앞으로 사용할 변수에 저장해서, 이 변수에서 뽑아내서 전송할꺼임!
 		errno = 0;
 
-		// int count = 1000000;
-		// int snd_buf= count * 1, rcv_buf= count * 3;
 
+		int count = 1000000;
+		int snd_buf= count * 1, rcv_buf= count * 3;
+		int state;
 		// NOTE  최적화1. 수신 버퍼의 크기 조절하기
-		// state=setsockopt(connection.getSocket(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
-		// state = setsockopt(connection.getSocket(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
+		state = setsockopt(connection.getSocket(), SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, sizeof(rcv_buf)); // RECV buffer 늘리기
+		state = setsockopt(connection.getSocket(), SOL_SOCKET, SO_SNDBUF, (void*)&snd_buf, sizeof(snd_buf)); // SEND buffer 늘리기
 		// cout << "state: " << state << endl;
 
 		// NOTE  최적화1. Nagle 알고리즘 해제하기
-		// int opt_val = true;
-		// state = setsockopt(connection.getSocket(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
+		int opt_val = true;
+		state = setsockopt(connection.getSocket(), IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, sizeof(opt_val));
 		// cout << "state: " << state << endl;
 
 		// perror("what?:");

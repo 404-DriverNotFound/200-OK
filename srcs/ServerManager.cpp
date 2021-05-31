@@ -64,11 +64,11 @@ void		ServerManager::RunServers(void)
 		}
 		else if (cnt > 0)
 		{
-			std::vector<int> read_set;
-			read_set = ft::getVectorChangedFD(&mReadCopyFds);
-			std::vector<int> write_set;
-			write_set = ft::getVectorChangedFD(&mWriteCopyFds);
 			std::cout << "select : " << cnt << endl;
+			std::vector<int> read_set; std::cout << "--- read ---" << endl;
+			read_set = ft::getVectorChangedFD(&mReadCopyFds);
+			std::vector<int> write_set; std::cout << "--- write ---" << endl;
+			write_set = ft::getVectorChangedFD(&mWriteCopyFds);
 			std::cout << "-------------------------------" << std::endl;
 
 		// ANCHOR 참고코드
