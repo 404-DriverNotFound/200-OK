@@ -11,7 +11,7 @@ Response::~Response()
 }
 
 Response::Response(Connection* connection, int statusCode, std::string body)
-	: mConnection(connection), mStatusCode(statusCode), mBody(body)
+	: mConnection(connection), mStatusCode(statusCode), mBody(body), mSeek(0), mResponseLength(0)
 {
 	// initStatusMap(); 초기화는 메인 문에서 한번 해주고 있음. 안해줘도 됨
 	this->setConnection(connection);
@@ -151,4 +151,24 @@ void		Response::ShowMessage(void)
 	{
 		std::cout << getBody() << std::endl;
 	}
+}
+
+const std::size_t&					Response::GetSeek(void) const
+{
+	return (mSeek);
+}
+
+void								Response::SetSeek(const std::size_t& seek)
+{
+	mSeek = seek;
+}
+
+const std::size_t&					Response::GetResponseLength(void) const
+{
+	return (mResponseLength);
+}
+
+void								Response::SetResponseLength(const std::size_t& length)
+{
+	mResponseLength = length;
 }
