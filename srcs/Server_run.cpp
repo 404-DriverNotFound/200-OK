@@ -137,11 +137,15 @@ bool		Server::runSend(Connection& connection)
 		errno = 0;
 		// perror("what?:");
 		ssize_t	count = write(connection.getSocket(), response->getResponse().c_str() + response->GetSeek(), response->GetResponseLength());
+		
+		// NOTE length를 구하는 cost가 생각보다 엄청 크진 않았다. 위아래 코드 실행시간 차이가 거의 미미
+		//ssize_t	count = write(connection.getSocket(), response->getResponse().c_str() + response->GetSeek(), response->getResponse().length() - response->GetSeek());
+
 		if (count <= 0)
 		{
 			throw IOError();
 		}
-		response->SetSeek(count);
+		response->SetSeek(response->GetSeek() + count);
 		response->SetResponseLength(response->GetResponseLength() - count);
 		if (response->GetResponseLength() != 0)
 		{
