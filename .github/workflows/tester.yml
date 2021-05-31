@@ -10,6 +10,10 @@ jobs:
         os: [macos-latest]
     name: 42 Make Test
     steps:
-    - uses: actions/checkout@v2
-    - name: Check basic Makefile jobs
-      run: make re && ./webserv test.config &; echo "\n\n\n\n\n\n\n" | ./ft_tester/tester http://localhost:8000
+    - name: github-action-tester
+      uses: skx/github-action-tester@release-0.10
+      with:
+        script: .github/test.sh
+    # - uses: actions/checkout@v2
+    # - name: Check basic Makefile jobs
+
