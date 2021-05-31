@@ -12,4 +12,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Check basic Makefile jobs
-      run: make && make re && make clean && make all && make fclean && ls eeoeoeoqqeo
+      run: test_copy.sh
