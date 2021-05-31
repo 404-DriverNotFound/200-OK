@@ -22,7 +22,7 @@ public:
 	Request(void);
 	// Request(Connection* connection, Server* server, std::string start_line);
 
-	// const Connection*							get_m_connection(void) const;
+	// const Connection*							getConnection(void) const;
 	// const Server*								get_m_server(void) const;
 	// const Location*								get_m_location(void) const;
 
@@ -79,7 +79,7 @@ public:
 
 	void										ShowMessage(void);
 private:
-	// Connection*									m_connection;
+	// Connection*									mConnection;
 	// Server*										m_server;
 	// Location*									m_location;
 

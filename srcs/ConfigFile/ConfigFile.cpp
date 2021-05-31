@@ -1,28 +1,28 @@
 #include "./ConfigFile.hpp"
 
 ConfigFile::ConfigFile()
-	: mserver_name("localhost")
-	, mhost("0.0.0.0")
-	, mport(8000)
-	, mtimeout(0)
-	, mlocation_path()
-	, mauto_index(false)
-	, mroot()
-	, mindex_pages()
-	, merror_page()
-	, mclient_max_body_size(0)
-	, mhead_length_max(8000)
-	, mbody_length_max(10000)
-	, mauth()
+	: mServerName("localhost")
+	, mHost("0.0.0.0")
+	, mPort(8000)
+	, mTimeOut(0)
+	, mLocationPath()
+	, mAutoIndex(false)
+	, mRoot()
+	, mIndexPages()
+	, mErrorPage()
+	, mClientMaxBodySize(0)
+	, mHeadLengthMax(8000)
+	, mBodyLengthMax(10000)
+	, mAuth()
 {
-	this->m_method.push_back("GET");
-	this->m_method.push_back("HEAD");
-	this->m_method.push_back("PUT");
-	this->m_method.push_back("POST");
-	this->m_method.push_back("DELETE");
-	this->m_method.push_back("OPTIONS");
+	this->mMethod.push_back("GET");
+	this->mMethod.push_back("HEAD");
+	this->mMethod.push_back("PUT");
+	this->mMethod.push_back("POST");
+	this->mMethod.push_back("DELETE");
+	this->mMethod.push_back("OPTIONS");
 
-	this->mcgi_extension.push_back(".bla");
+	this->mCgiExtension.push_back(".bla");
 }
 
 ConfigFile::~ConfigFile(){}
@@ -36,21 +36,21 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 {
 	if (this == &ref)
 		return (*this);
-	this->mserver_name = ref.mserver_name;
-	this->mroot = ref.mroot;
-	this->mhost = ref.mhost;
-	this->mlocation_path = ref.mlocation_path;
-	this->mport = ref.mport;
-	this->mindex_pages = ref.mindex_pages;
-	this->merror_page = ref.merror_page;
-	this->mhead_length_max = ref.mhead_length_max;
-	this->mbody_length_max = ref.mbody_length_max;
-	this->mauth = ref.mauth;
+	this->mServerName = ref.mServerName;
+	this->mRoot = ref.mRoot;
+	this->mHost = ref.mHost;
+	this->mLocationPath = ref.mLocationPath;
+	this->mPort = ref.mPort;
+	this->mIndexPages = ref.mIndexPages;
+	this->mErrorPage = ref.mErrorPage;
+	this->mHeadLengthMax = ref.mHeadLengthMax;
+	this->mBodyLengthMax = ref.mBodyLengthMax;
+	this->mAuth = ref.mAuth;
 
-	this->mauto_index = ref.mauto_index;
-	this->mtimeout = ref.mtimeout;
-	this->m_method = ref.m_method;
-	this->mcgi_extension = ref.mcgi_extension;
-	this->mclient_max_body_size = ref.mclient_max_body_size;
+	this->mAutoIndex = ref.mAutoIndex;
+	this->mTimeOut = ref.mTimeOut;
+	this->mMethod = ref.mMethod;
+	this->mCgiExtension = ref.mCgiExtension;
+	this->mClientMaxBodySize = ref.mClientMaxBodySize;
 	return (*this);
 }
