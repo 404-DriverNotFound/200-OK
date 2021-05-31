@@ -438,6 +438,10 @@ int	main(int argc, char* argv[])
 		//test413(sockAddr);
 		//test301(sockAddr);
 		//test405(sockAddr);
+		test405(sockAddr);
+		test301(sockAddr);
+		test413(sockAddr);
+		//test301();
 		//test404();
 		//test410();
 		//test401();
