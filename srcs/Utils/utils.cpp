@@ -12,7 +12,7 @@ void	*ft::memset(void *b, int c, size_t len)
 	return (b);
 }
 
-void ft::split_vector(std::vector<std::string> &vec, const std::string& str, const char *delim)
+void ft::splitVector(std::vector<std::string> &vec, const std::string& str, const char *delim)
 {
 	size_t before = 0; //string처음부터 검사
 	size_t after = 0;
@@ -45,7 +45,7 @@ std::string ft::ReplaceAll(std::string &str, const std::string& from, const std:
     return str;
 }
 
-std::string ft::ReplaceAll_modified(std::string &str, const std::string& from, const std::string& to)
+std::string ft::ReplaceAllModified(std::string &str, const std::string& from, const std::string& to)
 {
     size_t start_pos = 0; //string처음부터 검사
     while((start_pos = str.find(from, start_pos)) != std::string::npos)  //from을 찾을 수 없을 때까지
@@ -132,7 +132,7 @@ in_addr_t	 ft::ft_inet_addr(const char *ip_addr)
 		return (0);
 	std::string ip_string; ip_string.assign(ip_addr);
 	std::vector<std::string> ip_dot_divid;
-	ft::split_vector(ip_dot_divid, ip_string, ".");
+	ft::splitVector(ip_dot_divid, ip_string, ".");
 	if (ip_dot_divid.size() != 4)
 		return (0);
 	u_int32_t ip_host = 0;
@@ -198,7 +198,7 @@ std::string ft::makeAutoindexHTML(std::string url)
 }
 
 
-std::vector<int> ft::getVector_changedFD(struct fd_set *fdset)
+std::vector<int> ft::getVectorChangedFD(struct fd_set *fdset)
 {
 	std::vector<int> ret;
 	for (size_t i = 0; i < 1024; i++)
@@ -275,10 +275,10 @@ unsigned long	ft::stohex(const std::string &str)
 }
 
 
-std::string ft::getBody_from_file(std::string uri_plus_file)
+std::string ft::getBodyFromFile(std::string uriPlusFile)
 {
 	std::string body;
-	int fd = open(uri_plus_file.c_str(), O_RDONLY);
+	int fd = open(uriPlusFile.c_str(), O_RDONLY);
 	if (fd == -1)
 		return (body);
 	off_t sz_file;
@@ -294,7 +294,7 @@ std::string ft::getBody_from_file(std::string uri_plus_file)
 	return (body);
 }
 
-std::string ft::getBody_from_fd(int fd)
+std::string ft::getBodyFromFd(int fd)
 {
 	std::string body;
 	if (fd == -1)

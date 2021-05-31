@@ -2,36 +2,36 @@
 
 void ConfigFiles::ShowConfigs()
 {
-	for (size_t i = 0; i < this->mconfigs.size(); i++)
+	for (size_t i = 0; i < this->mConfigs.size(); i++)
 	{
 		std::cout << "----------------------"<< "Server: " << i <<"----------------------" << std::endl;
-		std::cout << "server_name: " << this->mconfigs[i].mserver_name << std::endl;
-		std::cout << "root: " << this->mconfigs[i].mroot.getPath() << std::endl;
-		std::cout << "location_path: " << this->mconfigs[i].mlocation_path.getPath() << std::endl;
-		std::cout << "port: " << this->mconfigs[i].mport << std::endl;
-		std::cout << "auto_index: " << this->mconfigs[i].mauto_index << std::endl;
-		std::cout << "timeout: " << this->mconfigs[i].mtimeout << std::endl;
-		std::cout << "client_max_body_size: " << this->mconfigs[i].mclient_max_body_size << std::endl;
-		std::cout << "host: " << this->mconfigs[i].mhost << std::endl;
+		std::cout << "server_name: " << this->mConfigs[i].mServerName << std::endl;
+		std::cout << "root: " << this->mConfigs[i].mRoot.getPath() << std::endl;
+		std::cout << "location_path: " << this->mConfigs[i].mLocationPath.getPath() << std::endl;
+		std::cout << "port: " << this->mConfigs[i].mPort << std::endl;
+		std::cout << "auto_index: " << this->mConfigs[i].mAutoIndex << std::endl;
+		std::cout << "timeout: " << this->mConfigs[i].mTimeOut << std::endl;
+		std::cout << "client_max_body_size: " << this->mConfigs[i].mClientMaxBodySize << std::endl;
+		std::cout << "host: " << this->mConfigs[i].mHost << std::endl;
 
 		
 		std::cout << "index_pages: ";
-		for (size_t j = 0; j < this->mconfigs[i].mindex_pages.size(); j++)
+		for (size_t j = 0; j < this->mConfigs[i].mIndexPages.size(); j++)
 		{
-			std::cout << this->mconfigs[i].mindex_pages[j].getPath() << " ";
+			std::cout << this->mConfigs[i].mIndexPages[j].getPath() << " ";
 		}
 		std::cout << std::endl;
-		std::cout << "error_page: " << this->mconfigs[i].merror_page.getPath() << std::endl;
+		std::cout << "error_page: " << this->mConfigs[i].mErrorPage.getPath() << std::endl;
 		std::cout << "method: ";
-		for (size_t j = 0; j < this->mconfigs[i].m_method.size(); j++)
+		for (size_t j = 0; j < this->mConfigs[i].mMethod.size(); j++)
 		{
-			std::cout << this->mconfigs[i].m_method[j] << " ";
+			std::cout << this->mConfigs[i].mMethod[j] << " ";
 		}
 		std::cout << std::endl;
 		std::cout << "cgi_extension: ";
-		for (size_t j = 0; j < this->mconfigs[i].mcgi_extension.size(); j++)
+		for (size_t j = 0; j < this->mConfigs[i].mCgiExtension.size(); j++)
 		{
-			std::cout << this->mconfigs[i].mcgi_extension[j] << " ";
+			std::cout << this->mConfigs[i].mCgiExtension[j] << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -40,12 +40,12 @@ void ConfigFiles::ShowConfigs()
 
 int ConfigFiles::ReadConfigFile(const char *fileName)
 {
-	this->mconfigFd = open(fileName, O_RDONLY);
-	if (this->mconfigFd < 0)
+	this->mConfigFd = open(fileName, O_RDONLY);
+	if (this->mConfigFd < 0)
 	{
 		std::cout << ("fd open error") << std::endl;
 		perror("ss");
-		this->mconfigFd = -1;
+		this->mConfigFd = -1;
 		return (-1);
 	}
 	return (1);
@@ -54,14 +54,14 @@ int ConfigFiles::ReadConfigFile(const char *fileName)
 int ConfigFiles::SetGnl()
 {
 	char *line;
-	while (get_next_line(this->mconfigFd, &line) > 0)
+	while (get_next_line(this->mConfigFd, &line) > 0)
 	{
-		this->mgnl.push_back(line);
+		this->mGnl.push_back(line);
 		free(line);
 	}
-	this->mgnl.push_back(line);
+	this->mGnl.push_back(line);
 	free(line);
-	close(this->mconfigFd);
+	close(this->mConfigFd);
 	return (1);
 }
 
@@ -99,45 +99,45 @@ int ConfigFiles::SetConfigs()
 	ServerConfigIdx configIdx;
 
 	// ANCHOR Step1. index로 구역 나누기
-	if (-1 == configIdx.Step1(configIdx, this->mgnl)) // NOTE server block index로 나눔
+	if (-1 == configIdx.Step1(configIdx, this->mGnl)) // NOTE server block index로 나눔
 		return (-1);
-	if (-1 == configIdx.Step2(configIdx, this->mgnl)) // NOTE location block index로 나눔
+	if (-1 == configIdx.Step2(configIdx, this->mGnl)) // NOTE location block index로 나눔
 		return (-1);
 
-	for (int i = 0; i < configIdx.mserverNum; i++)
+	for (int i = 0; i < configIdx.mServerNum; i++)
 	{
-		configIdx.mtotalLocationNum += (configIdx.mserverBracket[i].mlocationBlockNum + 1); // NOTE location block 갯수에 default location을 더해야하기 때문에
+		configIdx.mTotalLocationNum += (configIdx.mServerBracket[i].mLocationBlockNum + 1); // NOTE location block 갯수에 default location을 더해야하기 때문에
 	}
 	
 	// ANCHOR Step2. 값 넣기
-	for (int i = 0; i < configIdx.mserverNum; i++)
+	for (int i = 0; i < configIdx.mServerNum; i++)
 	{
 		ConfigFile default_location; // NOTE 하나의 서버가 될 것임
 		std::string oneline;
-		std::vector<std::string> split_vector;
-		int start = configIdx.mserverBracket[i].mstart + 1;
-		int end = configIdx.mserverBracket[i].mend - 1;
+		std::vector<std::string> splitVector;
+		int start = configIdx.mServerBracket[i].mStart + 1;
+		int end = configIdx.mServerBracket[i].mEnd - 1;
 		
-		if (parsingServerBlock(this->mgnl, default_location, start, end, configIdx.mserverBracket[i]) == -1)
+		if (parsingserverBlock(this->mGnl, default_location, start, end, configIdx.mServerBracket[i]) == -1)
 		{
 			std::cout << "parsingBlock error" << std::endl;
 			return (-1);
 		}
 
-		this->mconfigs.push_back(default_location); // NOTE (1)서버의 default location을 기본으로 넣어줌
+		this->mConfigs.push_back(default_location); // NOTE (1)서버의 default location을 기본으로 넣어줌
 
-		for (int j = 0; j < configIdx.mserverBracket[i].mlocationBlockNum ; j++)
+		for (int j = 0; j < configIdx.mServerBracket[i].mLocationBlockNum ; j++)
 		{
 			ConfigFile temp = default_location;
-			int start2 = configIdx.mserverBracket[i].mlocationBracket[j].mstart + 1;
-			int end2 = configIdx.mserverBracket[i].mlocationBracket[j].mend - 1;
-			temp.mlocation_path = configIdx.mserverBracket[i].mlocationBracket[j].mlocation_path;
-			if (parsingLocationBlock(this->mgnl, temp, start2, end2) == -1)
+			int start2 = configIdx.mServerBracket[i].mLocationBracket[j].mStart + 1;
+			int end2 = configIdx.mServerBracket[i].mLocationBracket[j].mEnd - 1;
+			temp.mLocationPath = configIdx.mServerBracket[i].mLocationBracket[j].mLocationPath;
+			if (parsingLocationBlock(this->mGnl, temp, start2, end2) == -1)
 			{
 				std::cout << "parsingBlock error" << std::endl;
 				return (-1);
 			}
-			this->mconfigs.push_back(temp); // NOTE (2)서버의 location block 이 있다면 넣어줌
+			this->mConfigs.push_back(temp); // NOTE (2)서버의 location block 이 있다면 넣어줌
 		}
 	}
 	return (1);

@@ -1,25 +1,25 @@
 #include "Connection.hpp"
 
-Connection::Connection(int client_fd, std::string client_ip, int client_port)
-	: m_client_ip(client_ip)
-	, m_client_port(client_port)
-	, m_fd(client_fd)
+Connection::Connection(int clientFd, std::string clientIp, int clientPort)
+	: mClientIp(clientIp)
+	, mClientPort(clientPort)
+	, mFd(clientFd)
 	, mRequest(0)
 	, mResponse(0)
 	, mStatus(REQUEST_READY)
 {
-	gettimeofday(&(this->m_last_request_at), NULL);
+	gettimeofday(&(this->mLastRequestAt), NULL);
 }
 
 Connection::Connection(void)
-	: m_client_ip("")
-	, m_client_port(0)
-	, m_fd(0)
+	: mClientIp("")
+	, mClientPort(0)
+	, mFd(0)
 	, mRequest(0)
 	, mResponse(0)
 	, mStatus(REQUEST_READY)
 {
-	gettimeofday(&(this->m_last_request_at), NULL);
+	gettimeofday(&(this->mLastRequestAt), NULL);
 }
 
 Connection::~Connection(void)
@@ -37,17 +37,17 @@ Connection::~Connection(void)
 }
 
 
-const int&					Connection::get_m_fd(void) const{return (this->m_fd);}
+const int&					Connection::getSocket(void) const{return (this->mFd);}
 
-const struct timeval&		Connection::get_m_last_request_at(void) const{	return (this->m_last_request_at);}
+const struct timeval&		Connection::getLastRequestAt(void) const{	return (this->mLastRequestAt);}
 
-const std::string&			Connection::get_m_client_ip(void) const{	return (this->m_client_ip);}
+const std::string&			Connection::getClientIp(void) const{	return (this->mClientIp);}
 
-const int&					Connection::get_m_client_port(void) const{	return (this->m_client_port);}
+const int&					Connection::getClientPort(void) const{	return (this->mClientPort);}
 
-void						Connection::set_m_last_reqeust_at(const struct timeval& time)
+void						Connection::setLastReqeustAt(const struct timeval& time)
 {
-	m_last_request_at = time;
+	mLastRequestAt = time;
 }
 
 bool						Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_request를 갱신해야함.
@@ -56,19 +56,19 @@ bool						Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_requ
 	gettimeofday(&now, NULL);
 
 	struct timeval	before;
-	before = this->m_last_request_at;
+	before = this->mLastRequestAt;
 	if (before.tv_sec + KEEP_ALIVE_LIMIT < now.tv_sec)
 		return (false);
 	else
 		return (true);
 }
 
-Request*					Connection::get_m_request(void) const
+Request*					Connection::getRequest(void) const
 {
 	return (mRequest);
 }
 
-void						Connection::set_m_request(Request* request)
+void						Connection::setRequest(Request* request)
 {
 	mRequest = request;
 }
@@ -79,12 +79,12 @@ void						Connection::addRbufFromClient(char* buf, size_t count)
 }
 
 
-Response*					Connection::get_m_response(void) const
+Response*					Connection::getResponse(void) const
 {
 	return (this->mResponse);
 }
 
-void						Connection::set_m_response(Response* response)
+void						Connection::setResponse(Response* response)
 {
 	this->mResponse = response;
 }

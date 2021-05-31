@@ -15,9 +15,9 @@
 class LocationBracket
 {
 public:
-	int mstart;
-	int mend;
-	Path mlocation_path;
+	int mStart;
+	int mEnd;
+	Path mLocationPath;
 public:
 	LocationBracket();
 	virtual ~LocationBracket();
@@ -29,11 +29,11 @@ public:
 	ServerBracket();
 	virtual ~ServerBracket();
 public:
-	std::vector<LocationBracket> mlocationBracket;
-	int mlocationBlockNum;
+	std::vector<LocationBracket> mLocationBracket;
+	int mLocationBlockNum;
 	// ANCHOR start = 0 & end = 0 이면, server Bracket 설정이 제대로 안된 상황
-	int mstart; // start = 0
-	int mend; // end = 0 
+	int mStart; // start = 0
+	int mEnd; // end = 0 
 };
 
 class ServerConfigIdx
@@ -46,19 +46,19 @@ public:
 	int Step1(ServerConfigIdx &configs, std::vector<std::string> &gnl);
 	int Step2(ServerConfigIdx &configs, std::vector<std::string> &gnl);
 	
-	bool check_bracket_syntax(std::vector<std::string> &gnl, int start, int end);
+	bool checkBracketSyntax(std::vector<std::string> &gnl, int start, int end);
 	void SetServerBracket(std::vector<std::string> &gnl, ServerConfigIdx &configs, int start);
 	void SetLocationBracket(std::vector<std::string> &gnl, ServerConfigIdx &configs, int server_idx, int start, int end);
 
 	// NOTE string 맨 앞에 있는 '\t' 을 삭제시켜줌
 	void outdentTab(std::string &str);
 public :
-	std::vector<ServerBracket> mserverBracket;
-	int mserverNum;
-	int mtotalLocationNum;
+	std::vector<ServerBracket> mServerBracket;
+	int mServerNum;
+	int mTotalLocationNum;
 };
 
-int parsingServerBlock(std::vector<std::string> &gnl, ConfigFile &default_location, int start, int end, ServerBracket &ServerBracket);
+int parsingserverBlock(std::vector<std::string> &gnl, ConfigFile &default_location, int start, int end, ServerBracket &ServerBracket);
 int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_location, int start, int end);
 // int SetServer(Server &servers, std::vector<std::string> &gnl);
 int isCorrespondedServerDirective(int index, ServerBracket &ServerBracket);

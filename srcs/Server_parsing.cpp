@@ -2,21 +2,21 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
-extern char**	g_env;
+extern char**	gEnv;
 
-LocationPath::LocationPath() : mlocationPath(), mroot(), merror_page("error.html"), mauto_index(false), mclient_max_body_size(0)
+LocationPath::LocationPath() : mLocationPath(), mRoot(), mErrorPage("error.html"), mAutoIndex(false), mClientMaxBodySize(0)
 {
 	Path temp("index.html");
-	this->mindex_pages.push_back(temp);
+	this->mIndexPages.push_back(temp);
 
-	this->m_method.push_back("GET");
-	this->m_method.push_back("HEAD");
-	this->m_method.push_back("PUT");
-	this->m_method.push_back("POST");
-	this->m_method.push_back("DELETE");
-	this->m_method.push_back("OPTIONS");
+	this->mMethod.push_back("GET");
+	this->mMethod.push_back("HEAD");
+	this->mMethod.push_back("PUT");
+	this->mMethod.push_back("POST");
+	this->mMethod.push_back("DELETE");
+	this->mMethod.push_back("OPTIONS");
 
-	this->mcgi_extension.push_back(".bla");
+	this->mCgiExtension.push_back(".bla");
 }
 
 LocationPath::~LocationPath()
@@ -33,61 +33,61 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 {
 	if (this == &ref)
 		return (*this);
-	this->merror_page = ref.merror_page;
-	this->mindex_pages = ref.mindex_pages;
-	this->mlocationPath = ref.mlocationPath;
-	this->mroot = ref.mroot;
+	this->mErrorPage = ref.mErrorPage;
+	this->mIndexPages = ref.mIndexPages;
+	this->mLocationPath = ref.mLocationPath;
+	this->mRoot = ref.mRoot;
 
-	this->mauto_index = ref.mauto_index;
-	this->m_method = ref.m_method;
-	this->mcgi_extension = ref.mcgi_extension;
-	this->mclient_max_body_size = ref.mclient_max_body_size;
+	this->mAutoIndex = ref.mAutoIndex;
+	this->mMethod = ref.mMethod;
+	this->mCgiExtension = ref.mCgiExtension;
+	this->mClientMaxBodySize = ref.mClientMaxBodySize;
 	return (*this);
 }
 
-ServerBlock::ServerBlock()
+serverBlock::serverBlock()
 	: mlocationPaths()
 	, mserverName("localhost")
-	, mtimeout(0)
+	, mTimeOut(0)
 {
 
 }
 
-ServerBlock::~ServerBlock()
+serverBlock::~serverBlock()
 {
 
 }
 
-ServerBlock::ServerBlock(const ServerBlock &ref)
+serverBlock::serverBlock(const serverBlock &ref)
 {
 	*this = ref;
 }
 
-ServerBlock&	ServerBlock::operator=(const ServerBlock &ref)
+serverBlock&	serverBlock::operator=(const serverBlock &ref)
 {
 	if (this == &ref)
 		return (*this);
 	this->mlocationPaths = ref.mlocationPaths;
 	this->mserverName = ref.mserverName;
-	this->mtimeout = ref.mtimeout;
+	this->mTimeOut = ref.mTimeOut;
 	return (*this);
 }
 
 Server::Server(void)
-	: m_manager(NULL)
-	, mport(8000)
-	// , mserverBlocks()
-	, msocket(0)
+	: mManager(NULL)
+	, mPort(8000)
+	// , mServerBlocks()
+	, mSocket(0)
 	// , mPhase(READY)
 {
 }
 
 Server::Server(ServerManager *serverManager)
-	: m_manager(serverManager)
-	, mport(8000)
-	, mhost("0.0.0.0")
-	, msocket(0)
-	// , mserverBlocks()
+	: mManager(serverManager)
+	, mPort(8000)
+	, mHost("0.0.0.0")
+	, mSocket(0)
+	// , mServerBlocks()
 	// , mPhase(READY)
 {
 	
@@ -107,21 +107,21 @@ Server&	Server::operator=(const Server &ref)
 {
 	if (this == &ref)
 		return (*this);
-	this->mport = ref.mport;
-	this->mserverBlocks = ref.mserverBlocks;
-	this->msocket = ref.msocket;
-	this->mhost = ref.mhost;
-	this->m_connections = ref.m_connections;
+	this->mPort = ref.mPort;
+	this->mServerBlocks = ref.mServerBlocks;
+	this->mSocket = ref.mSocket;
+	this->mHost = ref.mHost;
+	this->mConnections = ref.mConnections;
 	return (*this);
 }
 
 
-std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vector<ServerBlock> &serverblocks, std::string servername)
+std::vector<serverBlock>::iterator Server::returnIteratorServerBlock(std::vector<serverBlock> &serverBlocks, std::string serverName)
 {
-	std::vector<ServerBlock>::iterator it = serverblocks.begin();
-	while (it != serverblocks.end())
+	std::vector<serverBlock>::iterator it = serverBlocks.begin();
+	while (it != serverBlocks.end())
 	{
-		if (servername == it->mserverName)
+		if (serverName == it->mserverName)
 		{
 			return (it);
 		}
@@ -131,25 +131,25 @@ std::vector<ServerBlock>::iterator Server::return_iterator_serverblock(std::vect
 	return (it);
 }
 
-std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocationPath(std::vector<LocationPath> &locationpaths, std::string relative_str)
+std::vector<LocationPath>::iterator Server::returnIteratorLocationPath(std::vector<LocationPath> &locationPaths, std::string relative_str)
 {
-	std::vector<LocationPath>::iterator it = locationpaths.begin();
+	std::vector<LocationPath>::iterator it = locationPaths.begin();
 	Path relative_path(relative_str);
-	while (it != locationpaths.end())
+	while (it != locationPaths.end())
 	{
 		int i = 0;
-		while (i < it->mlocationPath.getSize() && i < relative_path.getSize())
+		while (i < it->mLocationPath.getSize() && i < relative_path.getSize())
 		{
-			if (it->mlocationPath[i] != relative_path[i])
+			if (it->mLocationPath[i] != relative_path[i])
 			{
 				break ;
 			}
 			i++;
 		}
-		if (i == it->mlocationPath.getSize())
+		if (i == it->mLocationPath.getSize())
 			return (it);
 		it++;
-		// if (relative_str == it->mlocationPath.getPath())
+		// if (relative_str == it->mLocationPath.getPath())
 		// {
 		// 	return (it);
 		// }
@@ -158,8 +158,8 @@ std::vector<LocationPath>::iterator Server::return_iterator_locationpathlocation
 	return (it);
 }
 
-const int&	Server::get_m_fd(void) const{ return (this->msocket); }
+const int&	Server::getSocket(void) const{ return (this->mSocket); }
 
-std::vector<ServerBlock>&	Server::get_m_serverBlocks(void){ return (this->mserverBlocks);}
+std::vector<serverBlock>&	Server::getServerBlocks(void){ return (this->mServerBlocks);}
 
 

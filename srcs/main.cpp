@@ -3,16 +3,16 @@
 
 // #define DEFAULT_CONFIG_FILE_PATH "default.config"
 
-std::map<int, std::string> Response::m_status_map; // NOTE static 변수도 전역변수라도 한번 선언을 해줘야함.
+std::map<int, std::string> Response::mStatusMap; // NOTE static 변수도 전역변수라도 한번 선언을 해줘야함.
 
-char** g_env;
+char** gEnv;
 int gTotalClients;
 
 int		main(int argc, char* argv[], char* envp[])
 {
-	g_env = envp; // FIXME env 임시로 전역변수로
+	gEnv = envp; // FIXME env 임시로 전역변수로
 
-	Response::init_status_map();
+	Response::initStatusMap();
 	ServerManager	manager;
 
 	if (argc > 2)
