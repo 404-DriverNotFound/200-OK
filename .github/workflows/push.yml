@@ -1,0 +1,11 @@
+on: push
+name: Push
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      name: github-action-tester
+      uses: skx/github-action-tester@release-0.10
+      with:
+        script: .github/test.sh
