@@ -351,7 +351,7 @@ void			Server::create_Response_0(Connection &connection, std::string uri_plus_fi
 	return ;
 }
 
-void			Server::create_Response_200(Connection &connection, std::string uri_plus_file, TYPE_HTML type)
+void			Server::create_Response_200(Connection &connection, std::string uri_plus_file)
 {
 	connection.set_m_response(new Response(&connection, 200));
 	Response *response = connection.get_m_response();
@@ -361,24 +361,9 @@ void			Server::create_Response_200(Connection &connection, std::string uri_plus_
 	response->set_m_headers("Content-Language", "en-US");
 
 	std::string body;
-	int fd = -1;
 	body = ft::getBody_from_file(uri_plus_file);
-	if (body.size() == 0)
-	{
-		if (type == INDEX_HTML)
-			fd = open("./index.html", O_RDONLY);
-		else
-		{
-			delete connection.get_m_response();
-			connection.set_m_response(NULL);
-			throw 404;
-		}
-		body = ft::getBody_from_fd(fd);
-	}
 	response->set_m_body(body);
 	response->set_m_headers("Content-Length", ft::itos(response->get_m_body().length()));
-	if (fd > 2)
-		close(fd);
 	return ;
 }
 
@@ -434,7 +419,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				uri_indexhtml += "/" + locationPath->mindex_pages[i].getPath();
 				if (ft::isFilePath(uri_indexhtml) == true && ft::access(uri_indexhtml, 0) == 0)
 				{
-					create_Response_200(connection, uri_indexhtml, INDEX_HTML);
+					create_Response_200(connection, uri_indexhtml);
 					connection.SetStatus(Connection::SEND_READY);
 					return ;
 				}

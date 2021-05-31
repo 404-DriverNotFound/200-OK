@@ -25,7 +25,7 @@ void		Server::executeGet(Connection& connection, std::string target_uri)
 	}
 	else
 	{
-		create_Response_200(connection, target_uri, ANY_FILE);
+		create_Response_200(connection, target_uri);
 		return ;
 	}
 }
