@@ -134,7 +134,7 @@ public:
 	};
 
 private:
-	bool						hasAuthModule(const Request& request, const config_iterator& config_it);
+	bool						hasAuthModule(const config_iterator& config_it);
 	bool						isRightCredentials(const std::string& authorization);
 
 

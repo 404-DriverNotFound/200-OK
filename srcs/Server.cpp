@@ -314,6 +314,10 @@ void			Server::create_Response_statuscode(Connection &connection, int status_cod
 	response->set_m_headers("Content-Type", "text/html");
 	response->set_m_headers("Content-Length", ft::itos(errorpage_body.size()));
 	response->set_m_body(errorpage_body);
+	if (status_code == 401)
+	{
+		response->set_m_headers("WWW-Authenticate", "Basic realm=\"Access to the auth source\"");
+	}
 	if (status_code == 301)
 	{
 		std::string url;
@@ -411,23 +415,23 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 
 	// NOTE AUTH 구현 (Basic만)
-	// if (hasAuthModule(request, config_it)) // STUB 	일단 항상 참이게 구현
-	// {
-	// 	std::map<std::string, std::string>::iterator	it = request.GetHeaders().find("authorization");
-	// 	if (it == request.GetHeaders().end())
-	// 	{
-	// 		throw 401; // NOTE 응답해줄 때 WWW-Authenticate 헤더 포함해야함
-	// 	}
-	// 	else
-	// 	{
-	// 		// 비교
-	// 		if (!isRightCredentials(it->second))
-	// 		{
-	// 			throw 403; // NOTE 빨간약 포비돈
-	// 		}
-	// 	}
-	// }
-
+	if (hasAuthModule(config_it)) // STUB 	일단 항상 참이게 구현
+	{
+		std::map<std::string, std::string>::iterator	it = request.GetHeaders().find("authorization");
+		if (it == request.GetHeaders().end())
+		{
+			throw 401;
+		}
+		else
+		{
+			// 비교
+			if (!isRightCredentials(it->second))
+			{
+				throw 403;
+			}
+		}
+	}
+	
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
 
@@ -666,16 +670,14 @@ bool Server::isValidMethod(Request &request, config_iterator config_it)
 	return (false);
 }
 
-// STUB
-// bool		Server::hasAuthModule(const Request& request, const config_iterator& config_it)
-// {
-// 	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
-
-// 	return (false);
-// 	return (true);
-// 	(void)request;
-// 	(void)config_it;
-// }
+bool		Server::hasAuthModule(const config_iterator& config_it)
+{
+	std::vector<LocationPath>::iterator locationPath = config_it.locationPath;
+	if (locationPath->mauth_basic_user_file.getSize() != 0)
+		return (true);
+	else
+		return (false);
+}
 
 bool		Server::isRightCredentials(const std::string& authorization)
 {
@@ -704,11 +706,12 @@ bool		Server::isRightCredentials(const std::string& authorization)
 	{
 		throw 500;
 	}
-	close(fd);
+	if (fd > 2)
+		close(fd);
 	std::string	htpasswd(buf, cnt);
 
 	// NOTE 일치하는지 확인하기
-	found = htpasswd.find(credentials);
+	found = htpasswd.find(credentials + "\n");
 	if (found == std::string::npos)
 	{
 		return (false);
