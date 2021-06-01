@@ -38,3 +38,7 @@ webserv
 from*
 to*
 YoupiBanane*
+
+#Exception
+!.htpasswd
+!.github/workflows/*
