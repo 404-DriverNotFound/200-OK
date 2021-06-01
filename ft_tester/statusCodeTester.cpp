@@ -3,6 +3,76 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+void	test403(const struct sockaddr_in& sockAddr)
+{
+	{
+		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
+		{
+			throw std::exception();
+		}
+		std::cout << "TEST 403 STATUS CODE" << std::endl;
+		std::cout << "403 Forbidden" << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		std::string	message;
+		std::string	method("GET");
+		std::string	uri("/html/");
+		std::string	version("HTTP/1.1");
+		message += method + " " + uri + " " + version + "\r\n";
+		message += "Authorization: Basic sdafasdf\r\n";
+		message += "\r\n";
+		std::cout << message << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		write(clientSocket, message.c_str(), message.length());
+		char	buf[14] = {0,};
+		ssize_t	ret = read(clientSocket, buf, 13);
+		std::cout << "ret : " << ret << std::endl;
+		std::string	returnStatusCode = std::string(buf).substr(9, 3);
+		std::cout << "expected 403" << " returned " << returnStatusCode << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		if (returnStatusCode.compare("403") != 0)
+		{
+			throw std::exception();
+		}
+		close(clientSocket);
+	}
+}
+
+void	test401(const struct sockaddr_in& sockAddr)
+{
+	{
+		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
+		{
+			throw std::exception();
+		}
+		std::cout << "TEST 401 STATUS CODE" << std::endl;
+		std::cout << "401 Unauthorized" << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		std::string	message;
+		std::string	method("GET");
+		std::string	uri("/html/");
+		std::string	version("HTTP/1.1");
+		message += method + " " + uri + " " + version + "\r\n";
+		message += "WWW-Authenticate: Basic realm=\"Access to staging site\"\r\n";
+		message += "\r\n";
+		std::cout << message << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		write(clientSocket, message.c_str(), message.length());
+
+		char	buf[14] = {0,};
+		ssize_t	ret = read(clientSocket, buf, 13);
+		std::string	returnStatusCode = std::string(buf).substr(9, 3);
+		std::cout << "expected 401" << " returned " << returnStatusCode << std::endl;
+		std::cout << "--------------------------" << std::endl;
+		if (returnStatusCode.compare("401") != 0)
+		{
+			throw std::exception();
+		}
+		close(clientSocket);
+	}
+}
+
 void	test408(const struct sockaddr_in& sockAddr)
 {
 	{
@@ -439,10 +509,10 @@ int	main(int argc, char* argv[])
 		test301(sockAddr);
 		test413(sockAddr);
 		test408(sockAddr);
+		test401(sockAddr); // Unauthorized
+		test403(sockAddr); // Forbidden
 
 		// TODO 구현 될 것
-		// test403(); Auth
-		// test401(); UNAuth
 
 		// NOTE 구현되지 않은 것
 		// test410(); GONE
