@@ -49,7 +49,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 405" << " returned " << returnStatusCode << std::endl;
@@ -80,7 +80,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 405" << " returned " << returnStatusCode << std::endl;
@@ -115,7 +115,7 @@ void	test301(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 301" << " returned " << returnStatusCode << std::endl;
@@ -151,7 +151,7 @@ void	test413(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 413" << " returned " << returnStatusCode << std::endl;
@@ -189,7 +189,7 @@ void	test413(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 413" << " returned " << returnStatusCode << std::endl;
@@ -295,7 +295,7 @@ void	test505(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 200" << " returned " << returnStatusCode << std::endl;
@@ -327,7 +327,7 @@ void	test505(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 505" << " returned " << returnStatusCode << std::endl;
@@ -363,7 +363,7 @@ void	test414(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 200" << " returned " << returnStatusCode << std::endl;
@@ -395,7 +395,7 @@ void	test414(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 414" << " returned " << returnStatusCode << std::endl;
