@@ -1,11 +1,11 @@
 #!/bin/sh
-cd ./yunslee_debugfile
-echo 0 | ./ByteGenerator
-curl localhost:8000/yunslee_debugfile/1MB.txt
-if [ "$?" -ne "0" ]; then
-  echo "GET 1MB.txt"
-  exit 1
-fi
+# cd ./yunslee_debugfile
+# echo 0 | ./ByteGenerator
+# curl localhost:8000/yunslee_debugfile/1MB.txt
+# if [ "$?" -ne "0" ]; then
+#   echo "GET 1MB.txt";
+#   exit 1;
+# fi
 
 # echo 1 | ./ByteGenerator
 # curl localhost:8000/yunslee_debugfile/100MB.txt
@@ -21,3 +21,11 @@ fi
 #   echo "GET 1GB.txt"
 #   exit 1
 # fi
+
+cd ./yunslee_debugfile
+echo 3 | ./ByteGenerator
+curl localhost:8000/yunslee_debugfile/500KB.txt
+if [ "$?" -ne "0" ]; then
+  echo "GET 500KB.txt";
+  exit 1;
+fi

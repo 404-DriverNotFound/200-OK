@@ -9,16 +9,18 @@ enum byte
 {
 	eMB_1,
 	eMB_100,
-	eGB_1
+	eGB_1,
+	eKB_500
 };
 
+int KB_500 = 500000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 int MB_1 =   1000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 int MB_100 = 100000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 int GB_1 = 	1000000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 
 int main()
 {
-	printf("0번: 1MB\n1번: 100MB\n2번: 1GB\n");
+	printf("0번: 1MB\n1번: 100MB\n2번: 1GB\n3번: 500KB");
 	write(1, "입력해주세요: ", strlen("입력해주세요: "));
 	int flag;
 	scanf("%d", &flag);
@@ -37,6 +39,10 @@ int main()
 		case eGB_1:
 			buf_size = GB_1;
 			filename = "1GB.txt";
+			break;
+		case eKB_500:
+			buf_size = eKB_500;
+			filename = "500KB.txt";
 			break;
 		default:
 			break;
