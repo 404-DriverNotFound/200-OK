@@ -113,7 +113,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		std::string	uri("/put_test");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
-		message += "content-length: 0\r\n";
+		message += "Content-Length: 0\r\n";
 		message += "\r\n";
 		std::cout << message << std::endl;
 		std::cout << "--------------------------" << std::endl;
@@ -207,14 +207,14 @@ void	test413(const struct sockaddr_in& sockAddr)
 			throw std::exception();
 		}
 		std::cout << "TEST 413 STATUS CODE" << std::endl;
-		std::cout << "When content-length 10 but, body 11" << std::endl;
+		std::cout << "When Content-Length 10 but, body 11" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
 		std::string	method("PUT");
 		std::string	uri("/put_test/temp2");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
-		message += "content-length: 10\r\n";
+		message += "Content-Length: 10\r\n";
 		message += "\r\n";
 		message += "kkkkkkkkkkk";
 		std::cout << message << std::endl;
@@ -282,14 +282,14 @@ void	test411(const struct sockaddr_in& sockAddr)
 			throw std::exception();
 		}
 		std::cout << "TEST 411 STATUS CODE" << std::endl;
-		std::cout << "When existing content-length" << std::endl;
+		std::cout << "When existing Content-Length" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
 		std::string	method("PUT");
 		std::string	uri("/put_test/temp2");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
-		message += "content-length: 10\r\n";
+		message += "Content-Length: 10\r\n";
 		message += "\r\n";
 		message += "kkkkkkkkkk";
 		std::cout << message << std::endl;
@@ -315,7 +315,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 			throw std::exception();
 		}
 		std::cout << "TEST 411 STATUS CODE" << std::endl;
-		std::cout << "When not existing content-length" << std::endl;
+		std::cout << "When not existing Content-Length" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
 		std::string	method("PUT");
