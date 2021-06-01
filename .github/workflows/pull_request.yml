@@ -11,15 +11,12 @@ jobs:
         os: [macos-latest]
     name: 42 Make Test
     steps:
+    - uses: actions/checkout@v2
     - name: make
-      uses: actions/checkout@v2
       run: make re
     - name: Run webserv
-      uses: actions/checkout@v2
       run: ./webserv test.config &
     - name: test1
-      uses: actions/checkout@v2
       run: sh test1.sh
     - name: test2
-      uses: actions/checkout@v2
       run: sh test2.sh
