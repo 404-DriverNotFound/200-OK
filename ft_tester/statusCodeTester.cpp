@@ -113,7 +113,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		std::string	uri("/put_test");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
-		message += "HeaderField: hellow~\r\n";
+		message += "content-length: 0\r\n";
 		message += "\r\n";
 		std::cout << message << std::endl;
 		std::cout << "--------------------------" << std::endl;
@@ -506,7 +506,6 @@ int	main(int argc, char* argv[])
 		test413(sockAddr);
 		test301(sockAddr);
 		test405(sockAddr);
-		test301(sockAddr);
 		test413(sockAddr);
 		test408(sockAddr);
 		test401(sockAddr); // Unauthorized
@@ -532,4 +531,5 @@ int	main(int argc, char* argv[])
 	{
 		std::cerr << "Something wrong!" << '\n';
 	}
+	std::cout << "TEST OK!!!!!!!" << std::endl;
 }
