@@ -28,15 +28,15 @@ int main()
 	{
 		case eMB_1:
 			buf_size = MB_1;
-			filename = "1MB.bla";
+			filename = "1MB.txt";
 			break;
 		case eMB_100:
 			buf_size = MB_100;
-			filename = "100MB.bla";
+			filename = "100MB.txt";
 			break;
 		case eGB_1:
 			buf_size = GB_1;
-			filename = "1GB.bla";
+			filename = "1GB.txt";
 			break;
 		default:
 			break;
