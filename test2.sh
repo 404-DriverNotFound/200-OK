@@ -1,7 +1,7 @@
 #!/bin/sh
 cd ./yunslee_debugfile
 echo 0 | ./ByteGenerator
-curl localhost:8000/yunslee_debugfile/1MB.bla
+curl localhost:8000/yunslee_debugfile/1MB.txt
 if [ "$?" -ne "0" ]; then
   echo "GET 1MB.txt"
   exit 1
