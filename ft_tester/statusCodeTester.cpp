@@ -226,7 +226,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0, };
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 200, 201" << " returned " << returnStatusCode << std::endl;
@@ -259,7 +259,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		write(clientSocket, message.c_str(), message.length());
 
-		char	buf[13];
+		char	buf[14] = {0, };
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
 		std::cout << "expected 411" << " returned " << returnStatusCode << std::endl;
