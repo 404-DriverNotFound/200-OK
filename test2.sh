@@ -7,14 +7,14 @@ if [ "$?" -ne "0" ]; then
   exit 1
 fi
 
-# 너무 시간이 오래걸리는 관계로 주석처리 함
-# echo 1 | ./ByteGenerator
-# curl localhost:8000/yunslee_debugfile/100MB.txt
-# if [ "$?" -ne "0" ]; then
-#   echo "GET 100MB.txt"
-#   exit 1
-# fi
+echo 1 | ./ByteGenerator
+curl localhost:8000/yunslee_debugfile/100MB.txt
+if [ "$?" -ne "0" ]; then
+  echo "GET 100MB.txt"
+  exit 1
+fi
 
+# 너무 시간이 오래걸리는 관계로 주석처리 함
 # echo 2 | ./ByteGenerator
 # curl localhost:8000/yunslee_debugfile/1GB.txt
 # if [ "$?" -ne "0" ]; then
