@@ -231,7 +231,8 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			throw 500;
 		}
 
-		char** envp = createCGIEnv(connection);
+		char **envp = createCGIEnv(connection);
+		char **argv = createArgv(connection, connection.GetCgiProgramPath());
 		if (envp == NULL)
 		{
 			close(fromCGI);
@@ -253,7 +254,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		else if (pid == 0)
 		{
 			dup2(toCGI, 0); dup2(fromCGI, 1);
-			execve(connection.GetCgiProgramPath().c_str(), 0, envp); // NOTE execve 돌아가는 코드
+			execve(connection.GetCgiProgramPath().c_str(), argv, envp); // NOTE execve 돌아가는 코드
 			exit(0);
 		}
 		else
@@ -264,6 +265,11 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 				free(envp[i]);
 			}
 			free(envp); envp = NULL;
+			for (size_t i = 0; argv[i] != NULL; i++)
+			{
+				free(argv[i]);
+			}
+			free(argv); argv = NULL;
 			close(fromCGI);
 			close(toCGI); //unlink(toCGIfileName.c_str());
 			connection.SetStatus(Connection::CGI_ING);
@@ -282,7 +288,6 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			throw 500;
 		}
 		char *buf = (char *)malloc(sizeof(char) * (statBuf.st_size + 1));
-		
 		int cnt = read(fromCGI, buf, statBuf.st_size);
 		// cout << "cnt: " << cnt << endl;
 		buf[cnt] = 0;
@@ -291,6 +296,17 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			close(fromCGI);
 			throw 500;
 		}
+		
+		// FIXME 너무 하드코딩스러움. 아름답게 바꿀 수 없을까?
+		if (connection.GetCgiProgramPath().find("php") != std::string::npos)
+		{
+			response->setBody((std::string)buf);
+			response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
+			close(fromCGI); //unlink(fromCGIfileName.c_str());
+			connection.SetStatus(Connection::SEND_READY);
+			return ;
+		}
+
 
 		// STUB 파싱과정 필요
 		std::string fromCGI_str(buf);
