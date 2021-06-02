@@ -376,7 +376,7 @@ void			Server::createResponse200(Connection &connection, std::string targetUri)
 	response->setBody(body);
 	response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 	
-	time_t time; struct stat buf;
+	struct stat buf;
 	stat(targetUri.c_str(), &buf);
 	response->setHeaders("Last-Modified", ft::getHTTPTimeFormat(buf.st_mtime));
 	return ;
