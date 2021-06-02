@@ -9,9 +9,11 @@ enum byte
 {
 	eMB_1,
 	eMB_100,
-	eGB_1
+	eGB_1,
+	eKB_500
 };
 
+int KB_500 =  500000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 int MB_1 =   1000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 int MB_100 = 100000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
 int GB_1 = 	1000000000; // INT_MAX 까지만 write함수의 세번째인자에 들어감
@@ -28,15 +30,19 @@ int main()
 	{
 		case eMB_1:
 			buf_size = MB_1;
-			filename = "1MB.bla";
+			filename = "1MB.txt";
 			break;
 		case eMB_100:
 			buf_size = MB_100;
-			filename = "100MB.bla";
+			filename = "100MB.txt";
 			break;
 		case eGB_1:
 			buf_size = GB_1;
-			filename = "1GB.bla";
+			filename = "1GB.txt";
+			break;
+		case eKB_500:
+			buf_size = KB_500;
+			filename = "500KB.txt";
 			break;
 		default:
 			break;
