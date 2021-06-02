@@ -7,6 +7,7 @@ Connection::Connection(const int& clientFd, const std::string& clientIp, const i
 	, mRequest(0)
 	, mResponse(0)
 	, eStatus(REQUEST_READY)
+	, mTargetUri("")
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
 }
@@ -18,6 +19,7 @@ Connection::Connection(void)
 	, mRequest(0)
 	, mResponse(0)
 	, eStatus(REQUEST_READY)
+	, mTargetUri("")
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
 }
@@ -100,4 +102,14 @@ const Connection::Status&	Connection::GetStatus(void) const
 void						Connection::SetStatus(const Status& status)
 {
 	eStatus = status;
+}
+
+const std::string&			Connection::GetTargetUri(void) const
+{
+	return (mTargetUri);
+}
+
+void						Connection::SetTargetUri(std::string& targetUri)
+{
+	this->mTargetUri = targetUri;
 }

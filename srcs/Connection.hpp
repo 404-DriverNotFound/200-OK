@@ -38,6 +38,9 @@ public:
 	const Status&				GetStatus(void) const;
 	void						SetStatus(const Status& status);
 
+	const std::string&			GetTargetUri(void) const;
+	void						SetTargetUri(std::string& targetUri);
+
 	void						AddRbufFromClient(const char* buf, const size_t& count);
 
 	//ANCHOR yunslee
@@ -53,6 +56,7 @@ public:
 		Response*				mResponse;
 		Status					eStatus;
 		struct timeval			mLastRequestAt;
+		std::string				mTargetUri;
 };
 
 #endif

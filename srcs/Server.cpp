@@ -483,7 +483,10 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				if (request.GetURItype() == Request::FILE)
 					connection.SetStatus(Connection::SEND_READY);
 				else
+				{
+					connection.SetTargetUri(targetUri);
 					connection.SetStatus(Connection::CGI_READY);
+				}
 			}
 			else if (request.GetMethod().compare("HEAD") == 0)
 			{
@@ -491,7 +494,10 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				if (request.GetURItype() == Request::FILE)
 					connection.SetStatus(Connection::SEND_READY);
 				else
+				{
+					connection.SetTargetUri(targetUri);
 					connection.SetStatus(Connection::CGI_READY);
+				}
 			}
 			else if (request.GetMethod().compare("POST") == 0)
 			{
