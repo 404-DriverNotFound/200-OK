@@ -442,7 +442,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 		else
 		{
-			executeDelete(connection, request, targetUri);
+			executeDelete(connection, targetUri);
 			connection.SetStatus(Connection::SEND_READY);
 			return ;
 		}
@@ -568,7 +568,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				}
 				else if (request.GetMethod().compare("DELETE") == 0)
 				{
-					executeDelete(connection, request, targetUri);
+					executeDelete(connection, targetUri);
 					connection.SetStatus(Connection::SEND_READY);
 				}
 				else if (request.GetMethod().compare("OPTIONS") == 0)

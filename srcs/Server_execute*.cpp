@@ -135,7 +135,7 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 	errno = 0; // NOTE 초기화!
 }
 
-void		Server::executeDelete(Connection& connection, const Request& request, std::string targetUri)
+void		Server::executeDelete(Connection& connection, std::string targetUri)
 {
 	errno = 0;
 	if (ft::access(targetUri, 0) == 0)
