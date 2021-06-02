@@ -332,6 +332,10 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 		// NOTE 상대 경로만 적어주어도 됨
 		response->setHeaders("Location", connection.GetRequest()->GetDirectory() + "/" + connection.GetRequest()->GetFileName() + "/");
 	}
+	if (statusCode >= 500)
+	{
+		response->setHeaders("Retry-After", "60");
+	}
 }
 
 void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
