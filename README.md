@@ -1,8 +1,8 @@
 # 200_OK
-Jikang https://profile.intra.42.fr/users/jikang
-Yunslee https://profile.intra.42.fr/users/yunslee
-Ykoh https://profile.intra.42.fr/users/ykoh
-JYY webserv
+Jikang https://profile.intra.42.fr/users/jikang  
+Yunslee https://profile.intra.42.fr/users/yunslee  
+Ykoh https://profile.intra.42.fr/users/ykoh  
+JYY webserv  
 
 과제진행하기전에 **윤성우의 열혈 TCP/IP 소켓프로그래밍** 꼭 읽어보시길 권장드립니다.
 http://bimage.interpark.com/goods_image/1/2/0/8/203941208g.jpg
