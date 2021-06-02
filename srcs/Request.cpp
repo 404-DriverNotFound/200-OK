@@ -179,11 +179,10 @@ void								Request::ParseURI(std::string& uri)
 	mDirectory = uri;
 	// * 일때 파일로 처리
 	if (mMethod.compare("OPTIONS") == 0 &&
-		mDirectory.rfind("*") == mDirectory.length() - 1)
+		(mFileName.rfind("*") != std::string::npos && mFileName.length() == 1))
 	{
-		mFileName = mDirectory;
-		mDirectory.clear();
-		mURItype = Request::FILE;
+		mFileName.clear();
+		mURItype = Request::DIRECTORY;
 	}
 	if (mMethod.compare("PUT") == 0) // STUB POST메소드도 추가해야할수도
 	{

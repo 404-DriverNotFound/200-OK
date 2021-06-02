@@ -411,7 +411,6 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	if (isValidMethod(request, configIterator) == false)
 	{
 		throw 405;
-		return ;
 	}
 	if (hasAuthModule(configIterator)) // STUB 	일단 항상 참이게 구현
 	{
@@ -439,8 +438,14 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	{
 		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
-		if (ft::access(absolute_path + root + relative_path, 0) == 0) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
+		if (ft::access(targetUri, 0) == 0) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
+			if (request.GetMethod().compare("OPTIONS") == 0)
+			{
+				executeOptions(connection, targetUri, configIterator);
+				connection.SetStatus(Connection::SEND_READY);
+				return ;
+			}
 			for (std::size_t i = 0; i < locationPath->mIndexPages.size(); i++)
 			{
 				std::string uri_indexhtml(absolute_path + root + request.GetDirectory());
@@ -509,9 +514,9 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		else
 		{
 			errno = 0;
-			if (ft::access(absolute_path + root + relative_path, 0) == 0)
+			if (ft::access(targetUri, 0) == 0)
 			{
-				if (ft::isDirPath(absolute_path + root + relative_path) == true && ft::isFilePath(absolute_path + root + relative_path) == false)
+				if (ft::isDirPath(targetUri) == true && ft::isFilePath(targetUri) == false)
 				{
 					throw 301;
 				}
