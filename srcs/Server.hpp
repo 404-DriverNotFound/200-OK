@@ -30,6 +30,9 @@ class Request;
 class Response;
 struct configIterator;
 
+extern char**	gEnv;
+extern int		gTotalClients;
+
 class LocationPath
 {
 public:

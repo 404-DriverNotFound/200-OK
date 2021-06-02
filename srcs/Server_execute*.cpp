@@ -2,7 +2,7 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
-extern char**	gEnv;
+
 
 void		Server::executeAutoindex(Connection& connection, std::string uriCopy)
 {

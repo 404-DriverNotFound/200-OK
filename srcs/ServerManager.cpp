@@ -1,54 +1,51 @@
 #include "ServerManager.hpp"
 
-extern int gTotalClients;
-
 ServerManager::ServerManager(void)
-	: mMaxFd(INIT_FD_MAX), mTotalClients(0)
+	: mMaxFd(INIT_FD_MAX)
+	, mTotalClients(0)
 {
 	FD_ZERO(&mReadFds);
 	FD_ZERO(&mWriteFds);
 }
 
-void		ServerManager::exitServer(const std::string& msg) const
+void		ServerManager::ExitServer(const std::string& msg) const
 {
 	std::cerr << REDB "[" << ft::getCurrentTime() << "] [error] " << msg << NC << std::endl;
 	exit(1);
 }
 
-void		ServerManager::CreateServers(const std::string& configurationFilePath, char** envp)
+void		ServerManager::CreateServers(const std::string& configurationFilePath)
 {
-	(void)envp;
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configFiles(configurationFilePath.c_str());
 	if (this->isOverlapedServer(&configFiles) == true)
 		throw (static_cast<const string>("Overlaped port and host"));
 	configFiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
+
 	// ANCHOR 2단계 parsing
-	this->SetServersValue(&configFiles);
-	this->ShowServers(); // NOTE server로 구성된 값을 확인하고싶으면,
+	this->setServersValue(&configFiles);
+	this->showServers(); // NOTE server로 구성된 값을 확인하고싶으면,
+
 	// // ANCHOR 3단계 parsing -> port에 대해서 listen 함수까지 호출함.
-	this->SetServers();
-
-
-	// writeCreateServerLog();
+	this->setServers();
 }
 
 void		ServerManager::RunServers(void)
 {
-	struct timeval	timeout;
+	struct timeval	timeOut;
 	for (std::vector<Server>::iterator it = mServers.begin(); it != mServers.end(); ++it)
 	{
 		FT_FD_SET(it->getSocket(), &mReadFds);
 	}
 	while (true)
 	{
-		timeout.tv_sec = SELECT_TIMEOUT_SEC; timeout.tv_usec = SELECT_TIMEOUT_USEC;
+		timeOut.tv_sec = SELECT_TIMEOUT_SEC; timeOut.tv_usec = SELECT_TIMEOUT_USEC;
 
 		FD_COPY(&mReadFds, &mReadCopyFds);
 		FD_COPY(&mWriteFds, &mWriteCopyFds);
 		updateMaxFd();
 		errno = 0;
-		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeout);
+		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeOut);
 		if (cnt < 0)
 		{
 			perror("errno: ");
@@ -65,41 +62,22 @@ void		ServerManager::RunServers(void)
 		else if (cnt > 0)
 		{
 			std::cout << "select : " << cnt << endl;
-			std::vector<int> read_set; std::cout << "--- read ---" << endl;
-			read_set = ft::getVectorChangedFD(&mReadCopyFds);
-			std::vector<int> write_set; std::cout << "--- write ---" << endl;
-			write_set = ft::getVectorChangedFD(&mWriteCopyFds);
+			std::vector<int> readSet; std::cout << "--- read ---" << endl;
+			readSet = ft::getVectorChangedFD(&mReadCopyFds);
+			std::vector<int> writeSet; std::cout << "--- write ---" << endl;
+			writeSet = ft::getVectorChangedFD(&mWriteCopyFds);
 			std::cout << "-------------------------------" << std::endl;
 
-		// ANCHOR 참고코드
-		// writeServerHealthLog();
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
-				// cout << "loop_run?" << endl;
 				it->run();
 				// closeOldConnection(it);
 			}
-		// updateMaxFd();
-		// cout << "-------------------------------" << endl;
 		}
 	}
 }
 
-// const int&	ServerManager::get_mMaxFd(void) const{return (this->mMaxFd);}
-
-// void		ServerManager::set_mMaxFd(const int& fd)
-// {
-// 	mMaxFd = fd;
-// }
-
-// void		ServerManager::initMaxFd()
-// {
-// 	set_mMaxFd(1023);
-// 	memset((void *)&mReadFds, 0, 4*32);
-// 	memset((void *)&mWriteFds, 0, 4*32);
-// }
-
-void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
+void		ServerManager::updateMaxFd(void) // REVIEW mMaxFd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
 {
 	// REVIEW 하향식으로 전체 탐색하는 것으로 MaxFd를 찾아냈었음. (+상향식으로는 체크할 수 없음)
 	// for (int i = INIT_FD_MAX; i >= 0; --i)
@@ -120,16 +98,16 @@ void		ServerManager::updateMaxFd() // REVIEW mMaxFd에 대해서 +- 증감 연�
 
 //ANCHOR yunslee line: 160~332 추가
 
-int ServerManager::SetServersValue(ConfigFiles *configFiles)
+int ServerManager::setServersValue(ConfigFiles *configFiles)
 {
 	while (configFiles->mConfigs.size() != 0)
 	{
 		ConfigFile &config = configFiles->mConfigs[configFiles->mConfigs.size() - 1];
 		int idxserver;
-		if (-1 == (idxserver = this->GetIdxServer(config.mPort, config.mHost)))
+		if (-1 == (idxserver = this->getIdxServer(config.mPort, config.mHost)))
 		{
 			// NOTE port별로 서버도 없는 상황, 아예 새롭게 만들면 됨.
-			Server server(this); // FIXME ServerManager * 가 들어갈 것으로 예상했으나 들어가지 않음. 그래서 Setservers에서 처리해줌
+			Server server(this); // FIXME ServerManager * 가 들어갈 것으로 예상했으나 들어가지 않음. 그래서 setServers에서 처리해줌
 			server.mPort = config.mPort;
 			server.mHost = config.mHost;
 			
@@ -156,7 +134,7 @@ int ServerManager::SetServersValue(ConfigFiles *configFiles)
 		}
 		Server &server = this->mServers[idxserver];
 		int idxserverBlock;
-		if (-1 == (idxserverBlock = this->GetIdxserverBlock(server.mServerBlocks, config.mServerName)))
+		if (-1 == (idxserverBlock = this->getIdxServerBlock(server.mServerBlocks, config.mServerName)))
 		{
 			// NOTE port는 있으나 다른 서버네임을 가지고 있음
 			serverBlock temp;
@@ -180,7 +158,7 @@ int ServerManager::SetServersValue(ConfigFiles *configFiles)
 		}
 		serverBlock &temp = server.mServerBlocks[idxserverBlock];
 		int idxlocationblock;
-		if (-1 == (idxlocationblock = this->GetIdxLocationPath(temp.mlocationPaths, config.mLocationPath)))
+		if (-1 == (idxlocationblock = this->getIdxLocationPath(temp.mlocationPaths, config.mLocationPath)))
 		{
 			// NOTE port도 있고, 서버네임도 있으나, location이 다른 경우
 			LocationPath temp2;
@@ -204,7 +182,7 @@ int ServerManager::SetServersValue(ConfigFiles *configFiles)
 	return (1);
 }
 
-int ServerManager::GetIdxServer(int port, std::string host)
+int ServerManager::getIdxServer(const int& port, const std::string& host)
 {
 	if (this->mServers.size() == 0)
 		return (-1);
@@ -216,7 +194,7 @@ int ServerManager::GetIdxServer(int port, std::string host)
 	return (-1);
 }
 
-int ServerManager::GetIdxserverBlock(std::vector<serverBlock> &serverBlocks, std::string serverName)
+int ServerManager::getIdxServerBlock(const std::vector<serverBlock> &serverBlocks, const std::string& serverName)
 {
 	if (serverBlocks.size() == 0)
 		return (-1);
@@ -229,7 +207,7 @@ int ServerManager::GetIdxserverBlock(std::vector<serverBlock> &serverBlocks, std
 	return (-1);
 }
 
-int ServerManager::GetIdxLocationPath(std::vector<LocationPath> &locationPaths, Path locationPath)
+int ServerManager::getIdxLocationPath(std::vector<LocationPath>& locationPaths, const Path& locationPath)
 {
 	if (locationPaths.size() == 0)
 		return (-1);
@@ -242,7 +220,7 @@ int ServerManager::GetIdxLocationPath(std::vector<LocationPath> &locationPaths, 
 	return (-1);
 }
 
-int ServerManager::ShowServers(void)
+int ServerManager::showServers(void)
 {
 	for (size_t i = 0; i < this->mServers.size(); i++)
 	{
@@ -291,7 +269,7 @@ int ServerManager::ShowServers(void)
 	return (1);
 }
 
-int ServerManager::SetServers(void)
+int ServerManager::setServers(void)
 {
 	for (size_t i = 0; i < this->mServers.size(); i++)
 	{
@@ -303,29 +281,9 @@ int ServerManager::SetServers(void)
 	return (1);
 }
 
+std::vector<Server>&	ServerManager::GetServers(void) {return (this->mServers);}
 
-// REVIEW Socket 클래스에서 단순히 int mSocket(fd)를 쓰는 것으로 변경되었으므로 다시한번 확인이 필요함.
-// void ServerManager::SetFdMax(int maxfd){this->mMaxFd = maxfd;}
-
-// int ServerManager::GetFdMax(){return (this->mMaxFd);}
-
-// fd_set& ServerManager::GetReadFds() {return (this->mReadCopyFds);}
-
-// fd_set & ServerManager::GetReadSet() {return (this->mReadFds);}
-
-// fd_set & ServerManager::GetWriteCopySet() {return (this->mWriteCopyFds);}
-
-// fd_set & ServerManager::GetWriteSet() {return (this->mWriteFds);}
-
-// fd_set & ServerManager::GetErrorCopySet() {return (this->m_error_copy_set);}
-
-// fd_set & ServerManager::GetErrorSet() {return (this->m_error_set);}
-
-
-
-std::vector<Server> &ServerManager::GetServers() {return (this->mServers);}
-
-void	ServerManager::closeOldConnection(std::vector<Server>::iterator serverIterator)
+void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serverIterator)
 {
 	std::map<int, Connection>::iterator it = serverIterator->mConnections.begin();
 	while (it != serverIterator->mConnections.end())
@@ -363,10 +321,9 @@ class OverlapedValue
 		uint16_t mPort;
 		std::string mserverName;
 		OverlapedValue(std::string a, uint16_t b, std::string c)
-		:
-			mHost(a),
-			mPort(b),
-			mserverName(c)
+			: mHost(a)
+			, mPort(b)
+			, mserverName(c)
 		{};
 
 		bool operator < (const OverlapedValue& t) const

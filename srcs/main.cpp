@@ -30,7 +30,7 @@ int		main(int argc, char* argv[], char* envp[])
 				if (fd > 2)
 				{
 					close(fd);
-					manager.CreateServers(std::string(argv[1]), envp);
+					manager.CreateServers(std::string(argv[1]));
 				}
 				else
 				{
@@ -39,14 +39,14 @@ int		main(int argc, char* argv[], char* envp[])
 			}
 			else
 			{
-				manager.CreateServers(std::string(DEFAULT_CONFIG_FILE_PATH), envp);
+				manager.CreateServers(std::string(DEFAULT_CONFIG_FILE_PATH));
 			}
 			// NOTE 서버 실행
 			manager.RunServers();
 		}
 		catch (const std::string e)
 		{
-			manager.exitServer(e);
+			manager.ExitServer(e);
 		}
 		return (0);
 	}

@@ -2,8 +2,7 @@
 #include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
 #include "Response.hpp"
 
-extern char**	gEnv;
-extern int		gTotalClients;
+
 
 int				Server::SetSocket()
 {
