@@ -188,7 +188,7 @@ int parsingserverBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 	std::string oneline;
 	std::vector<std::string> splitVector;
 	bool exist_index_pages = false;
-	bool exist_cgi_extension = false;
+	bool exist_cgi_program_path = false;
 	bool exist_method = false;
 	int i = start;
 	while (i <= end)
@@ -303,24 +303,24 @@ int parsingserverBlock(std::vector<std::string> &gnl, ConfigFile &default_locati
 				exist_method = true;
 			}
 		}
-		else if (splitVector[0].compare("cgi_extension") == 0)
+		else if (splitVector[0].compare("cgi_program_path") == 0)
 		{
 			if (splitVector.size() < 2)
 				return (-1);
 			std::size_t	i = 1;
-			std::vector<std::string> cgi_extension;
+			std::vector<std::string> cgi_program_path;
 			while (i < splitVector.size())
 			{
-				if (exist_cgi_extension == true)
-					default_location.mCgiExtension.push_back(splitVector[i]);
+				if (exist_cgi_program_path == true)
+					default_location.mCgiProgramPath.push_back(splitVector[i]);
 				else
-					cgi_extension.push_back(splitVector[i]);
+					cgi_program_path.push_back(splitVector[i]);
 				i++;
 			}
-			if (exist_cgi_extension == false)
+			if (exist_cgi_program_path == false)
 			{
-				default_location.mCgiExtension = cgi_extension;
-				exist_cgi_extension = true;
+				default_location.mCgiProgramPath = cgi_program_path;
+				exist_cgi_program_path = true;
 			}
 		}
 		else if (splitVector[0].compare("auth_basic_user_file") == 0)
@@ -340,7 +340,7 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 	std::string oneline;
 	std::vector<std::string> splitVector;
 	bool exist_index_pages = false;
-	bool exist_cgi_extension = false;
+	bool exist_cgi_program_path = false;
 	bool exist_method = false;
 	int i = start;
 	while (i <= end)
@@ -433,24 +433,24 @@ int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_loca
 				value = true;
 			default_location.mAutoIndex = value;
 		}
-		else if (splitVector[0].compare("cgi_extension") == 0)
+		else if (splitVector[0].compare("cgi_program_path") == 0)
 		{
 			if (splitVector.size() < 2)
 				return (-1);
 			std::size_t	i = 1;
-			std::vector<std::string> cgi_extension;
+			std::vector<std::string> cgi_program_path;
 			while (i < splitVector.size())
 			{
-				if (exist_cgi_extension == true)
-					default_location.mCgiExtension.push_back(splitVector[i]);
+				if (exist_cgi_program_path == true)
+					default_location.mCgiProgramPath.push_back(splitVector[i]);
 				else
-					cgi_extension.push_back(splitVector[i]);
+					cgi_program_path.push_back(splitVector[i]);
 				i++;
 			}
-			if (exist_cgi_extension == false)
+			if (exist_cgi_program_path == false)
 			{
-				default_location.mCgiExtension = cgi_extension;
-				exist_cgi_extension = true;
+				default_location.mCgiProgramPath = cgi_program_path;
+				exist_cgi_program_path = true;
 			}
 		}
 		else if (splitVector[0].compare("auth_basic_user_file") == 0)

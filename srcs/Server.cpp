@@ -410,6 +410,20 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string targetUri = absolute_path + root + relative_path;
 	connection.SetTargetUri(targetUri);
+	connection.SetServerName(serverBlock->mserverName);
+	// TODO
+	size_t found = request.GetFileName().find(".");
+	if (found != std::string::npos)
+	{
+		for (size_t i = 0; i < locationPath->mCgiProgramPath.size(); i++)
+		{
+			if (locationPath->mCgiProgramPath[i].find(request.GetFileName().substr(found + 1)) != std::string::npos)
+			{
+				connection.SetCgiProgramPath(locationPath->mCgiProgramPath[i]);
+			}
+		}
+	}
+
 
 	if (isValidMethod(request, configIterator) == false)
 	{
@@ -644,23 +658,23 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		cgiEnv["CONTENT_TYPE"] = it->second;
 	}
 
-	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";												// STUB config 클래스에서 가져와야함
+	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";												// NOTE config 클래스를 삭제 했기 때문에 그냥 리터럴로 고정하는 것이 좋을 듯
 
 	cgiEnv["PATH_INFO"] = request->GetURI();
 
-	cgiEnv["PATH_TRANSLATED"] = request->GetFileName(); 									// STUB 잘 모르겠음 _file_path
+	cgiEnv["PATH_TRANSLATED"] = connection.GetTargetUri();
 
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
 
-	cgiEnv["REMOTE_ADDR"] = connection.GetClientIp();									// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
+	cgiEnv["REMOTE_ADDR"] = connection.GetClientIp();
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
-	cgiEnv["SCRIPT_NAME"] = "ft_tester/cgi_tester";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
+	cgiEnv["SCRIPT_NAME"] = connection.GetCgiProgramPath();
 
-	cgiEnv["SERVER_NAME"] = "FIXME";														// FIXME server_name을 가져다 쓰지 못하고 있다..
+	cgiEnv["SERVER_NAME"] = connection.GetServerName();
 	cgiEnv["SERVER_PORT"] = ft::itos(mPort);
-	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
-	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
+	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// NOTE config 클래스를 삭제 했기 때문에 그냥 리터럴로 고정하는 것이 좋을 듯
+	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];
 
 	std::map<std::string, std::string> headers = request->GetHeaders();
 	std::map<std::string, std::string>::iterator it_http;

@@ -45,7 +45,7 @@ public:
 	Path						mAuthBasicUserFile;	//def =
 
 	std::vector<std::string>	mMethod;
-	std::vector<std::string>	mCgiExtension;
+	std::vector<std::string>	mCgiProgramPath;
 };
 
 class serverBlock

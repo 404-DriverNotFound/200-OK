@@ -253,7 +253,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		else if (pid == 0)
 		{
 			dup2(toCGI, 0); dup2(fromCGI, 1);
-			execve("ft_tester/cgi_tester", 0, envp); // NOTE execve 돌아가는 코드
+			execve(connection.GetCgiProgramPath().c_str(), 0, envp); // NOTE execve 돌아가는 코드
 			exit(0);
 		}
 		else

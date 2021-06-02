@@ -41,6 +41,12 @@ public:
 	const std::string&			GetTargetUri(void) const;
 	void						SetTargetUri(std::string& targetUri);
 
+	const std::string&			GetServerName(void) const;
+	void						SetServerName(std::string& serverName);
+
+	const std::string&			GetCgiProgramPath(void) const;
+	void						SetCgiProgramPath(std::string& cgiProgramPath);
+
 	void						AddRbufFromClient(const char* buf, const size_t& count);
 
 	//ANCHOR yunslee
@@ -57,6 +63,8 @@ public:
 		Status					eStatus;
 		struct timeval			mLastRequestAt;
 		std::string				mTargetUri;
+		std::string				mServerName;
+		std::string				mCgiProgramPath;
 };
 
 #endif
