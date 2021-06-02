@@ -422,12 +422,10 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
-
 		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
 		executePut(connection, request, targetUri);
 		connection.SetStatus(Connection::SEND_READY);
-
 	}
 	else if (request.GetURItype() == Request::DIRECTORY)
 	{
@@ -446,7 +444,6 @@ void			Server::solveRequest(Connection& connection, Request& request)
 					return ;
 				}
 			}
-
 			// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
 			if (locationPath->mAutoIndex == true)
 			{
@@ -470,23 +467,16 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	{
 		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
-		errno = 0;
-		if (ft::access(absolute_path + root + relative_path, 0) == 0)
+		if (request.GetURItype() == Request::CGI_PROGRAM)
 		{
-			if (ft::isDirPath(absolute_path + root + relative_path) == true && ft::isFilePath(absolute_path + root + relative_path) == false)
-			{
-				throw 301;
-			}
+			connection.SetTargetUri(targetUri);
 			if (request.GetMethod().compare("GET") == 0)
 			{
 				executeGet(connection, targetUri);
 				if (request.GetURItype() == Request::FILE)
 					connection.SetStatus(Connection::SEND_READY);
 				else
-				{
-					connection.SetTargetUri(targetUri);
 					connection.SetStatus(Connection::CGI_READY);
-				}
 			}
 			else if (request.GetMethod().compare("HEAD") == 0)
 			{
@@ -494,45 +484,85 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				if (request.GetURItype() == Request::FILE)
 					connection.SetStatus(Connection::SEND_READY);
 				else
-				{
-					connection.SetTargetUri(targetUri);
 					connection.SetStatus(Connection::CGI_READY);
-				}
 			}
 			else if (request.GetMethod().compare("POST") == 0)
 			{
-				if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
-					throw 413;
 				executePost(connection, request);
 				if (request.GetURItype() == Request::FILE)
 					connection.SetStatus(Connection::SEND_READY);
 				else
 					connection.SetStatus(Connection::CGI_READY);
 			}
-			else if (request.GetMethod().compare("DELETE") == 0)
-			{
-				executeDelete(connection, request, targetUri);
-				connection.SetStatus(Connection::SEND_READY);
-			}
-			else if (request.GetMethod().compare("OPTIONS") == 0)
-			{
-				executeOptions(connection, targetUri, configIterator);
-				connection.SetStatus(Connection::SEND_READY);
-			}
-			// else if (request.GetMethod().compare("TRACE") == 0)
-			// {
-			// 	// executeOptions(connection, request);
-			// 	connection.SetStatus(Connection::SEND_READY);
-			// }
 			else
 			{
-				throw 405; // NOTE Method NOTE Allowed
+				throw 405;
 			}
 		}
 		else
 		{
-			if (errno == 2)
-				throw 404;
+			errno = 0;
+			if (ft::access(absolute_path + root + relative_path, 0) == 0)
+			{
+				if (ft::isDirPath(absolute_path + root + relative_path) == true && ft::isFilePath(absolute_path + root + relative_path) == false)
+				{
+					throw 301;
+				}
+				if (request.GetMethod().compare("GET") == 0)
+				{
+					executeGet(connection, targetUri);
+					if (request.GetURItype() == Request::FILE)
+						connection.SetStatus(Connection::SEND_READY);
+					else
+					{
+						connection.SetStatus(Connection::CGI_READY);
+					}
+				}
+				else if (request.GetMethod().compare("HEAD") == 0)
+				{
+					executeHead(connection, targetUri);
+					if (request.GetURItype() == Request::FILE)
+						connection.SetStatus(Connection::SEND_READY);
+					else
+					{
+						connection.SetStatus(Connection::CGI_READY);
+					}
+				}
+				else if (request.GetMethod().compare("POST") == 0)
+				{
+					if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
+						throw 413;
+					executePost(connection, request);
+					if (request.GetURItype() == Request::FILE)
+						connection.SetStatus(Connection::SEND_READY);
+					else
+						connection.SetStatus(Connection::CGI_READY);
+				}
+				else if (request.GetMethod().compare("DELETE") == 0)
+				{
+					executeDelete(connection, request, targetUri);
+					connection.SetStatus(Connection::SEND_READY);
+				}
+				else if (request.GetMethod().compare("OPTIONS") == 0)
+				{
+					executeOptions(connection, targetUri, configIterator);
+					connection.SetStatus(Connection::SEND_READY);
+				}
+				// else if (request.GetMethod().compare("TRACE") == 0)
+				// {
+				// 	// executeOptions(connection, request);
+				// 	connection.SetStatus(Connection::SEND_READY);
+				// }
+				else
+				{
+					throw 405; // NOTE Method NOTE Allowed
+				}
+			}
+			else
+			{
+				if (errno == 2)
+					throw 404;
+			}
 		}
 	}
 	else
