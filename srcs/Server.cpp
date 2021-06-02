@@ -332,10 +332,6 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 		// NOTE 상대 경로만 적어주어도 됨
 		response->setHeaders("Location", connection.GetRequest()->GetDirectory() + "/" + connection.GetRequest()->GetFileName() + "/");
 	}
-	if (statusCode >= 500)
-	{
-		response->setHeaders("Retry-After", "60");
-	}
 }
 
 void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
@@ -402,7 +398,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string root = locationPath->mRoot.getPath();
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string targetUri = absolute_path + root + relative_path;
-	connection.SetTargetUri(targetUri);
+	// cout << "targetUri: " << targetUri << endl;
 
 	if (isValidMethod(request, configIterator) == false)
 	{
@@ -473,6 +469,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			throw 413;
 		if (request.GetURItype() == Request::CGI_PROGRAM)
 		{
+			connection.SetTargetUri(targetUri);
 			if (request.GetMethod().compare("GET") == 0)
 			{
 				executeGet(connection, targetUri);

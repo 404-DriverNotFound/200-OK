@@ -107,11 +107,9 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 				delete connection.GetResponse();
 				connection.SetResponse(NULL);
 			}
-			connection.SetResponse(new Response(&connection, 201, request.GetBody()));
-			std::string temp = connection.GetTargetUri();
-			std::string delete_double_slash = ft::ReplaceAllModified(temp, "//", "/");
-			connection.GetResponse()->setHeaders("Content-Location", delete_double_slash);
+			connection.SetResponse(new Response(&connection, 201, request.GetBody()));	
 			int open_fd2 = open(targetUri.c_str(), O_WRONLY | O_CREAT, 0755);
+			// cout << "second open_fd: " << open_fd2 << endl;
 
 			write(open_fd2, connection.GetResponse()->GetBody().c_str(), connection.GetResponse()->GetBody().length());
 			close(open_fd2);
