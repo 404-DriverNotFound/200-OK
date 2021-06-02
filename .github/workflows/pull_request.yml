@@ -1,0 +1,22 @@
+# .github/workflows/pull_request.yml
+name: webserv_basic_test
+on: [pull_request]
+
+
+jobs:
+  make_test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+    name: 42 Test
+    steps:
+    - uses: actions/checkout@v2
+    - name: make
+      run: make re
+    - name: Run webserv
+      run: ./webserv test.config &
+    - name: test1
+      run: sh test1.sh
+    - name: test2
+      run: sh test2.sh
