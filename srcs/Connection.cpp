@@ -5,7 +5,7 @@ Connection::Connection(int clientFd, std::string clientIp, int clientPort)
 	, mClientPort(clientPort)
 	, mFd(clientFd)
 	, mRequest(0)
-	, mHttpMessage(0)
+	, mResponse(0)
 	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
@@ -16,7 +16,7 @@ Connection::Connection(void)
 	, mClientPort(0)
 	, mFd(0)
 	, mRequest(0)
-	, mHttpMessage(0)
+	, mResponse(0)
 	, mStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
@@ -24,15 +24,15 @@ Connection::Connection(void)
 
 Connection::~Connection(void)
 {
-	if (this->mRequest != NULL)
+	if (mRequest != NULL)
 	{
-		delete (this->mRequest);
-		this->mRequest = NULL;
+		delete (mRequest);
+		mRequest = NULL;
 	}
-	if (this->mHttpMessage != NULL)
+	if (mResponse != NULL)
 	{
-		delete (this->mHttpMessage);
-		this->mHttpMessage = NULL;
+		delete (mResponse);
+		mResponse = NULL;
 	}
 }
 
@@ -81,12 +81,12 @@ void						Connection::addRbufFromClient(char* buf, size_t count)
 
 Response*					Connection::getResponse(void) const
 {
-	return (this->mHttpMessage);
+	return (mResponse);
 }
 
 void						Connection::setResponse(Response* response)
 {
-	this->mHttpMessage = response;
+	mResponse = response;
 }
 
 const Connection::eStatus&	Connection::GetStatus(void) const
