@@ -19,7 +19,7 @@ void		ServerManager::CreateServers(const std::string& configurationFilePath)
 	// ANCHOR 1단계 parsing 전처리단계
 	ConfigFiles configFiles(configurationFilePath.c_str());
 	if (this->isOverlapedServer(&configFiles) == true)
-		throw (static_cast<const string>("Overlaped port and host"));
+		throw (static_cast<const std::string>("Overlaped port and host"));
 	configFiles.ShowConfigs(); // NOTE configfile의 값을 확인하고싶으면,
 
 	// ANCHOR 2단계 parsing
@@ -35,7 +35,7 @@ void		ServerManager::RunServers(void)
 	struct timeval	timeOut;
 	for (std::vector<Server>::iterator it = mServers.begin(); it != mServers.end(); ++it)
 	{
-		FT_FD_SET(it->getSocket(), &mReadFds);
+		FT_FD_SET(it->GetSocket(), &mReadFds);
 	}
 	while (true)
 	{
@@ -49,7 +49,7 @@ void		ServerManager::RunServers(void)
 		if (cnt < 0)
 		{
 			perror("errno: ");
-			throw (static_cast<const string>("Select Error"));
+			throw (static_cast<const std::string>("Select Error"));
 		}
 		else if (cnt == 0)
 		{
@@ -61,10 +61,10 @@ void		ServerManager::RunServers(void)
 		}
 		else if (cnt > 0)
 		{
-			std::cout << "select : " << cnt << endl;
-			std::vector<int> readSet; std::cout << "--- read ---" << endl;
+			std::cout << "select : " << cnt << std::endl;
+			std::vector<int> readSet; std::cout << "--- read ---" << std::endl;
 			readSet = ft::getVectorChangedFD(&mReadCopyFds);
-			std::vector<int> writeSet; std::cout << "--- write ---" << endl;
+			std::vector<int> writeSet; std::cout << "--- write ---" << std::endl;
 			writeSet = ft::getVectorChangedFD(&mWriteCopyFds);
 			std::cout << "-------------------------------" << std::endl;
 
@@ -253,13 +253,13 @@ int ServerManager::showServers(void)
 				{
 					std::cout << temp3.mMethod[j] << " ";
 				}
-				std::cout << endl;
+				std::cout << std::endl;
 				std::cout << "cgi_extension: ";
 				for (size_t j = 0; j < temp3.mCgiExtension.size(); j++)
 				{
 					std::cout << temp3.mCgiExtension[j] << " ";
 				}
-				std::cout << endl;
+				std::cout << std::endl;
 				std::cout << "------------------------------ locationPath" << std::endl;
 			}
 			std::cout << "============================== server name" << std::endl;
@@ -290,24 +290,24 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 	{
 		std::map<int, Connection>::iterator it2 = it++;
 		int fd = it2->first;
-		if (it2->second.getSocket() == serverIterator->mSocket)
+		if (it2->second.GetSocket() == serverIterator->mSocket)
 		{
 			continue ;
 		}
-		if (it2->second.isKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
+		if (it2->second.IsKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
 			//std::cout << "closeOldconnection: " << fd << std::endl;
-			if (it2->second.getRequest() == NULL)
+			if (it2->second.GetRequest() == NULL)
 			{
 				serverIterator->createResponseStatusCode(it2->second, 408);
-				it2->second.getResponse()->setHttpMessage(it2->second.getResponse()->makeHttpMessage());
-				ssize_t	count = write(it2->first, it2->second.getResponse()->getHttpMessage().c_str(), it2->second.getResponse()->getHttpMessage().length());
+				it2->second.GetResponse()->setHttpMessage(it2->second.GetResponse()->makeHttpMessage());
+				ssize_t	count = write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
 				if (count <= 0)
 				{
 					throw (static_cast<const std::string>("IO Error"));
 				}
 			}
-			serverIterator->closeConnection(it2->second.getSocket());
+			serverIterator->closeConnection(it2->second.GetSocket());
 			return ;
 		}
 	}

@@ -19,7 +19,7 @@
 #include "Response.hpp"
 class Server;
 
-extern int 						gTotalClients;
+extern int	gTotalClients;
 
 class ServerManager
 {

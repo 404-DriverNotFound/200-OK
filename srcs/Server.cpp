@@ -41,13 +41,13 @@ int				Server::getUnuseConnectionFd()
 	{
 		std::map<int, Connection>::iterator it2 = it++;
 		int fd = it2->first;
-		if (it2->second.getSocket() == fd)
+		if (it2->second.GetSocket() == fd)
 			continue ;
-		if ((FD_ISSET(it2->second.getSocket(), &(this->mManager->GetReadCopyFds())) == 0) &&
-				it2->second.isKeepConnection() == false)
+		if ((FD_ISSET(it2->second.GetSocket(), &(this->mManager->GetReadCopyFds())) == 0) &&
+				it2->second.IsKeepConnection() == false)
 		{
-			// cout << "it2->second.getSocket() " << it2->second.getSocket() << endl;
-			return (it2->second.getSocket());
+			// cout << "it2->second.GetSocket() " << it2->second.GetSocket() << endl;
+			return (it2->second.GetSocket());
 		}
 	}
 	return (-1);
@@ -72,7 +72,7 @@ void			Server::closeConnection(int clientFd)
 	while (it != mConnections.end())
 	{
 		std::map<int, Connection>::iterator it2 = it++;
-		if (it2->second.getSocket() == clientFd)
+		if (it2->second.GetSocket() == clientFd)
 		{
 			std::cerr << REDB "[" << ft::getCurrentTime() << "][connection]" << "[DISCONNECTED]" << "[" << clientFd << "]" << NC << std::endl;
 			mConnections.erase(it2);
@@ -83,14 +83,14 @@ void			Server::closeConnection(int clientFd)
 
 void			Server::recvRequest(Connection& connection)
 {
-	Request*	request = connection.getRequest();
+	Request*	request = connection.GetRequest();
 	char		buf[BUFFER_SIZE];
 	
-	ssize_t		count = read(connection.getSocket(), buf, sizeof(buf));
+	ssize_t		count = read(connection.GetSocket(), buf, sizeof(buf));
 	if (count > 0)
 	{
 		// REVIEW 파싱단계에서 count 변수를 사용해서 탐색 범위를 좁힐 수 있을까?
-		connection.addRbufFromClient(buf, count);
+		connection.AddRbufFromClient(buf, count);
 		if (request->GetPhase() == Request::READY)
 		{
 			if (parseStartLine(connection))
@@ -112,19 +112,19 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					// FD_SET(connection.getSocket(), &(this->mManager->GetWriteFds()));
-					// FD_SET(connection.getSocket(), &(this->mManager->GetWriteCopyFds()));
-					mManager->SetWriteFds(connection.getSocket());
-					mManager->SetWriteCopyFds(connection.getSocket());
+					// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteFds()));
+					// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds()));
+					mManager->SetWriteFds(connection.GetSocket());
+					mManager->SetWriteCopyFds(connection.GetSocket());
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				mManager->SetWriteFds(connection.getSocket());
-				mManager->SetWriteCopyFds(connection.getSocket());
-				// FD_SET(connection.getSocket(), &(this->mManager->GetWriteFds()));
-				// FD_SET(connection.getSocket(), &(this->mManager->GetWriteCopyFds()));
+				mManager->SetWriteFds(connection.GetSocket());
+				mManager->SetWriteCopyFds(connection.GetSocket());
+				// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteFds()));
+				// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds()));
 			}
 		}
 	}
@@ -148,8 +148,8 @@ bool			Server::isRequestHasBody(Request* request)
 
 bool			Server::parseStartLine(Connection& connection)
 {
-	Request*			request = connection.getRequest();
-	const std::string&	requestLine = request->getHttpMessage();
+	Request*			request = connection.GetRequest();
+	const std::string&	requestLine = request->GetHttpMessage();
 	std::size_t			found;
 	std::string			tmp;
 	
@@ -195,8 +195,8 @@ bool			Server::parseStartLine(Connection& connection)
 
 bool			Server::parseHeader(Connection& connection)
 {
-	Request*		request = connection.getRequest();
-	std::size_t		found = request->getHttpMessage().find("\r\n\r\n", request->GetSeek());
+	Request*		request = connection.GetRequest();
+	std::size_t		found = request->GetHttpMessage().find("\r\n\r\n", request->GetSeek());
 	if (found == std::string::npos)
 	{
 		return (false);
@@ -204,19 +204,19 @@ bool			Server::parseHeader(Connection& connection)
 
 	while (true)
 	{
-		std::size_t		found = request->getHttpMessage().find("\r\n", request->GetSeek());
+		std::size_t		found = request->GetHttpMessage().find("\r\n", request->GetSeek());
 		if (found == std::string::npos)
 		{
 			throw 400;
 		}
-		std::string	line = request->getHttpMessage().substr(request->GetSeek(), found - request->GetSeek());
+		std::string	line = request->GetHttpMessage().substr(request->GetSeek(), found - request->GetSeek());
 		if (line.empty())
 		{
 			request->SetSeek(found + 2);
 			break ;
 		}
 
-		request->addHeader(line);
+		request->AddHeader(line);
 		request->SetSeek(found + 2);
 	}
 	return (true);
@@ -224,7 +224,7 @@ bool			Server::parseHeader(Connection& connection)
 
 bool			Server::parseBody(Connection& connection)
 {
-	Request*		request = connection.getRequest();
+	Request*		request = connection.GetRequest();
 
 	// NOTE chunked parsing
 	if (request->GetTransferType() == Request::CHUNKED)
@@ -232,7 +232,7 @@ bool			Server::parseBody(Connection& connection)
 		while (true)
 		{
 			// hex 기다림
-			std::size_t		foundHex = request->getHttpMessage().find("\r\n", request->GetSeek());
+			std::size_t		foundHex = request->GetHttpMessage().find("\r\n", request->GetSeek());
 			if (foundHex == std::string::npos)
 			{
 				return (false);
@@ -240,24 +240,24 @@ bool			Server::parseBody(Connection& connection)
 			else
 			{
 				// 바디 기다림
-				std::size_t	foundBody = request->getHttpMessage().find("\r\n", foundHex + 2);
+				std::size_t	foundBody = request->GetHttpMessage().find("\r\n", foundHex + 2);
 				if (foundBody == std::string::npos)
 				{
 					return (false);
 				}
 				else
 				{
-					std::string		hex = request->getHttpMessage().substr(request->GetSeek(), foundHex - request->GetSeek());
+					std::string		hex = request->GetHttpMessage().substr(request->GetSeek(), foundHex - request->GetSeek());
 					unsigned long	hexValue = ft::stohex(hex);
 					request->SetSeek(foundHex + 2);
-					std::string		body = request->getHttpMessage().substr(request->GetSeek(), foundBody - request->GetSeek());
+					std::string		body = request->GetHttpMessage().substr(request->GetSeek(), foundBody - request->GetSeek());
 					if (hexValue != body.length())
 					{
 						throw 413; // REVIEW payload too large 이거 맞는지 모르겠음
 					}
 					else
 					{
-						request->addBody(body);
+						request->AddBody(body);
 						if (hexValue == 0)
 						{
 							return (true);
@@ -277,7 +277,7 @@ bool			Server::parseBody(Connection& connection)
 			throw 411;
 		}
 		int												contentLength = std::atoi(it->second.c_str());
-		int												bodyLength = request->getHttpMessage().length() - request->GetSeek();
+		int												bodyLength = request->GetHttpMessage().length() - request->GetSeek();
 		// std::cout << contentLength << " " << bodyLength << std::endl;
 		if (contentLength > bodyLength)
 		{
@@ -289,7 +289,7 @@ bool			Server::parseBody(Connection& connection)
 		}
 		else
 		{
-			request->SetBody(request->getHttpMessage().substr(request->GetSeek()));
+			request->SetBody(request->GetHttpMessage().substr(request->GetSeek()));
 			return (true);
 		}
 	}
@@ -297,10 +297,10 @@ bool			Server::parseBody(Connection& connection)
 
 void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 {
-	if (connection.getResponse() != NULL)
+	if (connection.GetResponse() != NULL)
 	{
-		delete connection.getResponse();
-		connection.setResponse(NULL);
+		delete connection.GetResponse();
+		connection.SetResponse(NULL);
 	}
 	// createResponse_statuscode
 	std::map<int, std::string> &status_map = Response::mStatusMap;
@@ -309,13 +309,13 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 	{
 		statusCode = 0;
 	}
-	connection.setResponse(new Response(&connection, statusCode));
-	Response *response = connection.getResponse();
+	connection.SetResponse(new Response(&connection, statusCode));
+	Response *response = connection.GetResponse();
 	response->setHeaders("Server", "YKK_webserv");
 	response->setHeaders("Date", ft::getCurrentTime());
 	std::string errorpage_body;
-	if (connection.getRequest() != NULL)
-		errorpage_body = Response::makeStatusPage(statusCode, connection.getRequest()->GetMethod());
+	if (connection.GetRequest() != NULL)
+		errorpage_body = Response::makeStatusPage(statusCode, connection.GetRequest()->GetMethod());
 	else
 		errorpage_body = Response::makeStatusPage(statusCode, "");
 	response->setHeaders("Content-Type", "text/html");
@@ -328,16 +328,16 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 	if (statusCode == 301)
 	{
 		std::string url;
-		// url += "http://" + this->mHost + connection.getRequest()->GetDirectory() + "/" + connection.getRequest()->GetFileName() + "/";
+		// url += "http://" + this->mHost + connection.GetRequest()->GetDirectory() + "/" + connection.GetRequest()->GetFileName() + "/";
 		// NOTE 상대 경로만 적어주어도 됨
-		response->setHeaders("Location", connection.getRequest()->GetDirectory() + "/" + connection.getRequest()->GetFileName() + "/");
+		response->setHeaders("Location", connection.GetRequest()->GetDirectory() + "/" + connection.GetRequest()->GetFileName() + "/");
 	}
 }
 
 void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
 {
-	connection.setResponse(new Response(&connection, 0));
-	Response *response = connection.getResponse();
+	connection.SetResponse(new Response(&connection, 0));
+	Response *response = connection.GetResponse();
 	response->setHeaders("Server", "webserv");
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
 	response->setHeaders("Content-Type", "text/html");
@@ -345,14 +345,14 @@ void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
 
 	std::string body;
 	int fd = -1;
-	body = ft::getBodyFromFile(uriPlusFile);
+	body = ft::GetBodyFromFile(uriPlusFile);
 	if (body.size() == 0)
 	{
 		fd = open("./error.html", O_RDONLY);
-		body = ft::getBodyFromFd(fd);
+		body = ft::GetBodyFromFd(fd);
 	}
 	response->setBody(body);
-	response->setHeaders("Content-Length", ft::itos(response->getBody().length()));
+	response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 	if (fd > 2)
 		close(fd);
 	return ;
@@ -360,17 +360,17 @@ void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
 
 void			Server::createResponse200(Connection &connection, std::string uriPlusFile)
 {
-	connection.setResponse(new Response(&connection, 200));
-	Response *response = connection.getResponse();
+	connection.SetResponse(new Response(&connection, 200));
+	Response *response = connection.GetResponse();
 	response->setHeaders("Server", "webserv");
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
 	response->setHeaders("Content-Type", "text/html");
 	response->setHeaders("Content-Language", "en-US");
 
 	std::string body;
-	body = ft::getBodyFromFile(uriPlusFile);
+	body = ft::GetBodyFromFile(uriPlusFile);
 	response->setBody(body);
-	response->setHeaders("Content-Length", ft::itos(response->getBody().length()));
+	response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 	return ;
 }
 
@@ -423,7 +423,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	if (request.GetURItype() == Request::FILE_TO_CREATE)
 	{
 
-		if (locationPath->mClientMaxBodySize < request.getBody().length() && locationPath->mClientMaxBodySize != 0)
+		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
 		executePut(connection, request, targetUri);
 		connection.SetStatus(Connection::SEND_READY);
@@ -431,7 +431,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 	else if (request.GetURItype() == Request::DIRECTORY)
 	{
-		if (locationPath->mClientMaxBodySize < request.getBody().length() && locationPath->mClientMaxBodySize != 0)
+		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
 		if (ft::access(absolute_path + root + relative_path, 0) == 0) // NOTE 있는 폴더 경로에 접근 했을 때, index,html or autoindex
 		{
@@ -468,7 +468,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	}
 	else if (request.GetURItype() == Request::FILE || request.GetURItype() == Request::CGI_PROGRAM)
 	{
-		if (locationPath->mClientMaxBodySize < request.getBody().length() && locationPath->mClientMaxBodySize != 0)
+		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
 		errno = 0;
 		if (ft::access(absolute_path + root + relative_path, 0) == 0)
@@ -495,7 +495,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 			else if (request.GetMethod().compare("POST") == 0)
 			{
-				if (locationPath->mClientMaxBodySize < request.getBody().length() && locationPath->mClientMaxBodySize != 0)
+				if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 					throw 413;
 				executePost(connection, request);
 				if (request.GetURItype() == Request::FILE)
@@ -553,7 +553,7 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		i++;
 	}
 	
-	Request*	request = connection.getRequest();
+	Request*	request = connection.GetRequest();
 
 	std::map<std::string, std::string>::iterator	it = request->GetHeaders().find("authorization");
 	if (it != request->GetHeaders().end())
@@ -588,7 +588,7 @@ char**			Server::createCGIEnv(const Connection& connection) const
 
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
 
-	cgiEnv["REMOTE_ADDR"] = connection.getClientIp();									// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
+	cgiEnv["REMOTE_ADDR"] = connection.GetClientIp();									// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
 	cgiEnv["SCRIPT_NAME"] = "ft_tester/cgi_tester";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
@@ -599,7 +599,7 @@ char**			Server::createCGIEnv(const Connection& connection) const
 	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
 
 	std::map<std::string, std::string> headers = request->GetHeaders();
-	std::map<string, string>::iterator it_http;
+	std::map<std::string, std::string>::iterator it_http;
 	for (it_http = headers.begin(); it_http != headers.end(); it_http++)
 	{
 		std::string http_cgi = "HTTP_";

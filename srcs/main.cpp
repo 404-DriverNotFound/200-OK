@@ -34,7 +34,7 @@ int		main(int argc, char* argv[], char* envp[])
 				}
 				else
 				{
-					throw (static_cast<const string>("No such a file"));
+					throw (static_cast<const std::string>("No such a file"));
 				}
 			}
 			else

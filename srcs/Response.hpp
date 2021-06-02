@@ -31,9 +31,9 @@ public:
 	const std::string&								getFirstLine(void) const;
 	std::map<std::string, std::string>&				getHeaders(void);
 	const enum TransferType&						getTransferType(void) const;
-	const std::string&								getBody(void) const;
+	const std::string&								GetBody(void) const;
 
-	const std::string&								getHttpMessage(void) const;
+	const std::string&								GetHttpMessage(void) const;
 
 	void		setHttpMessage(const std::string& message);
 	void		setConnection(Connection *connect);
@@ -118,7 +118,6 @@ public:
 
 private:
 	Connection*										mConnection;
-	
 	std::string										mFirstLine;
 	int												mStatusCode;
 	std::string										mStatusDescription;

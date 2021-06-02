@@ -9,12 +9,12 @@ Request::Request(void)
 	gettimeofday(&mStartTime, NULL);
 }
 
-void								Request::addHttpMessage(const std::string& added)
+void								Request::AddHttpMessage(const std::string& added)
 {
 	mHttpMessage.append(added);
 }
 
-const std::string&					Request::getHttpMessage(void) const
+const std::string&					Request::GetHttpMessage(void) const
 {
 	return (mHttpMessage);
 }
@@ -44,7 +44,7 @@ void								Request::SetPhase(const ePhase& phase)
 	mPhase = phase;
 }
 
-void								Request::addHeader(const std::string& header)
+void								Request::AddHeader(const std::string& header)
 {
 	std::size_t	found = header.find(": ");
 	if (found == std::string::npos)
@@ -79,7 +79,7 @@ void								Request::addHeader(const std::string& header)
 	mHeaders.insert(std::pair<std::string, std::string>(key, value));
 }
 
-const std::string&					Request::getBody(void) const
+const std::string&					Request::GetBody(void) const
 {
 	return (mBody);
 }
@@ -89,7 +89,7 @@ void								Request::SetBody(const std::string& body)
 	mBody = body;
 }
 
-void								Request::addBody(const std::string& body)
+void								Request::AddBody(const std::string& body)
 {
 	mBody.append(body);
 }
@@ -287,9 +287,9 @@ void								Request::ShowMessage(void)
 	std::cout << std::endl;
 
 	// body
-	if (getBody().empty() == false)
+	if (GetBody().empty() == false)
 	{
-		std::cout << getBody() << std::endl;
+		std::cout << GetBody() << std::endl;
 	}
 }
 

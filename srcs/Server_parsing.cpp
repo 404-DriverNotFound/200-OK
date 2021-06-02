@@ -22,7 +22,7 @@ LocationPath::~LocationPath()
 
 }
 
-LocationPath::LocationPath(const LocationPath &ref)
+LocationPath::LocationPath(const LocationPath& ref)
 {
 	*this = ref;
 }
@@ -81,8 +81,8 @@ Server::Server(void)
 {
 }
 
-Server::Server(ServerManager *serverManager)
-	: mManager(serverManager)
+Server::Server(ServerManager *manager)
+	: mManager(manager)
 	, mPort(8000)
 	, mHost("0.0.0.0")
 	, mSocket(0)
@@ -157,7 +157,7 @@ std::vector<LocationPath>::iterator Server::returnIteratorLocationPath(std::vect
 	return (it);
 }
 
-const int&	Server::getSocket(void) const{ return (this->mSocket); }
+const int&	Server::GetSocket(void) const{ return (this->mSocket); }
 
 std::vector<serverBlock>&	Server::getServerBlocks(void){ return (this->mServerBlocks);}
 

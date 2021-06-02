@@ -1,12 +1,12 @@
 #include "Connection.hpp"
 
-Connection::Connection(int clientFd, std::string clientIp, int clientPort)
+Connection::Connection(const int& clientFd, const std::string& clientIp, const int& clientPort)
 	: mClientIp(clientIp)
 	, mClientPort(clientPort)
 	, mFd(clientFd)
 	, mRequest(0)
 	, mResponse(0)
-	, mStatus(REQUEST_READY)
+	, eStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
 }
@@ -17,7 +17,7 @@ Connection::Connection(void)
 	, mFd(0)
 	, mRequest(0)
 	, mResponse(0)
-	, mStatus(REQUEST_READY)
+	, eStatus(REQUEST_READY)
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
 }
@@ -36,21 +36,20 @@ Connection::~Connection(void)
 	}
 }
 
+const int&					Connection::GetSocket(void) const	{return (this->mFd);}
 
-const int&					Connection::getSocket(void) const{return (this->mFd);}
+const struct timeval&		Connection::getLastRequestAt(void) const	{return (this->mLastRequestAt);}
 
-const struct timeval&		Connection::getLastRequestAt(void) const{	return (this->mLastRequestAt);}
+const std::string&			Connection::GetClientIp(void) const	{return (this->mClientIp);}
 
-const std::string&			Connection::getClientIp(void) const{	return (this->mClientIp);}
+const int&					Connection::GetClientPort(void) const	{return (this->mClientPort);}
 
-const int&					Connection::getClientPort(void) const{	return (this->mClientPort);}
-
-void						Connection::setLastReqeustAt(const struct timeval& time)
+void						Connection::SetLastReqeustAt(const struct timeval& time)
 {
 	mLastRequestAt = time;
 }
 
-bool						Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_request를 갱신해야함.
+bool						Connection::IsKeepConnection(void)
 {
 	struct timeval	now;
 	gettimeofday(&now, NULL);
@@ -58,43 +57,47 @@ bool						Connection::isKeepConnection(void) //TODO 연결된 순간 m_last_requ
 	struct timeval	before;
 	before = this->mLastRequestAt;
 	if (before.tv_sec + KEEP_ALIVE_LIMIT < now.tv_sec)
+	{
 		return (false);
+	}
 	else
+	{
 		return (true);
+	}
 }
 
-Request*					Connection::getRequest(void) const
+Request*					Connection::GetRequest(void) const
 {
 	return (mRequest);
 }
 
-void						Connection::setRequest(Request* request)
+void						Connection::SetRequest(Request* request)
 {
 	mRequest = request;
 }
 
-void						Connection::addRbufFromClient(char* buf, size_t count)
+void						Connection::AddRbufFromClient(const char* buf, const size_t& count)
 {
-	mRequest->addHttpMessage(std::string(buf, count));
+	mRequest->AddHttpMessage(std::string(buf, count));
 }
 
 
-Response*					Connection::getResponse(void) const
+Response*					Connection::GetResponse(void) const
 {
 	return (mResponse);
 }
 
-void						Connection::setResponse(Response* response)
+void						Connection::SetResponse(Response* response)
 {
 	mResponse = response;
 }
 
-const Connection::eStatus&	Connection::GetStatus(void) const
+const Connection::Status&	Connection::GetStatus(void) const
 {
-	return (mStatus);
+	return (eStatus);
 }
 
-void						Connection::SetStatus(const eStatus& status)
+void						Connection::SetStatus(const Status& status)
 {
-	mStatus = status;
+	eStatus = status;
 }

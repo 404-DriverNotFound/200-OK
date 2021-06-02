@@ -6,13 +6,13 @@
 
 void		Server::executeAutoindex(Connection& connection, std::string uriCopy)
 {
-	connection.setResponse(new Response(&connection, 200, ft::makeAutoindexHTML(uriCopy)));
-	Response *response = connection.getResponse();
+	connection.SetResponse(new Response(&connection, 200, ft::makeAutoindexHTML(uriCopy)));
+	Response *response = connection.GetResponse();
 	response->setHeaders("Server", "webserv");
 	response->setHeaders("Content-Type", "text/html");
 	response->setHeaders("Connection", "keep-alive");
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
-	response->setHeaders("Content-Length", ft::itos(connection.getResponse()->getBody().length()));
+	response->setHeaders("Content-Length", ft::itos(connection.GetResponse()->GetBody().length()));
 
 	connection.SetStatus(Connection::SEND_READY);
 }
@@ -34,8 +34,8 @@ void		Server::executeHead(Connection& connection, std::string targetUri)
 {
 	executeGet(connection, targetUri);
 	std::string null_str;
-	connection.getResponse()->setBody(null_str);
-	Response *response = connection.getResponse();
+	connection.GetResponse()->setBody(null_str);
+	Response *response = connection.GetResponse();
 
 	std::map<std::string, std::string>::iterator it = response->getHeaders().begin();
 	std::map<std::string, std::string> temp;
@@ -56,11 +56,11 @@ void		Server::executeHead(Connection& connection, std::string targetUri)
 void		Server::executePost(Connection& connection, const Request& request)
 {
 	// int fd = open(targetUri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
-	// int ret = write(fd, response->getBody().c_str(), response->getBody().length());
+	// int ret = write(fd, response->GetBody().c_str(), response->GetBody().length());
 	// close (fd); // REVIEW POST에서 request가 들어오던가? 왜 이걸 내가 파일에 저장해야하는지 모르겠어. 존재하는 .bla 파일을 이용하는거아닌가?
 	// cout << "ret: " << ret << endl;
 	
-	connection.setResponse(new Response(&connection, 200, request.getBody()));
+	connection.SetResponse(new Response(&connection, 200, request.GetBody()));
 }
 
 void		Server::executePut(Connection& connection, const Request& request, std::string targetUri)
@@ -80,15 +80,15 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 		// perror("whatwhat??:");
 		if (errno == 0) // NOTE 파일를 open으로 열었음
 		{
-			if (connection.getResponse() != NULL)
+			if (connection.GetResponse() != NULL)
 			{
-				delete connection.getResponse();
-				connection.setResponse(NULL);
+				delete connection.GetResponse();
+				connection.SetResponse(NULL);
 			}
-			Response *temp2  = new Response(&connection, 200, request.getBody());
+			Response *temp2  = new Response(&connection, 200, request.GetBody());
 			// printf("temp2 %p \n", temp2);
-			connection.setResponse(temp2);
-			write(open_fd, connection.getResponse()->getBody().c_str(), connection.getResponse()->getBody().length());
+			connection.SetResponse(temp2);
+			write(open_fd, connection.GetResponse()->GetBody().c_str(), connection.GetResponse()->GetBody().length());
 		}
 		close(open_fd);
 	}
@@ -96,33 +96,33 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 	{
 		if (errno == EISDIR) // NOTE 폴더를 open으로 열었음
 		{
-			connection.setResponse(new Response(&connection, 204));
+			connection.SetResponse(new Response(&connection, 204));
 			std::string temp;
-			connection.getResponse()->setBody(temp);
+			connection.GetResponse()->setBody(temp);
 		}
 		else if (errno == ENOENT)
 		{
-			if (connection.getResponse() != NULL)
+			if (connection.GetResponse() != NULL)
 			{
-				delete connection.getResponse();
-				connection.setResponse(NULL);
+				delete connection.GetResponse();
+				connection.SetResponse(NULL);
 			}
-			connection.setResponse(new Response(&connection, 201, request.getBody()));	
+			connection.SetResponse(new Response(&connection, 201, request.GetBody()));	
 			int open_fd2 = open(targetUri.c_str(), O_WRONLY | O_CREAT, 0755);
 			// cout << "second open_fd: " << open_fd2 << endl;
 
-			write(open_fd2, connection.getResponse()->getBody().c_str(), connection.getResponse()->getBody().length());
+			write(open_fd2, connection.GetResponse()->GetBody().c_str(), connection.GetResponse()->GetBody().length());
 			close(open_fd2);
 
 		}
 	}
-	Response *response = connection.getResponse();
+	Response *response = connection.GetResponse();
 	// cout << "Response %p" << response << endl;
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
 	response->setHeaders("Server", "webserv");
 	if (errno == 0)
 	{
-		response->setHeaders("Content-Length", ft::itos(response->getBody().length()));
+		response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 		response->setHeaders("Content-Type", "text/html");
 		response->setHeaders("Content-Language", "en-US");
 		if (file_exist == false)
@@ -144,17 +144,17 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 		if (errno == 0) // NOTE 파일를 open으로 열었음
 		{
 			int statusCode = 200;
-			connection.setResponse(new Response(&connection, statusCode, request.getBody()));
-			std::string errorpage_body = Response::makeStatusPage(statusCode, connection.getRequest()->GetMethod());
-			connection.getResponse()->setBody(errorpage_body);
-			connection.getResponse()->setHeaders("Content-Length", ft::itos(errorpage_body.length()));
+			connection.SetResponse(new Response(&connection, statusCode, request.GetBody()));
+			std::string errorpage_body = Response::makeStatusPage(statusCode, connection.GetRequest()->GetMethod());
+			connection.GetResponse()->setBody(errorpage_body);
+			connection.GetResponse()->setHeaders("Content-Length", ft::itos(errorpage_body.length()));
 			unlink(targetUri.c_str());
 			temp = errno;
 		}
 		else if (errno == EISDIR) // NOTE 폴더를 open으로 열었음
 		{
 			int statusCode = 204;
-			connection.setResponse(new Response(&connection, statusCode));
+			connection.SetResponse(new Response(&connection, statusCode));
 			rmdir(targetUri.c_str());
 			temp = errno;
 		}
@@ -164,18 +164,18 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	else // ENOENT 2
 	{
 		int statusCode = 204;
-		connection.setResponse(new Response(&connection, statusCode));
+		connection.SetResponse(new Response(&connection, statusCode));
 		int open_fd = open(targetUri.c_str(), O_WRONLY | O_CREAT, 0755);
-		write(open_fd, connection.getResponse()->getBody().c_str(), connection.getResponse()->getBody().length());
+		write(open_fd, connection.GetResponse()->GetBody().c_str(), connection.GetResponse()->GetBody().length());
 		close(open_fd);
 	}
-	Response *response = connection.getResponse();
+	Response *response = connection.GetResponse();
 
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
 	response->setHeaders("Server", "webserv");
 	if (errno == 0 && file_exist == true)
 	{
-		response->setHeaders("Content-Length", ft::itos(response->getBody().length()));
+		response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 		response->setHeaders("Content-Type", "text/html");
 		response->setHeaders("Content-Language", "en-US");
 	}
@@ -189,8 +189,8 @@ void		Server::executeOptions(Connection& connection, std::string targetUri, conf
 		throw 404;
 	else
 	{
-		connection.setResponse(new Response(&connection, 200));
-		Response *response = connection.getResponse();
+		connection.SetResponse(new Response(&connection, 200));
+		Response *response = connection.GetResponse();
 		response->setHeaders("Date", ft::getCurrentTime().c_str());
 		response->setHeaders("Server", "webserv");
 		std::string value;
@@ -207,14 +207,14 @@ void		Server::executeOptions(Connection& connection, std::string targetUri, conf
 
 void		Server::aexecuteTrace(Connection& connection)
 {
-	connection.getSocket();
+	connection.GetSocket();
 }
 
 void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사용되지 않음
 {
-	Response*	response = connection.getResponse();
+	Response*	response = connection.GetResponse();
 
-	std::string connectionFD = ft::itos(connection.getSocket());
+	std::string connectionFD = ft::itos(connection.GetSocket());
 	if (connectionFD.size() == 0)
 	{
 		throw 500;
@@ -237,7 +237,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			close(toCGI);
 			throw 500;
 		}
-		int	cnt = write(toCGI, response->getBody().c_str(), response->getBody().length());
+		int	cnt = write(toCGI, response->GetBody().c_str(), response->GetBody().length());
 		// cout << "toCGI: " << toCGI << endl;
 		// cout << "fromCGI: " << fromCGI << endl;
 
@@ -363,8 +363,8 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 				if (statusCode != 200)
 				{
 					// STUB 1. CGI의 반환 header를 하나만 넣어준다면, 아래로 설정하기
-					// delete (connection.getResponse());
-					// connection.setResponse(new Response(&connection, statusCode, Response::makeStatusPage(statusCode, request.GetMethod())));
+					// delete (connection.GetResponse());
+					// connection.SetResponse(new Response(&connection, statusCode, Response::makeStatusPage(statusCode, request.GetMethod())));
 
 					// STUB 2. content_length가 필요해서 아래 있는 함수를 이용하는 것이 좋아보임.
 					this->createResponseStatusCode(connection, statusCode);
@@ -374,14 +374,14 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			else
 			{
 				// std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
-				connection.getResponse()->setHeaders(key, value);
+				connection.GetResponse()->setHeaders(key, value);
 			}
 			seek_cur = seek + 2;
 		}
 		std::size_t seek_body = seek_cur;
 
 		response->setBody(fromCGI_str.substr(seek_body));
-		response->setHeaders("Content-Length", ft::itos(response->getBody().length()));
+		response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 		close(fromCGI); //unlink(fromCGIfileName.c_str());
 		connection.SetStatus(Connection::SEND_READY);
 	}

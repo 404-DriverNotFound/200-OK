@@ -32,11 +32,11 @@ std::map<std::string, std::string>&				Response::getHeaders(void) {return (this-
 
 const enum TransferType&						Response::getTransferType(void) const{	return (this->eTransferType);}
 
-const std::string&								Response::getBody(void) const{	return (this->mBody);}
+const std::string&								Response::GetBody(void) const{	return (this->mBody);}
 
 const std::string&								Response::getFirstLine(void) const { return (this->mFirstLine);}
 
-const std::string&								Response::getHttpMessage(void) const {return (this->mHttpMessage);};
+const std::string&								Response::GetHttpMessage(void) const {return (this->mHttpMessage);};
 
 
 const std::string								Response::makeHttpMessage(void)
@@ -147,9 +147,9 @@ void		Response::ShowMessage(void)
 	std::cout << std::endl;
 
 	// body
-	if (getBody().empty() == false)
+	if (GetBody().empty() == false)
 	{
-		std::cout << getBody() << std::endl;
+		std::cout << GetBody() << std::endl;
 	}
 }
 

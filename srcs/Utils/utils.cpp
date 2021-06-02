@@ -267,7 +267,7 @@ unsigned long	ft::stohex(const std::string &str)
 }
 
 
-std::string ft::getBodyFromFile(std::string uriPlusFile)
+std::string ft::GetBodyFromFile(std::string uriPlusFile)
 {
 	std::string body;
 	int fd = open(uriPlusFile.c_str(), O_RDONLY);
@@ -286,7 +286,7 @@ std::string ft::getBodyFromFile(std::string uriPlusFile)
 	return (body);
 }
 
-std::string ft::getBodyFromFd(int fd)
+std::string ft::GetBodyFromFd(int fd)
 {
 	std::string body;
 	if (fd == -1)
