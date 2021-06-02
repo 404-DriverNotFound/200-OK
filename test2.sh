@@ -30,5 +30,5 @@
 #   echo "GET 500KB.txt";
 #   exit 1;
 # fi
-echo "More test will be soon";
+echo "More test will be soon!!!";
 exit 0;
