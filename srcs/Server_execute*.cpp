@@ -184,7 +184,7 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	errno = 0; // NOTE 초기화!
 }
 
-void		Server::executeOptions(Connection& connection, std::string targetUri, configIterator configIterator)
+void		Server::executeOptions(Connection& connection, configIterator configIterator)
 {
 	connection.SetResponse(new Response(&connection, 200));
 	Response *response = connection.GetResponse();

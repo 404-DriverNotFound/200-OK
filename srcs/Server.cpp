@@ -442,7 +442,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		{
 			if (request.GetMethod().compare("OPTIONS") == 0)
 			{
-				executeOptions(connection, targetUri, configIterator);
+				executeOptions(connection, configIterator);
 				connection.SetStatus(Connection::SEND_READY);
 				return ;
 			}
@@ -557,7 +557,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				}
 				else if (request.GetMethod().compare("OPTIONS") == 0)
 				{
-					executeOptions(connection, targetUri, configIterator);
+					executeOptions(connection, configIterator);
 					connection.SetStatus(Connection::SEND_READY);
 				}
 				// else if (request.GetMethod().compare("TRACE") == 0)
