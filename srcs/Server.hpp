@@ -106,7 +106,7 @@ public:
 	void								executeCGI(Connection& connection);
 	void								createResponseStatusCode(Connection& connection, int statusCode);
 	void								createResponse0(Connection &connection, std::string uriPlusFile);
-	void								createResponse200(Connection &connection, std::string uriPlusFile);
+	void								createResponse200(Connection &connection, std::string targetUri);
 
 	const int&							GetSocket(void) const;
 

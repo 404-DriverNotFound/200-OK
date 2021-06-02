@@ -362,7 +362,7 @@ void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
 	return ;
 }
 
-void			Server::createResponse200(Connection &connection, std::string uriPlusFile)
+void			Server::createResponse200(Connection &connection, std::string targetUri)
 {
 	connection.SetResponse(new Response(&connection, 200));
 	Response *response = connection.GetResponse();
@@ -372,9 +372,13 @@ void			Server::createResponse200(Connection &connection, std::string uriPlusFile
 	response->setHeaders("Content-Language", "en-US");
 
 	std::string body;
-	body = ft::GetBodyFromFile(uriPlusFile);
+	body = ft::GetBodyFromFile(targetUri);
 	response->setBody(body);
 	response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
+	
+	time_t time; struct stat buf;
+	stat(targetUri.c_str(), &buf);
+	response->setHeaders("Last-Modified", ft::getHTTPTimeFormat(buf.st_mtime));
 	return ;
 }
 
