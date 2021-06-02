@@ -567,7 +567,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 			else
 			{
-				if (errno == 2)
+				if (errno == ENOENT)
 					throw 404;
 			}
 		}

@@ -272,6 +272,10 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		int pid = fork();
 		if (pid < 0)
 		{
+			for (size_t i = 0; envp[i] != NULL; i++)
+			{
+				free(envp[i]);
+			}
 			free(envp); envp = NULL;
 			close(fromCGI);
 			close(toCGI);
@@ -286,6 +290,10 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		else
 		{
 			waitpid(pid, 0, 0);
+			for (size_t i = 0; envp[i] != NULL; i++)
+			{
+				free(envp[i]);
+			}
 			free(envp); envp = NULL;
 			close(fromCGI);
 			close(toCGI); //unlink(toCGIfileName.c_str());
