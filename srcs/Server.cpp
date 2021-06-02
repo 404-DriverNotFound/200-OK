@@ -398,7 +398,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string root = locationPath->mRoot.getPath();
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string targetUri = absolute_path + root + relative_path;
-	// cout << "targetUri: " << targetUri << endl;
+	connection.SetTargetUri(targetUri);
 
 	if (isValidMethod(request, configIterator) == false)
 	{
@@ -469,7 +469,6 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			throw 413;
 		if (request.GetURItype() == Request::CGI_PROGRAM)
 		{
-			connection.SetTargetUri(targetUri);
 			if (request.GetMethod().compare("GET") == 0)
 			{
 				executeGet(connection, targetUri);
