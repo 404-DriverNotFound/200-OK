@@ -137,51 +137,27 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 
 void		Server::executeDelete(Connection& connection, const Request& request, std::string targetUri)
 {
-	bool file_exist = 0;
-	int open_fd = open(targetUri.c_str(), O_RDWR);
-	int temp = errno;
-	if (open_fd > 0)
+	errno = 0;
+	if (ft::access(targetUri, 0) == 0)
 	{
-		file_exist = true;
-		if (errno == 0) // NOTE 파일를 open으로 열었음
+		if (ft::isFilePath(targetUri) == true)
 		{
-			int statusCode = 200;
-			connection.SetResponse(new Response(&connection, statusCode, request.GetBody()));
-			std::string errorpage_body = Response::makeStatusPage(statusCode, connection.GetRequest()->GetMethod());
-			connection.GetResponse()->setBody(errorpage_body);
-			connection.GetResponse()->setHeaders("Content-Length", ft::itos(errorpage_body.length()));
+			this->createResponse200(connection,targetUri);
 			unlink(targetUri.c_str());
-			temp = errno;
 		}
-		else if (errno == EISDIR) // NOTE 폴더를 open으로 열었음
+		else if (ft::isDirPath(targetUri) == true)
 		{
 			int statusCode = 204;
 			connection.SetResponse(new Response(&connection, statusCode));
-			rmdir(targetUri.c_str());
-			temp = errno;
+			// NOTE 폴더라도 지우는 쪽으로 한다면 아래 주석 해제
+			// rmdir(targetUri.c_str());
 		}
-		close(open_fd);
-		temp = errno;
 	}
-	else // ENOENT 2
+	else
 	{
 		int statusCode = 204;
 		connection.SetResponse(new Response(&connection, statusCode));
-		int open_fd = open(targetUri.c_str(), O_WRONLY | O_CREAT, 0755);
-		write(open_fd, connection.GetResponse()->GetBody().c_str(), connection.GetResponse()->GetBody().length());
-		close(open_fd);
 	}
-	Response *response = connection.GetResponse();
-
-	response->setHeaders("Date", ft::getCurrentTime().c_str());
-	response->setHeaders("Server", "webserv");
-	if (errno == 0 && file_exist == true)
-	{
-		response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
-		response->setHeaders("Content-Type", "text/html");
-		response->setHeaders("Content-Language", "en-US");
-	}
-	errno = 0; // NOTE 초기화!
 }
 
 void		Server::executeOptions(Connection& connection, configIterator configIterator)
