@@ -296,22 +296,16 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 		}
 		if (it2->second.IsKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
-			//std::cout << "closeOldconnection: " << fd << std::endl;
-			if (it2->second.GetRequest() == NULL)
+			if (it2->second.GetResponse())
 			{
-				serverIterator->createResponseStatusCode(it2->second, 408);
-				it2->second.GetResponse()->setHttpMessage(it2->second.GetResponse()->makeHttpMessage());
-				ssize_t	count = write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
-				if (count <= 0)
-				{
-					throw (static_cast<const std::string>("IO Error"));
-				}
+				delete it->second.GetResponse();
 			}
+			serverIterator->createResponseStatusCode(it2->second, 408);
+			it2->second.GetResponse()->setHttpMessage(it2->second.GetResponse()->makeHttpMessage());
+			write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
 			serverIterator->closeConnection(it2->second.GetSocket());
-			return ;
 		}
 	}
-	return ;
 }
 
 class OverlapedValue
