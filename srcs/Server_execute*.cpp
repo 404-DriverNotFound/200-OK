@@ -1,8 +1,6 @@
 #include "Server.hpp"
-#include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
+#include "ServerManager.hpp"
 #include "Response.hpp"
-
-
 
 void		Server::executeAutoindex(Connection& connection, std::string uriCopy)
 {
@@ -55,29 +53,20 @@ void		Server::executeHead(Connection& connection, std::string targetUri)
 
 void		Server::executePost(Connection& connection, const Request& request)
 {
-	// int fd = open(targetUri.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0755);
-	// int ret = write(fd, response->GetBody().c_str(), response->GetBody().length());
-	// close (fd); // REVIEW POST에서 request가 들어오던가? 왜 이걸 내가 파일에 저장해야하는지 모르겠어. 존재하는 .bla 파일을 이용하는거아닌가?
-	// cout << "ret: " << ret << endl;
-	
 	connection.SetResponse(new Response(&connection, 200, request.GetBody()));
 }
 
 void		Server::executePut(Connection& connection, const Request& request, std::string targetUri)
 {
-	// NOTE 우선은 파일만 Put에 들어온다고 가정하자.
 	bool file_exist = 0;
 	errno = 0;
 	if (targetUri.back() == '/') // NOTE 무조껀 파일경로로 open 하도록 함. 폴더 경로로 open하면, 동작이 조금 다르다.
 		targetUri.pop_back();
-	// cout << "pop_targetUri: targetUri" << targetUri << endl;
 	int open_fd = open(targetUri.c_str(), O_WRONLY | O_TRUNC);
-	// cout << "first open_fd: " << open_fd << endl;
 
 	if (open_fd > 2)
 	{
 		file_exist = true;
-		// perror("whatwhat??:");
 		if (errno == 0) // NOTE 파일를 open으로 열었음
 		{
 			if (connection.GetResponse() != NULL)
@@ -86,7 +75,6 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 				connection.SetResponse(NULL);
 			}
 			Response *temp2  = new Response(&connection, 200, request.GetBody());
-			// printf("temp2 %p \n", temp2);
 			connection.SetResponse(temp2);
 			write(open_fd, connection.GetResponse()->GetBody().c_str(), connection.GetResponse()->GetBody().length());
 		}
@@ -119,7 +107,6 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 		}
 	}
 	Response *response = connection.GetResponse();
-	// cout << "Response %p" << response << endl;
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
 	response->setHeaders("Server", "webserv");
 	if (errno == 0)
@@ -132,7 +119,6 @@ void		Server::executePut(Connection& connection, const Request& request, std::st
 			response->setHeaders("Location", targetUri);
 		}
 	}
-	errno = 0; // NOTE 초기화!
 }
 
 void		Server::executeDelete(Connection& connection, std::string targetUri)
@@ -181,7 +167,7 @@ void		Server::aexecuteTrace(Connection& connection)
 	connection.GetSocket();
 }
 
-void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사용되지 않음
+void		Server::executeCGI(Connection& connection)
 {
 	Response*	response = connection.GetResponse();
 
@@ -201,7 +187,6 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		{
 			throw 500;
 		}
-		// fcntl(toCGI, F_SETFL, O_NONBLOCK);
 		int	fromCGI = open(fromCGIfileName.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0666);
 		if (fromCGI == -1)
 		{
@@ -209,9 +194,6 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			throw 500;
 		}
 		int	cnt = write(toCGI, response->GetBody().c_str(), response->GetBody().length());
-		// cout << "toCGI: " << toCGI << endl;
-		// cout << "fromCGI: " << fromCGI << endl;
-
 		if (cnt < 0)
 		{
 			close(fromCGI);
@@ -299,7 +281,6 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 		{
 			throw 500;
 		}
-		// cout << "fromCGIfilename: " << fromCGIfileName << endl;
 		struct stat	statBuf;
 		if (fstat(fromCGI, &statBuf) == -1)
 		{
@@ -352,11 +333,6 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 				seek_cur += 2;
 				break ;
 			}
-			// std::cout << "\t|" << header << "|" << std::endl;
-			// REVIEW 정보는 딱 두개 만 보내주는건가, header 넣는 부분. 값을 받아서 넣어줘야하는데, 그냥 수기로 넣어주고 있음.
-			// Status: 200 OK
-			// Content-Type: text/html; charset=utf-8
-	
 			std::size_t	found = header.find(": ");
 			if (found == std::string::npos)
 			{
@@ -378,24 +354,17 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 				int statusCode = std::atoi(statusCode_str.c_str());
 				if (statusCode != 200)
 				{
-					// STUB 1. CGI의 반환 header를 하나만 넣어준다면, 아래로 설정하기
-					// delete (connection.GetResponse());
-					// connection.SetResponse(new Response(&connection, statusCode, Response::makeStatusPage(statusCode, request.GetMethod())));
-
-					// STUB 2. content_length가 필요해서 아래 있는 함수를 이용하는 것이 좋아보임.
 					this->createResponseStatusCode(connection, statusCode);
-					return ; // REVIEW throw 를 statusCode로 던져서 윗단에서 생성시키도록 해야하나.
+					return ;
 				}
 			}
 			else
 			{
-				// std::cout << "\t\t|" << key << "| |" << value << "|" << std::endl;
 				connection.GetResponse()->setHeaders(key, value);
 			}
 			seek_cur = seek + 2;
 		}
 		std::size_t seek_body = seek_cur;
-
 		response->setBody(fromCgiStr.substr(seek_body));
 		response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 		connection.SetStatus(Connection::SEND_READY);

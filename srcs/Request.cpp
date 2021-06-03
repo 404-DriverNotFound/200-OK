@@ -130,11 +130,10 @@ void								Request::SetTransferType(const eTransferType& trasferType)
 
 void								Request::ParseURI(std::string& uri)
 {
-	// http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
+	// NOTE http://localhost:8000/2019/08/index.html;page=1?isEdit=true&id=123#fragment
 	std::size_t	found;
 	mURI = uri;
 
-	// NOTE 414
 	if (mURI.length() > 200)
 	{
 		throw 414;
@@ -183,19 +182,6 @@ void								Request::ParseURI(std::string& uri)
 	{
 			mURItype = Request::FILE_TO_DELETE;
 	}
-	// // ANCHOR URI parsing debug
-	// if (mURItype == Request::DIRECTORY)
-	// 	std::cout << "\t  mURItype : |DIRECTORY|"<< std::endl;
-	// if (mURItype == Request::FILE)
-	// 	std::cout << "\t  mURItype : |FILE|"<< std::endl;
-	// if (mURItype == Request::FILE_TO_CREATE)
-	// 	std::cout << "\t  mURItype : |FILE_TO_CREATE|"<< std::endl;
-	// if (mURItype == Request::CGI_PROGRAM)
-	// 	std::cout << "\t  mURItype : |CGI_PROGRAM|"<< std::endl;
-	// std::cout << "\t    mQuery : |" << mQuery << "|" << std::endl;
-	// std::cout << "\tmParameter : |" << mParameter << "|" << std::endl;
-	// std::cout << "\t mFileName : |" << mFileName << "|" << std::endl;
-	// std::cout << "\tmDirectory : |" << mDirectory << "|" << std::endl;
 }
 
 void								Request::SetURI(const std::string& uri)

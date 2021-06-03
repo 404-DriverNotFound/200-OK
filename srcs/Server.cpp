@@ -1,5 +1,5 @@
 #include "Server.hpp"
-#include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
+#include "ServerManager.hpp"
 #include "Response.hpp"
 
 
@@ -12,10 +12,10 @@ int				Server::SetSocket()
 	}
 	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_addr.s_addr = inet_addr(this->mHost.c_str()); // REVIEW 위 아래 어떤 것으로 쓸지
-	sockaddr.sin_port = htons(this->mPort); // htons is necessary to convert a number to
+	sockaddr.sin_addr.s_addr = inet_addr(this->mHost.c_str());
+	sockaddr.sin_port = htons(this->mPort);
 
-	int opt = 1; // 소켓을 재사용하려면 희한하게도 1로 설정해야한다.
+	int opt = 1;
 	setsockopt(this->mSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	if (bind(this->mSocket, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr)) < 0)
 	{
@@ -25,18 +25,12 @@ int				Server::SetSocket()
 	{
 		throw (static_cast<const std::string>("listen() error"));
 	}
-	// NOTE fcntl 부분 일단 넣어봄 왜 필요한지 여부는 아직 파악 못함
-	// if (fcntl(this->mSocket, F_SETFL, O_NONBLOCK) == -1)
-	// {
-	// 	throw std::runtime_error("FCNTL ERROR");
-	// }
 	return (-1);
 }
 
 int				Server::getUnuseConnectionFd()
 {
 	std::map<int, Connection>::iterator it = mConnections.begin();
-	// cout << "getUnuseConnectionFd_connection size: "<< mConnections.size() << endl; 
 	while (it != mConnections.end())
 	{
 		std::map<int, Connection>::iterator it2 = it++;
@@ -46,7 +40,6 @@ int				Server::getUnuseConnectionFd()
 		if ((FT_FD_ISSET(it2->second.GetSocket(), &(this->mManager->GetReadCopyFds())) == 0) &&
 				it2->second.IsKeepConnection() == false)
 		{
-			// cout << "it2->second.GetSocket() " << it2->second.GetSocket() << endl;
 			return (it2->second.GetSocket());
 		}
 	}
@@ -60,14 +53,7 @@ void			Server::closeConnection(int clientFd)
 	mManager->ClrReadCopyFds(clientFd);
 	mManager->ClrWriteFds(clientFd);
 	mManager->ClrWriteCopyFds(clientFd);
-	// mManager->SetTotalClients(mManager->GetTotalClients() - 1);
 	gTotalClients--;
-
-	// FD_CLR(clientFd, &(this->mManager->GetReadFds()));
-	// FD_CLR(clientFd, &(this->mManager->GetWriteFds()));
-	// FD_CLR(clientFd, &(this->mManager->GetReadFds()));
-	// FD_CLR(clientFd, &(this->mManager->GetWriteCopyFds()));
-
 	std::map<int, Connection>::iterator it = mConnections.begin();
 	while (it != mConnections.end())
 	{
@@ -89,7 +75,6 @@ void			Server::recvRequest(Connection& connection)
 	ssize_t		count = read(connection.GetSocket(), buf, sizeof(buf));
 	if (count > 0)
 	{
-		// REVIEW 파싱단계에서 count 변수를 사용해서 탐색 범위를 좁힐 수 있을까?
 		connection.AddRbufFromClient(buf, count);
 		if (request->GetPhase() == Request::READY)
 		{
@@ -112,8 +97,6 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteFds()));
-					// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds()));
 					mManager->SetWriteFds(connection.GetSocket());
 					mManager->SetWriteCopyFds(connection.GetSocket());
 				}
@@ -123,8 +106,6 @@ void			Server::recvRequest(Connection& connection)
 				request->SetPhase(Request::COMPLETE);
 				mManager->SetWriteFds(connection.GetSocket());
 				mManager->SetWriteCopyFds(connection.GetSocket());
-				// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteFds()));
-				// FD_SET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds()));
 			}
 		}
 	}
@@ -253,7 +234,7 @@ bool			Server::parseBody(Connection& connection)
 					std::string		body = request->GetHttpMessage().substr(request->GetSeek(), foundBody - request->GetSeek());
 					if (hexValue != body.length())
 					{
-						throw 413; // REVIEW payload too large 이거 맞는지 모르겠음
+						throw 413;
 					}
 					else
 					{
@@ -276,9 +257,8 @@ bool			Server::parseBody(Connection& connection)
 		{
 			throw 411;
 		}
-		int												contentLength = std::atoi(it->second.c_str());
-		int												bodyLength = request->GetHttpMessage().length() - request->GetSeek();
-		// std::cout << contentLength << " " << bodyLength << std::endl;
+		int contentLength = std::atoi(it->second.c_str());
+		int bodyLength = request->GetHttpMessage().length() - request->GetSeek();
 		if (contentLength > bodyLength)
 		{
 			return (false);
@@ -307,7 +287,6 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 		createResponseErrorPage(connection, this->mErrorPage, statusCode);
 		return ;
 	}
-	// createResponse_statuscode
 	std::map<int, std::string> &status_map = Response::mStatusMap;
 	std::map<int, std::string>::iterator it;
 	if ((it = status_map.find(statusCode)) == status_map.end())
@@ -514,7 +493,6 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			// NOTE index_pages 으로 찾아봐도 해당 페이지가 없음. 에러페이지 혹은 오토인덱스 페이지를 보여줘야함.
 			if (locationPath->mAutoIndex == true)
 			{
-				// cout << "serverBlock autoindex: " << locationPath->mAutoIndex << endl;
 				std::string temp = root + relative_path;
 				executeAutoindex(connection, ft::ReplaceAllModified(temp, "//", "/"));
 				connection.SetStatus(Connection::SEND_READY);
@@ -525,7 +503,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				throw 404;
 			}
 		}
-		else // NOTE 없는 "폴더경로"로 접근 했을 때, 404 page. 파일이건 폴더이건 신경쓰지 않음
+		else // NOTE 없는 "폴더경로"로 접근 했을 때, 404 page
 		{
 			throw 404;
 		}
@@ -639,7 +617,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				// }
 				else
 				{
-					throw 405; // NOTE Method NOTE Allowed
+					throw 405;
 				}
 			}
 			else
@@ -726,7 +704,6 @@ char**			Server::createCgiEnvp(const Connection& connection) const
 			temp[i] = std::toupper(temp[i]);
 		}
 		http_cgi += temp;
-		// cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
 		cgiEnv[http_cgi] = it_http->second;
 	}
 
@@ -736,35 +713,22 @@ char**			Server::createCgiEnvp(const Connection& connection) const
 		int	i = 0;
 		for (std::map<std::string,std::string>::iterator it = cgiEnv.begin(); it != cgiEnv.end(); ++it)
 		{
-			ret[i++] = strdup((it->first + "=" + it->second).c_str());	// iostream 했더니 strdup됨
+			ret[i++] = strdup((it->first + "=" + it->second).c_str());
 		}
 		ret[i] = 0;
-
-		// ANCHOR cgiENV debug block
-		// {
-		// 	i = 0;
-		// 	while (ret[i])
-		// 	{
-		// 		std::cout << ret[i++] << std::endl;
-		// 	}
-		// 	exit(1);
-		// }
-
 		return (ret);
 	}
-	catch(const std::exception& e)
+	catch (const std::exception& e)
 	{
-		throw 500; // NOTE 뭘 날려야할까요 500번대 에러는 맞는데...
+		throw 500;
 	}
 }
 
 bool Server::isValidMethod(Request &request, configIterator configIterator)
 {
-	// std::vector<serverBlock>::iterator serverBlock = configIterator.serverBlock;
 	std::vector<LocationPath>::iterator locationPath = configIterator.locationPath;
 	for (size_t i = 0; i < locationPath->mMethod.size(); i++)
 	{
-		// cout << i <<  ": " << locationPath->mMethod[i] << endl;
 		if (request.GetMethod() == locationPath->mMethod[i])
 			return (true);
 	}

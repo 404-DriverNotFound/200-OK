@@ -71,15 +71,19 @@ void		ServerManager::RunServers(void)
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
 				it->run();
-				// closeOldConnection(it);
 			}
 		}
 	}
 }
 
-void		ServerManager::updateMaxFd(void) // REVIEW mMaxFd에 대해서 +- 증감 연산으로도 충분히 계산할 수 있을 것 같아서, while문을 도는 것이 비효율적이라는 생각이 듦
+void		ServerManager::updateMaxFd(void)
 {
-	// REVIEW 하향식으로 전체 탐색하는 것으로 MaxFd를 찾아냈었음. (+상향식으로는 체크할 수 없음)
+	if (gTotalClients == 0)
+	{
+		mMaxFd = 2 + this->mServers.size();
+	}
+
+	// REVIEW 하향식으로 전체 탐색하는 방식(단, 상향식으로는 체크할 수 없음)
 	// for (int i = INIT_FD_MAX; i >= 0; --i)
 	// {
 	// 	// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
@@ -89,14 +93,7 @@ void		ServerManager::updateMaxFd(void) // REVIEW mMaxFd에 대해서 +- 증감 �
 	// 		break ;
 	// 	}
 	// }
-
-	if (gTotalClients == 0)
-	{
-		mMaxFd = 2 + this->mServers.size();
-	}
 }
-
-//ANCHOR yunslee line: 160~332 추가
 
 int ServerManager::setServersValue(ConfigFiles *configFiles)
 {
@@ -106,8 +103,7 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 		int idxserver;
 		if (-1 == (idxserver = this->getIdxServer(config.mPort, config.mHost)))
 		{
-			// NOTE port별로 서버도 없는 상황, 아예 새롭게 만들면 됨.
-			Server server(this); // FIXME ServerManager * 가 들어갈 것으로 예상했으나 들어가지 않음. 그래서 setServers에서 처리해줌
+			Server server(this);
 			server.mPort = config.mPort;
 			server.mHost = config.mHost;
 			
@@ -137,7 +133,6 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 		int idxserverBlock;
 		if (-1 == (idxserverBlock = this->getIdxServerBlock(server.mServerBlocks, config.mServerName)))
 		{
-			// NOTE port는 있으나 다른 서버네임을 가지고 있음
 			serverBlock temp;
 			temp.mserverName = config.mServerName;
 			temp.mTimeOut = config.mTimeOut;
@@ -162,7 +157,6 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 		int idxlocationblock;
 		if (-1 == (idxlocationblock = this->getIdxLocationPath(temp.mlocationPaths, config.mLocationPath)))
 		{
-			// NOTE port도 있고, 서버네임도 있으나, location이 다른 경우
 			LocationPath temp2;
 			temp2.mLocationPath = config.mLocationPath;
 			temp2.mRoot = config.mRoot;

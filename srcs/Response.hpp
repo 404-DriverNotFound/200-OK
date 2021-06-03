@@ -15,7 +15,7 @@ enum TransferType								{ GENERAL, CHUNKED };
 class Response
 {
 private:
-	Response(); // NOTE 인자 없이 생성되어 Connection class에 연결되는 일이 없도록 하자.
+	Response();
 public:
 	virtual ~Response();
 	Response(Connection* connection, int statusCode, std::string body = "");

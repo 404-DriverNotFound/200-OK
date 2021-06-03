@@ -36,13 +36,13 @@ public:
 	LocationPath&				operator=(const LocationPath& ref);
 
 public:
-	Path						mLocationPath;		// def = 
-	Path						mRoot;				// def = 
-	std::vector<Path>			mIndexPages;		// def = index.html
-	Path						mErrorPage;			// def = error.html
-	bool						mAutoIndex;
-	size_t						mClientMaxBodySize;	//def = 0
-	Path						mAuthBasicUserFile;	//def =
+	Path						mLocationPath;			// def = 
+	Path						mRoot;					// def = 
+	std::vector<Path>			mIndexPages;			// def = index.html
+	Path						mErrorPage;				// def = default_error.html
+	bool						mAutoIndex;				// def = false
+	size_t						mClientMaxBodySize;		//def = 0
+	Path						mAuthBasicUserFile;		//def =
 
 	std::vector<std::string>	mMethod;
 	std::vector<std::string>	mCgiProgramPath;
@@ -63,7 +63,7 @@ public :
 	std::vector<std::string>	mCgiExtension;
 };
 
-class Server // NOTE port별로 나뉘는 블록
+class Server
 {
 public:
 	Server(void);
@@ -94,9 +94,8 @@ public:
 	bool								runSend(Connection& connection);
 
 	void								run(void);
-	void								solveRequest(Connection& connection, Request& request); // NOTE reponse를 만드는 함수. Method, autoindex etc...
-	// void								executeAutoindex(Connection& connection, const Request& request);
-	void								executeAutoindex(Connection& connection, std::string uriCopy); // NOTE 살짝 변형함.
+	void								solveRequest(Connection& connection, Request& request);
+	void								executeAutoindex(Connection& connection, std::string uriCopy);
 	void								executeGet(Connection& connection, std::string targetUri);
 	void								executeHead(Connection& connection, std::string targetUri);
 	void								executePost(Connection& connection, const Request& request);
@@ -112,7 +111,6 @@ public:
 
 	const int&							GetSocket(void) const;
 
-	//ANCHOR yunslee
 	std::vector<serverBlock>&			getServerBlocks(void);
 	bool isValidMethod(Request& request, configIterator configIterator);
 
@@ -132,12 +130,12 @@ private:
 
 public :
 	ServerManager*						mManager;
-	uint16_t							mPort; // def = 8000;
-	std::string							mHost; // def = "0.0.0.0";
+	uint16_t							mPort;					// def = 8000;
+	std::string							mHost;					// def = "0.0.0.0";
 	std::vector<serverBlock>			mServerBlocks;
-	int									mSocket; // NOTE mConnections의 첫번째 값이 모두 서버소켓의 fd임!
-	std::map<int, Connection>			mConnections;
-	std::string							mErrorPage; // def = "" 설정하지 않은 경우
+	int									mSocket;
+	std::map<int, Connection>			mConnections;			// NOTE mConnections의 첫번째 값이 모두 서버소켓의 fd임!
+	std::string							mErrorPage;				// def = "" 설정하지 않은 경우
 };
 
 struct configIterator
@@ -145,6 +143,5 @@ struct configIterator
 	std::vector<serverBlock>::iterator	serverBlock;
 	std::vector<LocationPath>::iterator	locationPath;
 };
-
 
 #endif

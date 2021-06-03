@@ -55,7 +55,6 @@ class ServerManager
 		std::vector<Server>&	GetServers(void);
 
 	private:
-		// ANCHOR yunslee
 		void					updateMaxFd(void);
 		int						setServersValue(ConfigFiles* configFiles);
 		int						setServers(void);
@@ -67,13 +66,12 @@ class ServerManager
 		void					closeOldConnection(const std::vector<Server>::iterator& serverIterator);
 		void					serviceUnavailable(const std::vector<Server>::iterator& serverIterator);
 
-		std::vector<Server>		mServers;		// NOTE: server 객체들
-		int						mMaxFd;			// NOTE: 관리하는 서버의 max_fd 중 가장 큰 fd
-		fd_set					mReadFds;		// NOTE: 요청 발생여부 확인을 위한 fd_set
-		fd_set					mReadCopyFds;	// NOTE: select에 실제 인자로 넣을 read_set
-		fd_set					mWriteFds;		// NOTE: 응답 송신 가능여부 확인을 위한 fd_set, enum 0 번.
-		fd_set					mWriteCopyFds;	// NOTE: select에 실제 인자로 넣을 write_set
-		uint16_t				mTotalClients;	// NOTE: 전체 클라이언트의 수
+		std::vector<Server>		mServers;
+		int						mMaxFd;
+		fd_set					mReadFds;
+		fd_set					mReadCopyFds;
+		fd_set					mWriteFds;
+		fd_set					mWriteCopyFds;
+		uint16_t				mTotalClients;
 };
-
 #endif

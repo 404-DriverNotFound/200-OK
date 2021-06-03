@@ -16,12 +16,6 @@ SRCS	=	gnl/get_next_line_bonus.cpp gnl/get_next_line_utils_bonus.cpp \
 			srcs/Path/Path.cpp \
 			srcs/ServerConfigIdx/ServerConfigIdx.cpp \
 			srcs/Utils/utils.cpp
-#			srcs/Config.cpp\
-
-
-# $(wildcard ./srcs/*.cpp)
-
-
 
 OBJS	=	$(SRCS:.cpp=.o)
 
@@ -29,10 +23,10 @@ NAME	=	webserv
 
 CC		=	clang++
 
-#CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+# CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 # CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3
 # CFLAGS	=	-std=c++98 -g3 -fsanitize=address
-CFLAGS	=	-std=c++98 -Wall -Wextra -Werror -g3
+CFLAGS	=	-std=c++98 -Wall -Wextra -Werror
 
 
 RM		=	-rm -rf
@@ -49,7 +43,6 @@ re		:	fclean all
 
 $(NAME)	:	$(SRCS)
 			$(CC) $(CFLAGS) $^ -o $@
-			# ./webserv
 
 test	:	re
 			./webserv test.config&

@@ -1,8 +1,14 @@
 #include "Server.hpp"
-#include "ServerManager.hpp" // NOTE 상호참조 문제를 해결하기 위해서!
+#include "ServerManager.hpp"
 #include "Response.hpp"
 
-LocationPath::LocationPath() : mLocationPath(), mRoot(), mErrorPage("error.html"), mAutoIndex(false), mClientMaxBodySize(0), mAuthBasicUserFile()
+LocationPath::LocationPath() :
+	mLocationPath(),
+	mRoot(),
+	mErrorPage("default_error.html"),
+	mAutoIndex(false),
+	mClientMaxBodySize(0),
+	mAuthBasicUserFile()
 {
 	Path temp("index.html");
 	this->mIndexPages.push_back(temp);
@@ -81,8 +87,6 @@ Server::Server(void)
 	, mHost("0.0.0.0")
 	, mSocket(0)
 	, mErrorPage("")
-	// , mServerBlocks()
-	// , mPhase(READY)
 {
 }
 
@@ -92,15 +96,11 @@ Server::Server(ServerManager *manager)
 	, mHost("0.0.0.0")
 	, mSocket(0)
 	, mErrorPage("")
-	// , mServerBlocks()
-	// , mPhase(READY)
 {
-	
 }
 
 Server::~Server()
 {
-	
 }
 
 Server::Server(const Server &ref)
@@ -120,7 +120,6 @@ Server&	Server::operator=(const Server &ref)
 	this->mErrorPage = ref.mErrorPage;
 	return (*this);
 }
-
 
 std::vector<serverBlock>::iterator Server::returnIteratorServerBlock(std::vector<serverBlock> &serverBlocks, std::string serverName)
 {
@@ -155,10 +154,6 @@ std::vector<LocationPath>::iterator Server::returnIteratorLocationPath(std::vect
 		if (i == it->mLocationPath.getSize())
 			return (it);
 		it++;
-		// if (relative_str == it->mLocationPath.getPath())
-		// {
-		// 	return (it);
-		// }
 	}
 	it--; // NOTE 맨 뒤에 있는 locationPath을 default로 잡음
 	return (it);

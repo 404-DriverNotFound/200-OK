@@ -2,22 +2,19 @@
 
 Response::Response()
 {
-	// initStatusMap(); 초기화는 메인 문에서 한번 해주고 있음. 안해줘도 됨
 }
 
 Response::~Response()
 {
-	
 }
 
 Response::Response(Connection* connection, int statusCode, std::string body)
 	: mConnection(connection), mStatusCode(statusCode), mBody(body), mSeek(0), mHttpMessageLength(0)
 {
-	// initStatusMap(); 초기화는 메인 문에서 한번 해주고 있음. 안해줘도 됨
 	this->setConnection(connection);
-	this->setStatusCode(statusCode); // NOTE statusCode 인자값이 잘못된 인자 값이 들어오진 않는다 Server클래스의 함수를 통해 생성되기 때문에!
+	this->setStatusCode(statusCode);
 	this->makeFirstLine();	
-	this->setTransferType(GENERAL); // REVIEW chunked 일때, 값을 넣어줘야함.
+	this->setTransferType(GENERAL);
 	this->setBody(body);
 	this->setHeaders("Content-Length", ft::itos(body.length()));
 }
@@ -56,7 +53,6 @@ const std::string								Response::makeHttpMessage(void)
 	}
 	all += "\r\n";
 	all += this->mBody;
-	// std::cout << all << std::endl;
 	return (all);
 }
 
@@ -137,7 +133,7 @@ void		Response::copyHeaders(std::map<std::string, std::string> &ref)
 void		Response::ShowMessage(void)
 {
 	// status line
-	std::cout << "HTTP/9.9 " << mStatusCode << " " << mStatusMap[mStatusCode] << std::endl;
+	std::cout << "HTTP/1.1 " << mStatusCode << " " << mStatusMap[mStatusCode] << std::endl;
 
 	// response header
 	for (std::map<std::string, std::string>::iterator it = getHeaders().begin(); it != getHeaders().end(); ++it)

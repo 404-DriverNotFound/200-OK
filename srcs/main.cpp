@@ -1,16 +1,12 @@
-#include <iostream>
 #include "ServerManager.hpp"
 
-// #define DEFAULT_CONFIG_FILE_PATH "default.config"
-
-std::map<int, std::string> Response::mStatusMap; // NOTE static 변수도 전역변수라도 한번 선언을 해줘야함.
-
+std::map<int, std::string> Response::mStatusMap;
 char** gEnv;
 int gTotalClients;
 
 int		main(int argc, char* argv[], char* envp[])
 {
-	gEnv = envp; // FIXME env 임시로 전역변수로
+	gEnv = envp;
 
 	Response::initStatusMap();
 	ServerManager	manager;
@@ -41,7 +37,6 @@ int		main(int argc, char* argv[], char* envp[])
 			{
 				manager.CreateServers(std::string(DEFAULT_CONFIG_FILE_PATH));
 			}
-			// NOTE 서버 실행
 			manager.RunServers();
 		}
 		catch (const std::string e)
