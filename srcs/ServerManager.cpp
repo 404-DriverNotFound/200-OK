@@ -4,8 +4,8 @@ ServerManager::ServerManager(void)
 	: mMaxFd(INIT_FD_MAX)
 	, mTotalClients(0)
 {
-	FD_ZERO(&mReadFds);
-	FD_ZERO(&mWriteFds);
+	FT_FD_ZERO(&mReadFds);
+	FT_FD_ZERO(&mWriteFds);
 }
 
 void		ServerManager::ExitServer(const std::string& msg) const
@@ -41,8 +41,8 @@ void		ServerManager::RunServers(void)
 	{
 		timeOut.tv_sec = SELECT_TIMEOUT_SEC; timeOut.tv_usec = SELECT_TIMEOUT_USEC;
 
-		FD_COPY(&mReadFds, &mReadCopyFds);
-		FD_COPY(&mWriteFds, &mWriteCopyFds);
+		FT_FD_COPY(&mReadFds, &mReadCopyFds);
+		FT_FD_COPY(&mWriteFds, &mWriteCopyFds);
 		updateMaxFd();
 		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeOut);
 		if (cnt < 0)
@@ -83,7 +83,7 @@ void		ServerManager::updateMaxFd(void) // REVIEW mMaxFd에 대해서 +- 증감 �
 	// for (int i = INIT_FD_MAX; i >= 0; --i)
 	// {
 	// 	// if (fdIsset(i, READ_SET) || fdIsset(i, WRITE_SET))
-	// 	if (FD_ISSET(i, &mReadFds) || FD_ISSET(i, &mWriteFds))
+	// 	if (FT_FD_ISSET(i, &mReadFds) || FT_FD_ISSET(i, &mWriteFds))
 	// 	{
 	// 		mMaxFd = i;
 	// 		break ;
@@ -302,7 +302,7 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 		{
 			continue ;
 		}
-		if (it2->second.IsKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
+		if (it2->second.IsKeepConnection() == false && (FT_FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
 			if (it2->second.GetRequest() == NULL)
 			{
@@ -396,12 +396,12 @@ const fd_set&				ServerManager::GetReadCopyFds(void) const
 
 void						ServerManager::SetReadCopyFds(const int& fd)
 {
-	FD_SET(fd, &mReadCopyFds);
+	FT_FD_SET(fd, &mReadCopyFds);
 }
 
 void						ServerManager::ClrReadCopyFds(const int& fd)
 {
-	FD_CLR(fd, &mReadCopyFds);
+	FT_FD_CLR(fd, &mReadCopyFds);
 }
 
 const fd_set&				ServerManager::GetReadFds(void) const
@@ -411,12 +411,12 @@ const fd_set&				ServerManager::GetReadFds(void) const
 
 void						ServerManager::SetReadFds(const int& fd)
 {
-	FD_SET(fd, &mReadFds);
+	FT_FD_SET(fd, &mReadFds);
 }
 
 void						ServerManager::ClrReadFds(const int& fd)
 {
-	FD_CLR(fd, &mReadFds);
+	FT_FD_CLR(fd, &mReadFds);
 }
 
 const fd_set&				ServerManager::GetWriteCopyFds(void) const
@@ -426,12 +426,12 @@ const fd_set&				ServerManager::GetWriteCopyFds(void) const
 
 void						ServerManager::SetWriteCopyFds(const int& fd)
 {
-	FD_SET(fd, &mWriteCopyFds);
+	FT_FD_SET(fd, &mWriteCopyFds);
 }
 
 void						ServerManager::ClrWriteCopyFds(const int& fd)
 {
-	FD_CLR(fd, &mWriteCopyFds);
+	FT_FD_CLR(fd, &mWriteCopyFds);
 }
 
 const fd_set&				ServerManager::GetWriteFds(void) const
@@ -441,12 +441,12 @@ const fd_set&				ServerManager::GetWriteFds(void) const
 
 void						ServerManager::SetWriteFds(const int& fd)
 {
-	FD_SET(fd, &mWriteFds);
+	FT_FD_SET(fd, &mWriteFds);
 }
 
 void						ServerManager::ClrWriteFds(const int& fd)
 {
-	FD_CLR(fd, &mWriteFds);
+	FT_FD_CLR(fd, &mWriteFds);
 }
 
 const int&					ServerManager::GetMaxFd(void) const{ return (this->mMaxFd);}

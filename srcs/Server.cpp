@@ -43,7 +43,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.GetSocket() == fd)
 			continue ;
-		if ((FD_ISSET(it2->second.GetSocket(), &(this->mManager->GetReadCopyFds())) == 0) &&
+		if ((FT_FD_ISSET(it2->second.GetSocket(), &(this->mManager->GetReadCopyFds())) == 0) &&
 				it2->second.IsKeepConnection() == false)
 		{
 			// cout << "it2->second.GetSocket() " << it2->second.GetSocket() << endl;

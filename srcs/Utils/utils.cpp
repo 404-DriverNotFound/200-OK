@@ -198,7 +198,7 @@ std::vector<int> ft::getVectorChangedFD(struct fd_set *fdset)
 	std::vector<int> ret;
 	for (size_t i = 0; i < 1024; i++)
 	{
-		if (FD_ISSET(i, fdset) != 0)
+		if (FT_FD_ISSET(i, fdset) != 0)
 		{
 			ret.push_back((int)i);
 			std::cout << i << " ";

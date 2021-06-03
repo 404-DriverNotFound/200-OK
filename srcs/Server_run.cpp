@@ -84,7 +84,7 @@ bool		Server::hasSendWork(Connection& connection)
 	
 	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
-		if (FD_ISSET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds())))
+		if (FT_FD_ISSET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds())))
 		{
 			// closeConnection(connection.GetSocket());
 			return (true);
@@ -233,7 +233,7 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (FD_ISSET(connection.GetSocket(), &(this->mManager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
+	if (FT_FD_ISSET(connection.GetSocket(), &(this->mManager->GetReadCopyFds()))) // REVIEW	request의 phase도 함께 확인해야할 수도 있을 듯
 	{
 		// std::cout << "client(" << connection.GetSocket() << ") : has request" << std::endl;
 		return (true);
@@ -295,7 +295,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 
 bool		Server::hasNewConnection()
 {
-	if (FD_ISSET(this->mSocket, &(this->mManager->GetReadCopyFds())))
+	if (FT_FD_ISSET(this->mSocket, &(this->mManager->GetReadCopyFds())))
 	{
 		// cout << "this->mSocket: " << this->mSocket << endl;
 		return (true);
