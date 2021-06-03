@@ -1,12 +1,5 @@
 #include "utils.hpp"
 
-void	*ft::memset(void *b, int c, size_t len)
-{
-	while (len--)
-		*((unsigned char*)b + len) = (unsigned char)c;
-	return (b);
-}
-
 void ft::splitVector(std::vector<std::string> &vec, const std::string& str, const char *delim)
 {
 	size_t before = 0; //string처음부터 검사
@@ -168,8 +161,6 @@ std::string ft::makeAutoindexHTML(std::string url)
 	if (NULL == getcwd(root_char, 300))
 		return (res);
 	root_string = root_char;
-	// url = this->_request.getHeaderValue("Host") + this->_request.getStartLine().path;
-	// dir = opendir(root_string.c_str());
 	std::string full_path = root_string + url;
 	dir = opendir(full_path.c_str());
 	std::cout << "rootstring: " << root_string << std::endl;
