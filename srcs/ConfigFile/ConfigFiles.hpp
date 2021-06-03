@@ -22,8 +22,7 @@ public:
 	ConfigFiles(const ConfigFiles &);
 	ConfigFiles&	operator=(const ConfigFiles &);
 public:
-	int							mConfigFd;
-	std::vector<std::string>	mGnl;
-	
+	int								mConfigFd;
+	std::vector<std::string>		mGnl;
 	std::vector<ConfigFile>			mConfigs;
 };

@@ -8,7 +8,6 @@ ConfigFile::ConfigFile()
 	, mLocationPath()
 	, mAutoIndex(false)
 	, mRoot()
-	, mIndexPages()
 	, mErrorPage()
 	, mAuthBasicUserFile()
 	, mClientMaxBodySize(0)
@@ -27,6 +26,8 @@ ConfigFile::ConfigFile()
 
 	this->mCgiExtension.push_back(".bla");
 	this->mCgiExtension.push_back(".php");
+
+	this->mIndexPages.push_back(Path("index.html"));
 }
 
 ConfigFile::~ConfigFile(){}
