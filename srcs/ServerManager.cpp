@@ -124,7 +124,7 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 			temp2.mAutoIndex = config.mAutoIndex;
 			temp2.mClientMaxBodySize = config.mClientMaxBodySize;
 			temp2.mAuthBasicUserFile = config.mAuthBasicUserFile;
-			temp2.mCgiExtension = config.mCgiExtension;
+			temp2.mCgiProgramPath = config.mCgiProgramPath;
 			temp2.mMethod = config.mMethod;
 			server.mServerBlocks[0].mlocationPaths.push_back(temp2);
 
@@ -147,7 +147,7 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 			temp2.mRoot = config.mRoot;
 			temp2.mIndexPages = config.mIndexPages;
 			temp2.mErrorPage = config.mErrorPage;
-			temp2.mCgiExtension = config.mCgiExtension;
+			temp2.mCgiProgramPath = config.mCgiProgramPath;
 			temp2.mMethod = config.mMethod;
 			temp2.mAutoIndex = config.mAutoIndex;
 			temp2.mAuthBasicUserFile = config.mAuthBasicUserFile;
@@ -166,7 +166,7 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 			temp2.mRoot = config.mRoot;
 			temp2.mIndexPages = config.mIndexPages;
 			temp2.mErrorPage = config.mErrorPage;
-			temp2.mCgiExtension = config.mCgiExtension;
+			temp2.mCgiProgramPath = config.mCgiProgramPath;
 			temp2.mMethod = config.mMethod;
 			temp2.mAuthBasicUserFile = config.mAuthBasicUserFile;
 			temp2.mAutoIndex = config.mAutoIndex;
@@ -254,10 +254,10 @@ int ServerManager::showServers(void)
 					std::cout << temp3.mMethod[j] << " ";
 				}
 				std::cout << std::endl;
-				std::cout << "cgi_extension: ";
-				for (size_t j = 0; j < temp3.mCgiExtension.size(); j++)
+				std::cout << "cgi_program_path: ";
+				for (size_t j = 0; j < temp3.mCgiProgramPath.size(); j++)
 				{
-					std::cout << temp3.mCgiExtension[j] << " ";
+					std::cout << temp3.mCgiProgramPath[j] << " ";
 				}
 				std::cout << std::endl;
 				std::cout << "------------------------------ locationPath" << std::endl;

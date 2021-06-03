@@ -31,7 +31,7 @@ public :
 		std::vector<Path>	mIndexPages;		// def = index.html
 		Path				mErrorPage;		// def = error.html
 		std::vector<std::string> mMethod;		// def = GET HEAD PUT POST DELETE OPTIONS
-		std::vector<std::string> mCgiExtension; // def = .bla
+		std::vector<std::string> mCgiProgramPath; // def = .bla
 		Path				mAuthBasicUserFile;	// def =
 
 		std::size_t			mClientMaxBodySize; //def 0 NOT checking size

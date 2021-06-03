@@ -14,7 +14,7 @@ LocationPath::LocationPath() : mLocationPath(), mRoot(), mErrorPage("error.html"
 	this->mMethod.push_back("DELETE");
 	this->mMethod.push_back("OPTIONS");
 
-	this->mCgiExtension.push_back(".bla");
+	this->mCgiProgramPath.push_back(".bla");
 }
 
 LocationPath::~LocationPath()
@@ -38,7 +38,7 @@ LocationPath&	LocationPath::operator=(const LocationPath &ref)
 
 	this->mAutoIndex = ref.mAutoIndex;
 	this->mMethod = ref.mMethod;
-	this->mCgiExtension = ref.mCgiExtension;
+	this->mCgiProgramPath = ref.mCgiProgramPath;
 	this->mClientMaxBodySize = ref.mClientMaxBodySize;
 	this->mAuthBasicUserFile = ref.mAuthBasicUserFile;
 	return (*this);

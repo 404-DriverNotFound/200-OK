@@ -8,6 +8,7 @@ Connection::Connection(const int& clientFd, const std::string& clientIp, const i
 	, mResponse(0)
 	, eStatus(REQUEST_READY)
 	, mTargetUri("")
+	, mServerName("")
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
 }
@@ -20,6 +21,7 @@ Connection::Connection(void)
 	, mResponse(0)
 	, eStatus(REQUEST_READY)
 	, mTargetUri("")
+	, mServerName("")
 {
 	gettimeofday(&(this->mLastRequestAt), NULL);
 }
@@ -112,4 +114,24 @@ const std::string&			Connection::GetTargetUri(void) const
 void						Connection::SetTargetUri(std::string& targetUri)
 {
 	this->mTargetUri = targetUri;
+}
+
+const std::string&			Connection::GetServerName(void) const
+{
+	return (this->mServerName);
+}
+
+void						Connection::SetServerName(std::string& serverName)
+{
+	this->mServerName = serverName;
+}
+
+const std::string&			Connection::GetCgiProgramPath(void) const
+{
+	return (this->mCgiProgramPath);
+}
+
+void						Connection::SetCgiProgramPath(std::string& cgiProgramPath)
+{
+	this->mCgiProgramPath = cgiProgramPath;
 }

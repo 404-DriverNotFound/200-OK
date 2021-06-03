@@ -410,6 +410,20 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string targetUri = absolute_path + root + relative_path;
 	connection.SetTargetUri(targetUri);
+	connection.SetServerName(serverBlock->mserverName);
+	// TODO
+	size_t found = request.GetFileName().find(".");
+	if (found != std::string::npos)
+	{
+		for (size_t i = 0; i < locationPath->mCgiProgramPath.size(); i++)
+		{
+			if (locationPath->mCgiProgramPath[i].find(request.GetFileName().substr(found + 1)) != std::string::npos)
+			{
+				connection.SetCgiProgramPath(locationPath->mCgiProgramPath[i]);
+			}
+		}
+	}
+
 
 	if (isValidMethod(request, configIterator) == false)
 	{
@@ -601,7 +615,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 
 const char* Server::IOError::what() const throw(){ return ("I/O error occurred."); }
 
-char**			Server::createCGIEnv(const Connection& connection) const
+char**			Server::createCgiEnvp(const Connection& connection) const
 {
 	std::map<std::string, std::string>	cgiEnv;
 	
@@ -625,10 +639,9 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		std::size_t	found = it->first.find(" ");
 		if (found != std::string::npos)
 		{
-			cgiEnv["AUTH_TYPE"] = it->second.substr(0, found);		// NOTE 불확실 검증필요
-			cgiEnv["REMOTE_IDENT"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
-			cgiEnv["REMOTE_USER"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
-			
+			cgiEnv["AUTH_TYPE"] = it->second.substr(0, found);
+			cgiEnv["REMOTE_IDENT"] = it->second.substr(found + 1);
+			cgiEnv["REMOTE_USER"] = it->second.substr(found + 1);
 		}
 	}
 
@@ -644,23 +657,19 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		cgiEnv["CONTENT_TYPE"] = it->second;
 	}
 
-	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";												// STUB config 클래스에서 가져와야함
+	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
 
 	cgiEnv["PATH_INFO"] = request->GetURI();
-
-	cgiEnv["PATH_TRANSLATED"] = request->GetFileName(); 									// STUB 잘 모르겠음 _file_path
-
+	cgiEnv["PATH_TRANSLATED"] = connection.GetTargetUri();
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
-
-	cgiEnv["REMOTE_ADDR"] = connection.GetClientIp();									// STUB client ip 주소 필요함 IP address of the client (dot-decimal).
+	cgiEnv["REMOTE_ADDR"] = connection.GetClientIp();
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
-	cgiEnv["SCRIPT_NAME"] = "ft_tester/cgi_tester";											// STUB "relative path to the program, like /cgi-bin/script.cgi.";
-
-	cgiEnv["SERVER_NAME"] = "FIXME";														// FIXME server_name을 가져다 쓰지 못하고 있다..
+	cgiEnv["SCRIPT_NAME"] = request->GetFileName();
+	cgiEnv["SERVER_NAME"] = connection.GetServerName();
 	cgiEnv["SERVER_PORT"] = ft::itos(mPort);
-	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// STUB 서버의 버전을 지정해줘야하는데 우선 문자열로 박아넣음 "HTTP/version.";
-	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];	// STUB "name/version of HTTP server.";
+	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";
+	cgiEnv["SERVER_SOFTWARE"] = "webserv/1.0";
 
 	std::map<std::string, std::string> headers = request->GetHeaders();
 	std::map<std::string, std::string>::iterator it_http;
@@ -678,8 +687,6 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		// cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
 		cgiEnv[http_cgi] = it_http->second;
 	}
-	
-
 
 	try
 	{
@@ -769,4 +776,23 @@ bool		Server::isRightCredentials(const std::string& authorization)
 		return (false);
 	}
 	return (true);
+}
+
+char**			Server::createCgiArgv(const Connection& connection, const std::string &cgiProgramPath) const
+{
+	try
+	{
+		char**		ret = (char **)malloc(sizeof(char *) * 3);
+		std::string	targetUri = connection.GetTargetUri();
+		ret[0] = (char *)malloc(sizeof(char) * cgiProgramPath.length() + 1);
+		strlcpy(ret[0], const_cast<char*>(cgiProgramPath.c_str()), cgiProgramPath.length() + 1);
+		ret[1] = (char *)malloc(sizeof(char) * targetUri.length() + 1);
+		strlcpy(ret[1], const_cast<char*>(targetUri.c_str()), targetUri.length() + 1);
+		ret[2] = 0;
+		return (ret);
+	}
+	catch(const std::exception& e)
+	{
+		throw 500;
+	}
 }

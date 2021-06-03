@@ -45,7 +45,7 @@ public:
 	Path						mAuthBasicUserFile;	//def =
 
 	std::vector<std::string>	mMethod;
-	std::vector<std::string>	mCgiExtension;
+	std::vector<std::string>	mCgiProgramPath;
 };
 
 class serverBlock
@@ -74,7 +74,7 @@ public:
 	int SetSocket(void);
 
 	void								recvRequest(Connection& connection);
-	char**								createCGIEnv(const Connection& connection) const;
+	char**								createCgiEnvp(const Connection& connection) const;
 	bool								hasNewConnection(void);
 	bool								acceptNewConnection(void);
 	int									getUnuseConnectionFd();
@@ -104,6 +104,7 @@ public:
 	void								executeOptions(Connection& connection, configIterator configIterator);
 	void								aexecuteTrace(Connection& connection);
 	void								executeCGI(Connection& connection);
+	char**								createCgiArgv(const Connection& connection, const std::string &cgiProgramPath) const;
 	void								createResponseStatusCode(Connection& connection, int statusCode);
 	void								createResponse0(Connection &connection, std::string uriPlusFile);
 	void								createResponse200(Connection &connection, std::string targetUri);

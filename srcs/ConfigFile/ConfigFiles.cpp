@@ -30,10 +30,10 @@ void ConfigFiles::ShowConfigs()
 			std::cout << this->mConfigs[i].mMethod[j] << " ";
 		}
 		std::cout << std::endl;
-		std::cout << "cgi_extension: ";
-		for (size_t j = 0; j < this->mConfigs[i].mCgiExtension.size(); j++)
+		std::cout << "cgi_program_path: ";
+		for (size_t j = 0; j < this->mConfigs[i].mCgiProgramPath.size(); j++)
 		{
-			std::cout << this->mConfigs[i].mCgiExtension[j] << " ";
+			std::cout << this->mConfigs[i].mCgiProgramPath[j] << " ";
 		}
 		std::cout << std::endl;
 	}

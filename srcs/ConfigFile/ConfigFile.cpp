@@ -22,7 +22,7 @@ ConfigFile::ConfigFile()
 	this->mMethod.push_back("DELETE");
 	this->mMethod.push_back("OPTIONS");
 
-	this->mCgiExtension.push_back(".bla");
+	this->mCgiProgramPath.push_back(".bla");
 }
 
 ConfigFile::~ConfigFile(){}
@@ -50,7 +50,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->mAutoIndex = ref.mAutoIndex;
 	this->mTimeOut = ref.mTimeOut;
 	this->mMethod = ref.mMethod;
-	this->mCgiExtension = ref.mCgiExtension;
+	this->mCgiProgramPath = ref.mCgiProgramPath;
 	this->mClientMaxBodySize = ref.mClientMaxBodySize;
 	return (*this);
 }
