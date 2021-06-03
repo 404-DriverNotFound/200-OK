@@ -13,7 +13,7 @@ class Server;
 class Request
 {
 	public:
-		enum eURIType								{ DIRECTORY, FILE, FILE_TO_CREATE, CGI_PROGRAM };
+		enum eURIType								{ DIRECTORY, FILE, FILE_TO_CREATE, CGI_PROGRAM, FILE_TO_DELETE};
 		enum eTransferType							{ GENERAL, CHUNKED };
 		enum ePhase									{ READY, ON_HEADER, ON_BODY, COMPLETE };
 

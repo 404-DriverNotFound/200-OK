@@ -376,9 +376,12 @@ void			Server::createResponse200(Connection &connection, std::string targetUri)
 	response->setBody(body);
 	response->setHeaders("Content-Length", ft::itos(response->GetBody().length()));
 	
-	struct stat buf;
-	stat(targetUri.c_str(), &buf);
-	response->setHeaders("Last-Modified", ft::getHTTPTimeFormat(buf.st_mtime));
+	if (connection.GetRequest()->GetMethod().compare("GET") == 0)
+	{
+		struct stat buf;
+		stat(targetUri.c_str(), &buf);
+		response->setHeaders("Last-Modified", ft::getHTTPTimeFormat(buf.st_mtime));
+	}
 	return ;
 }
 
@@ -427,12 +430,22 @@ void			Server::solveRequest(Connection& connection, Request& request)
 			}
 		}
 	}
-	if (request.GetURItype() == Request::FILE_TO_CREATE)
+	if (request.GetURItype() == Request::FILE_TO_CREATE || request.GetURItype() == Request::FILE_TO_DELETE) // NOTE 멱등성이 있는 메소드
 	{
-		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
-			throw 413;
-		executePut(connection, request, targetUri);
-		connection.SetStatus(Connection::SEND_READY);
+		if (request.GetURItype() == Request::FILE_TO_CREATE)
+		{
+			if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
+				throw 413;
+			executePut(connection, request, targetUri);
+			connection.SetStatus(Connection::SEND_READY);
+			return ;
+		}
+		else
+		{
+			executeDelete(connection, targetUri);
+			connection.SetStatus(Connection::SEND_READY);
+			return ;
+		}
 	}
 	else if (request.GetURItype() == Request::DIRECTORY)
 	{
@@ -489,6 +502,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 					connection.SetStatus(Connection::SEND_READY);
 				else
 					connection.SetStatus(Connection::CGI_READY);
+				return ;
 			}
 			else if (request.GetMethod().compare("HEAD") == 0)
 			{
@@ -497,6 +511,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 					connection.SetStatus(Connection::SEND_READY);
 				else
 					connection.SetStatus(Connection::CGI_READY);
+				return ;
 			}
 			else if (request.GetMethod().compare("POST") == 0)
 			{
@@ -505,6 +520,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 					connection.SetStatus(Connection::SEND_READY);
 				else
 					connection.SetStatus(Connection::CGI_READY);
+				return ;
 			}
 			else
 			{
@@ -552,7 +568,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 				}
 				else if (request.GetMethod().compare("DELETE") == 0)
 				{
-					executeDelete(connection, request, targetUri);
+					executeDelete(connection, targetUri);
 					connection.SetStatus(Connection::SEND_READY);
 				}
 				else if (request.GetMethod().compare("OPTIONS") == 0)

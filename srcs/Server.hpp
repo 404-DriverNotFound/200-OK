@@ -100,7 +100,7 @@ public:
 	void								executeHead(Connection& connection, std::string targetUri);
 	void								executePost(Connection& connection, const Request& request);
 	void								executePut(Connection& connection, const Request& request, std::string targetUri);
-	void								executeDelete(Connection& connection, const Request& request, std::string targetUri);
+	void								executeDelete(Connection& connection, std::string targetUri);
 	void								executeOptions(Connection& connection, configIterator configIterator);
 	void								aexecuteTrace(Connection& connection);
 	void								executeCGI(Connection& connection);

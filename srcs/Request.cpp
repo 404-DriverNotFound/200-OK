@@ -184,9 +184,13 @@ void								Request::ParseURI(std::string& uri)
 		mFileName.clear();
 		mURItype = Request::DIRECTORY;
 	}
-	if (mMethod.compare("PUT") == 0) // STUB POST메소드도 추가해야할수도
+	if (mMethod.compare("PUT") == 0)
 	{
 			mURItype = Request::FILE_TO_CREATE;
+	}
+	if (mMethod.compare("DELETE") == 0)
+	{
+			mURItype = Request::FILE_TO_DELETE;
 	}
 	// // ANCHOR URI parsing debug
 	// if (mURItype == Request::DIRECTORY)
