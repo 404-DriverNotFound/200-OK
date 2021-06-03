@@ -318,15 +318,16 @@ void	ServerManager::serviceUnavailable(const std::vector<Server>::iterator& serv
 	std::map<int, Connection>::iterator it = serverIterator->mConnections.begin();
 	while (it != serverIterator->mConnections.end())
 	{
-		if (it->second.GetResponse() == NULL)
+		if (it->second.GetResponse())
 		{
-			serverIterator->createResponseStatusCode(it->second, 503);
-			it->second.GetResponse()->setHttpMessage(it->second.GetResponse()->makeHttpMessage());
-			ssize_t	count = write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
-			if (count <= 0)
-			{
-				throw (static_cast<const std::string>("IO Error"));
-			}
+			delete it->second.GetResponse();
+		}
+		serverIterator->createResponseStatusCode(it->second, 503);
+		it->second.GetResponse()->setHttpMessage(it->second.GetResponse()->makeHttpMessage());
+		ssize_t	count = write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
+		if (count <= 0)
+		{
+			throw (static_cast<const std::string>("IO Error"));
 		}
 	}
 }
