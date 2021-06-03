@@ -556,6 +556,21 @@ void			Server::solveRequest(Connection& connection, Request& request)
 					connection.SetStatus(Connection::CGI_READY);
 				return ;
 			}
+			else if (request.GetMethod().compare("DELETE") == 0)
+			{
+				executeDelete(connection, targetUri);
+				connection.SetStatus(Connection::SEND_READY);
+			}
+			else if (request.GetMethod().compare("OPTIONS") == 0)
+			{
+				executeOptions(connection, configIterator);
+				connection.SetStatus(Connection::SEND_READY);
+			}
+			// else if (request.GetMethod().compare("TRACE") == 0)
+			// {
+			// 	// executeOptions(connection, request);
+			// 	connection.SetStatus(Connection::SEND_READY);
+			// }
 			else
 			{
 				throw 405;
