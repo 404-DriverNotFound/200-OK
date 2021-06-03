@@ -231,7 +231,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			throw 500;
 		}
 
-		char**	argv = createCgiArgv(connection, connection.GetCgiProgramPath());
+		char**	argv = createCgiArgv(connection);
 		if (argv == NULL)
 		{
 			close(fromCGI);
