@@ -49,7 +49,14 @@ void		ServerManager::RunServers(void)
 		{
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
-				serviceUnavailable(it);
+				try
+				{
+					serviceUnavailable(it);
+				}
+				catch(const std::exception& e)
+				{
+					std::cerr << e.what() << '\n';
+				}
 			}
 		}
 		else if (cnt == 0)
@@ -324,15 +331,14 @@ void	ServerManager::serviceUnavailable(const std::vector<Server>::iterator& serv
 		{
 			continue ;
 		}
-
-		if (it->second.GetResponse())
-		{
-			delete it->second.GetResponse();
-		}
 		serverIterator->createResponseStatusCode(it->second, 503);
 		it->second.GetResponse()->setHttpMessage(it->second.GetResponse()->makeHttpMessage());
-
-		write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
+		ssize_t count = write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
+		if (count <= 0)
+		{
+			serverIterator->closeConnection(it2->second.GetSocket());
+			throw Server::IOError();
+		}
 		serverIterator->closeConnection(it2->second.GetSocket());
 		return ;
 	}
