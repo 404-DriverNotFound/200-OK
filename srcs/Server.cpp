@@ -615,7 +615,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 
 const char* Server::IOError::what() const throw(){ return ("I/O error occurred."); }
 
-char**			Server::createCGIEnv(const Connection& connection) const
+char**			Server::createCgiEnvp(const Connection& connection) const
 {
 	std::map<std::string, std::string>	cgiEnv;
 	
@@ -778,7 +778,7 @@ bool		Server::isRightCredentials(const std::string& authorization)
 	return (true);
 }
 
-char**			Server::createArgv(const Connection& connection, const std::string &cgiProgramPath) const
+char**			Server::createCgiArgv(const Connection& connection, const std::string &cgiProgramPath) const
 {
 	try
 	{
