@@ -60,6 +60,7 @@ public :
 	std::vector<LocationPath>	mlocationPaths;
 	std::string					mserverName;
 	int							mTimeOut;
+	std::vector<std::string>	mCgiExtension;
 };
 
 class Server // NOTE port별로 나뉘는 블록

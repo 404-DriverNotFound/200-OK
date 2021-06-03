@@ -24,6 +24,9 @@ ConfigFile::ConfigFile()
 
 	this->mCgiProgramPath.push_back("/usr/bin/php");
 	this->mCgiProgramPath.push_back("ft_tester/bla_tester");
+
+	this->mCgiExtension.push_back(".bla");
+	this->mCgiExtension.push_back(".php");
 }
 
 ConfigFile::~ConfigFile(){}
@@ -52,6 +55,7 @@ ConfigFile &ConfigFile::operator=(const ConfigFile &ref)
 	this->mTimeOut = ref.mTimeOut;
 	this->mMethod = ref.mMethod;
 	this->mCgiProgramPath = ref.mCgiProgramPath;
+	this->mCgiExtension = ref.mCgiExtension;
 	this->mClientMaxBodySize = ref.mClientMaxBodySize;
 	return (*this);
 }

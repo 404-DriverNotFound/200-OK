@@ -50,7 +50,8 @@ serverBlock::serverBlock()
 	, mserverName("localhost")
 	, mTimeOut(0)
 {
-
+	this->mCgiExtension.push_back(".bla");
+	this->mCgiExtension.push_back(".php");
 }
 
 serverBlock::~serverBlock()
@@ -70,14 +71,16 @@ serverBlock&	serverBlock::operator=(const serverBlock &ref)
 	this->mlocationPaths = ref.mlocationPaths;
 	this->mserverName = ref.mserverName;
 	this->mTimeOut = ref.mTimeOut;
+	this->mCgiExtension = ref.mCgiExtension;
 	return (*this);
 }
 
 Server::Server(void)
 	: mManager(NULL)
 	, mPort(8000)
-	// , mServerBlocks()
+	, mHost("0.0.0.0")
 	, mSocket(0)
+	// , mServerBlocks()
 	// , mPhase(READY)
 {
 }
