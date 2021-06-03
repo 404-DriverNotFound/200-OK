@@ -22,7 +22,8 @@ ConfigFile::ConfigFile()
 	this->mMethod.push_back("DELETE");
 	this->mMethod.push_back("OPTIONS");
 
-	this->mCgiProgramPath.push_back(".bla");
+	this->mCgiProgramPath.push_back("/usr/bin/php");
+	this->mCgiProgramPath.push_back("ft_tester/bla_tester");
 }
 
 ConfigFile::~ConfigFile(){}

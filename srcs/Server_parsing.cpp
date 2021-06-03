@@ -14,7 +14,8 @@ LocationPath::LocationPath() : mLocationPath(), mRoot(), mErrorPage("error.html"
 	this->mMethod.push_back("DELETE");
 	this->mMethod.push_back("OPTIONS");
 
-	this->mCgiProgramPath.push_back(".bla");
+	this->mCgiProgramPath.push_back("/usr/bin/php");
+	this->mCgiProgramPath.push_back("ft_tester/bla_tester");
 }
 
 LocationPath::~LocationPath()
