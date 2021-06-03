@@ -318,9 +318,17 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 		errorpage_body = Response::makeStatusPage(statusCode, connection.GetRequest()->GetMethod());
 	else
 		errorpage_body = Response::makeStatusPage(statusCode, "");
-	response->setHeaders("Content-Type", "text/html");
-	response->setHeaders("Content-Length", ft::itos(errorpage_body.size()));
-	response->setBody(errorpage_body);
+	if (statusCode == 205)
+	{
+		response->setHeaders("Content-Length", "0");
+		response->setBody("");
+	}
+	else
+	{
+		response->setHeaders("Content-Type", "text/html");
+		response->setHeaders("Content-Length", ft::itos(errorpage_body.size()));
+		response->setBody(errorpage_body);
+	}
 	if (statusCode == 401)
 	{
 		response->setHeaders("WWW-Authenticate", "Basic realm=\"Access to the auth source\"");
