@@ -411,7 +411,7 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string targetUri = absolute_path + root + relative_path;
 	connection.SetTargetUri(targetUri);
 	connection.SetServerName(serverBlock->mserverName);
-	// TODO
+	
 	size_t found = request.GetFileName().find(".");
 	if (found != std::string::npos)
 	{
@@ -424,6 +424,18 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 	}
 
+	std::size_t	dot = request.GetFileName().rfind(".");
+	if (dot != std::string::npos)
+	{
+		std::string	cgi_extension = request.GetFileName().substr(dot);
+		for (size_t i = 0; i < serverBlock->mCgiExtension.size(); i++)
+		{
+			if (serverBlock->mCgiExtension[i].compare(cgi_extension) == 0)
+			{
+				connection.GetRequest()->SetURItype(Request::CGI_PROGRAM);
+			}
+		}
+	}
 
 	if (isValidMethod(request, configIterator) == false)
 	{
