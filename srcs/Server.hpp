@@ -117,7 +117,11 @@ public:
 	std::vector<serverBlock>::iterator	returnIteratorServerBlock(std::vector<serverBlock> &serverBlocks, std::string serverName);
 	std::vector<LocationPath>::iterator	returnIteratorLocationPath(std::vector<LocationPath> &locationPaths, std::string locationPathStr);
 
-
+	class EndOfFileException : public std::exception
+	{
+		public:
+			const char* what() const throw();
+	};
 	class IOError : public std::exception
 	{
 		public:

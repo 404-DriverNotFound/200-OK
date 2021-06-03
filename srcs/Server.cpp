@@ -109,6 +109,10 @@ void			Server::recvRequest(Connection& connection)
 			}
 		}
 	}
+	else if (count == 0)
+	{
+		throw Server::EndOfFileException();
+	}
 	else
 	{
 		throw Server::IOError();
@@ -634,6 +638,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 }
 
 const char* Server::IOError::what() const throw(){ return ("I/O error occurred."); }
+
+const char* Server::EndOfFileException::what() const throw(){ return ("EOF exception occurred."); }
 
 char**			Server::createCgiEnvp(const Connection& connection) const
 {
