@@ -55,7 +55,14 @@ void		ServerManager::RunServers(void)
 		{
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
-				closeOldConnection(it);
+				try
+				{
+					closeOldConnection(it);
+				}
+				catch(const std::exception& e)
+				{
+					std::cerr << e.what() << '\n';
+				}
 			}
 			//std::cout << "timeout\n";
 		}
@@ -304,7 +311,8 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 				ssize_t	count = write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
 				if (count <= 0)
 				{
-					throw (static_cast<const std::string>("IO Error"));
+					serverIterator->closeConnection(it2->second.GetSocket());
+					throw Server::IOError();
 				}
 			}
 			serverIterator->closeConnection(it2->second.GetSocket());
