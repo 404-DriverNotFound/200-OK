@@ -32,8 +32,8 @@ public:
 	std::vector<LocationBracket> mLocationBracket;
 	int mLocationBlockNum;
 	// ANCHOR start = 0 & end = 0 이면, server Bracket 설정이 제대로 안된 상황
-	int mStart; // start = 0
-	int mEnd; // end = 0 
+	int mStart;									// start = 0
+	int mEnd;									// end = 0 
 };
 
 class ServerConfigIdx
@@ -60,5 +60,4 @@ public :
 
 int parsingserverBlock(std::vector<std::string> &gnl, ConfigFile &default_location, int start, int end, ServerBracket &ServerBracket);
 int parsingLocationBlock(std::vector<std::string> &gnl, ConfigFile &default_location, int start, int end);
-// int SetServer(Server &servers, std::vector<std::string> &gnl);
 int isCorrespondedServerDirective(int index, ServerBracket &ServerBracket);
