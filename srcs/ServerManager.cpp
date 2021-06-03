@@ -44,12 +44,13 @@ void		ServerManager::RunServers(void)
 		FD_COPY(&mReadFds, &mReadCopyFds);
 		FD_COPY(&mWriteFds, &mWriteCopyFds);
 		updateMaxFd();
-		errno = 0;
 		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeOut);
 		if (cnt < 0)
 		{
-			perror("errno: ");
-			throw (static_cast<const std::string>("Select Error"));
+			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
+			{
+				serviceUnavailable(it);
+			}
 		}
 		else if (cnt == 0)
 		{
@@ -57,7 +58,6 @@ void		ServerManager::RunServers(void)
 			{
 				closeOldConnection(it);
 			}
-			//std::cout << "timeout\n";
 		}
 		else if (cnt > 0)
 		{
@@ -297,7 +297,7 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 		if (it2->second.IsKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
 			//std::cout << "closeOldconnection: " << fd << std::endl;
-			if (it2->second.GetRequest() == NULL)
+			if (it2->second.GetRequest() == NULL) // FIXME GetResponse() 를 봐야하지 않을지..?
 			{
 				serverIterator->createResponseStatusCode(it2->second, 408);
 				it2->second.GetResponse()->setHttpMessage(it2->second.GetResponse()->makeHttpMessage());
@@ -311,7 +311,24 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 			return ;
 		}
 	}
-	return ;
+}
+
+void	ServerManager::serviceUnavailable(const std::vector<Server>::iterator& serverIterator)
+{
+	std::map<int, Connection>::iterator it = serverIterator->mConnections.begin();
+	while (it != serverIterator->mConnections.end())
+	{
+		if (it->second.GetResponse() == NULL)
+		{
+			serverIterator->createResponseStatusCode(it->second, 503);
+			it->second.GetResponse()->setHttpMessage(it->second.GetResponse()->makeHttpMessage());
+			ssize_t	count = write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
+			if (count <= 0)
+			{
+				throw (static_cast<const std::string>("IO Error"));
+			}
+		}
+	}
 }
 
 class OverlapedValue

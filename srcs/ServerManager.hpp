@@ -65,6 +65,7 @@ class ServerManager
 		int						showServers(void);
 		bool					isOverlapedServer(ConfigFiles* configFiles);
 		void					closeOldConnection(const std::vector<Server>::iterator& serverIterator);
+		void					serviceUnavailable(const std::vector<Server>::iterator& serverIterator);
 
 		std::vector<Server>		mServers;		// NOTE: server 객체들
 		int						mMaxFd;			// NOTE: 관리하는 서버의 max_fd 중 가장 큰 fd
