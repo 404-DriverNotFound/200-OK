@@ -305,6 +305,7 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 			write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
 			serverIterator->closeConnection(it2->second.GetSocket());
 		}
+		return ;
 	}
 }
 
