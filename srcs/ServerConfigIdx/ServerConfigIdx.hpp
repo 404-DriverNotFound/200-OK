@@ -1,13 +1,12 @@
 #pragma once
 # include "../../gnl/get_next_line_bonus.hpp"
-// # include "../../srcs/Server/Socket.hpp"
 # include "../Path/Path.hpp"
 # include "../Utils/utils.hpp"
 # include "../Server.hpp"
 # include "../ConfigFile/ConfigFile.hpp"
 # include <iostream>
-# include <sys/types.h> // FIXME 확인해봐야함
-# include <fcntl.h> // FIXME 확인해봐야함
+# include <sys/types.h>
+# include <fcntl.h>
 
 # define START 0
 # define END 1

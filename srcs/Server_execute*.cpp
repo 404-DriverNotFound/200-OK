@@ -304,7 +304,7 @@ void		Server::executeCGI(Connection& connection)
 		std::string	fromCgiStr(buf);
 		free(buf); buf = NULL;
 
-		// FIXME 너무 하드코딩스러움. 아름답게 바꿀 수 없을까?
+		// TODO REFACTORING
 		if (connection.GetCgiProgramPath().find("php") != std::string::npos)
 		{
 			response->setBody(fromCgiStr);
