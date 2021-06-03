@@ -639,10 +639,9 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		std::size_t	found = it->first.find(" ");
 		if (found != std::string::npos)
 		{
-			cgiEnv["AUTH_TYPE"] = it->second.substr(0, found);		// NOTE 불확실 검증필요
-			cgiEnv["REMOTE_IDENT"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
-			cgiEnv["REMOTE_USER"] = it->second.substr(found + 1);	// NOTE 불확실 검증필요
-			
+			cgiEnv["AUTH_TYPE"] = it->second.substr(0, found);
+			cgiEnv["REMOTE_IDENT"] = it->second.substr(found + 1);
+			cgiEnv["REMOTE_USER"] = it->second.substr(found + 1);
 		}
 	}
 
@@ -658,23 +657,19 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		cgiEnv["CONTENT_TYPE"] = it->second;
 	}
 
-	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";												// NOTE config 클래스를 삭제 했기 때문에 그냥 리터럴로 고정하는 것이 좋을 듯
+	cgiEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
 
 	cgiEnv["PATH_INFO"] = request->GetURI();
-
 	cgiEnv["PATH_TRANSLATED"] = connection.GetTargetUri();
-
 	cgiEnv["QUERY_STRING"] = request->GetQuery();
-
 	cgiEnv["REMOTE_ADDR"] = connection.GetClientIp();
 	cgiEnv["REQUEST_METHOD"] = request->GetMethod();
 	cgiEnv["REQUEST_URI"] = request->GetURI();
-	cgiEnv["SCRIPT_NAME"] = connection.GetCgiProgramPath();
-
+	cgiEnv["SCRIPT_NAME"] = request->GetFileName();
 	cgiEnv["SERVER_NAME"] = connection.GetServerName();
 	cgiEnv["SERVER_PORT"] = ft::itos(mPort);
-	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";													// NOTE config 클래스를 삭제 했기 때문에 그냥 리터럴로 고정하는 것이 좋을 듯
-	cgiEnv["SERVER_SOFTWARE"] = cgiEnv["SERVER_NAME"] + "/" + cgiEnv["SERVER_PROTOCOL"];
+	cgiEnv["SERVER_PROTOCOL"] = "HTTP/1.1";
+	cgiEnv["SERVER_SOFTWARE"] = "webserv/1.0";
 
 	std::map<std::string, std::string> headers = request->GetHeaders();
 	std::map<std::string, std::string>::iterator it_http;
@@ -692,8 +687,6 @@ char**			Server::createCGIEnv(const Connection& connection) const
 		// cout << "http_cgi: " << http_cgi << " | " << "value: " << it_http->second << endl;
 		cgiEnv[http_cgi] = it_http->second;
 	}
-	
-
 
 	try
 	{
