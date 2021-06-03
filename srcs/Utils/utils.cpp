@@ -1,10 +1,5 @@
 #include "utils.hpp"
 
-void	ft::testNameSpace(void)
-{
-	std::cout << "namespace working" << std::endl;
-}
-
 void	*ft::memset(void *b, int c, size_t len)
 {
 	while (len--)

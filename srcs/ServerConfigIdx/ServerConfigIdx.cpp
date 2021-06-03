@@ -1,7 +1,5 @@
 #include "./ServerConfigIdx.hpp"
 
-using namespace std;
-
 //ANCHOR class ServerConfigIdx 멤버 변수와 함수
 
 void ServerConfigIdx::outdentTab(std::string &str)

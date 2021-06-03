@@ -22,7 +22,6 @@
 
 namespace ft
 {
-	void			testNameSpace(void);
 	void*			memset(void *b, int c, size_t len);
 	void			splitVector(std::vector<std::string> &vec, const std::string& str, const char *delim);
 	std::string		ReplaceAll(std::string &str, const std::string& from, const std::string& to);
