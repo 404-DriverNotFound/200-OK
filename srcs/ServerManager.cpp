@@ -114,6 +114,7 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 			serverBlock temp;
 			temp.mserverName = config.mServerName;
 			temp.mTimeOut = config.mTimeOut;
+			temp.mCgiExtension = config.mCgiExtension;
 			server.mServerBlocks.push_back(temp);
 
 			LocationPath temp2;
@@ -140,6 +141,7 @@ int ServerManager::setServersValue(ConfigFiles *configFiles)
 			serverBlock temp;
 			temp.mserverName = config.mServerName;
 			temp.mTimeOut = config.mTimeOut;
+			temp.mCgiExtension = config.mCgiExtension;
 			server.mServerBlocks.push_back(temp);
 			
 			LocationPath temp2;
@@ -232,6 +234,12 @@ int ServerManager::showServers(void)
 			serverBlock temp2 = temp.mServerBlocks[j];
 			std::cout << "server_name: " << temp2.mserverName << std::endl;
 			std::cout << "timeout: " << temp2.mTimeOut << std::endl;
+			std::cout << "cgi_program_path: ";
+			for (size_t j = 0; j < temp2.mCgiExtension.size(); j++)
+			{
+				std::cout << temp2.mCgiExtension[j] << " ";
+			}
+			std::cout << std::endl;
 
 			std::cout << temp2.mserverName << ": " << "locationPathsize: " << temp2.mlocationPaths.size() << std::endl;
 			for (size_t k = 0; k < temp2.mlocationPaths.size(); k++)

@@ -164,17 +164,6 @@ void								Request::ParseURI(std::string& uri)
 	{
 		mURItype = Request::FILE;
 		mFileName = uri.substr(found + 1);
-		std::size_t	dot = uri.substr(found + 1).rfind(".");
-		if (dot != std::string::npos)
-		{
-			std::string	extension = mFileName.substr(dot);
-			// FIXME 하드코딩으로 리터럴을 넣어주었는데 config에 있는 확장자와 비교해야함 그런데 URI가 무엇인지 먼저 정해져야 config파일에서 특정 값을 가져올텐데...
-			// 혹은 config파일에 값을 추가해야함 그것도 괜찮은 듯
-			if (extension.compare(".bla") == 0 || extension.compare(".php") == 0)
-			{
-				mURItype = Request::CGI_PROGRAM;
-			}
-		}
 		uri.resize(found);
 	}
 	// directory parsing
