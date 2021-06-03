@@ -26,7 +26,7 @@ void	test403(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
 		std::string	method("GET");
-		std::string	uri("/html/");
+		std::string	uri("/ft_tester/");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
 		message += "Authorization: Basic sdafasdf\r\n";
@@ -64,7 +64,7 @@ void	test401(const struct sockaddr_in& sockAddr)
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
 		std::string	method("GET");
-		std::string	uri("/html/");
+		std::string	uri("/ft_tester/");
 		std::string	version("HTTP/1.1");
 		message += method + " " + uri + " " + version + "\r\n";
 		message += "WWW-Authenticate: Basic realm=\"Access to staging site\"\r\n";
@@ -560,10 +560,10 @@ int	main(int argc, char* argv[])
 		// test201();
 		// test200();
 		// test500();
+		std::cout << "TEST OK!!!!" << std::endl;
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << "Something wrong!" << '\n';
 	}
-	std::cout << "TEST OK!!!!" << std::endl;
 }
