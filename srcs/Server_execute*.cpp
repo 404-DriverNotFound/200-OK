@@ -287,7 +287,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			}
 			free(envp); envp = NULL;
 			close(fromCGI);
-			close(toCGI); //unlink(toCGIfileName.c_str());
+			close(toCGI); unlink(toCGIfileName.c_str());
 			connection.SetStatus(Connection::CGI_ING);
 			return ;
 		}
@@ -313,7 +313,7 @@ void		Server::executeCGI(Connection& connection) // NOTE request는 전혀 사�
 			throw 500;
 		}
 		int cnt = read(fromCGI, buf, statBuf.st_size);
-		close(fromCGI); //unlink(fromCGIfileName.c_str());
+		close(fromCGI); unlink(fromCGIfileName.c_str());
 		// cout << "cnt: " << cnt << endl;
 		buf[cnt] = 0;
 		if (cnt < 0)
