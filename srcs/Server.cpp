@@ -516,6 +516,10 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	{
 		if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
 			throw 413;
+		if (ft::access(targetUri, 0) == 0 && ft::isDirPath(targetUri) == true && ft::isFilePath(targetUri) == false)
+		{
+			throw 301;
+		}
 		if (request.GetURItype() == Request::CGI_PROGRAM)
 		{
 			if (request.GetMethod().compare("GET") == 0)
@@ -567,6 +571,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 		}
 		else
 		{
+			if (locationPath->mClientMaxBodySize < request.GetBody().length() && locationPath->mClientMaxBodySize != 0)
+				throw 413;
 			errno = 0;
 			if (ft::access(targetUri, 0) == 0)
 			{
