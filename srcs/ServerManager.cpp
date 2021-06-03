@@ -334,6 +334,7 @@ void	ServerManager::serviceUnavailable(const std::vector<Server>::iterator& serv
 
 		write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
 		serverIterator->closeConnection(it2->second.GetSocket());
+		return ;
 	}
 }
 
