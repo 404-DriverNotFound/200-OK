@@ -302,6 +302,11 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 		delete connection.GetResponse();
 		connection.SetResponse(NULL);
 	}
+	if (statusCode == 404 && this->mErrorPage.compare("") != 0)
+	{
+		createResponseErrorPage(connection, this->mErrorPage, statusCode);
+		return ;
+	}
 	// createResponse_statuscode
 	std::map<int, std::string> &status_map = Response::mStatusMap;
 	std::map<int, std::string>::iterator it;
@@ -346,9 +351,9 @@ void			Server::createResponseStatusCode(Connection &connection, int statusCode)
 	}
 }
 
-void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
+void			Server::createResponseErrorPage(Connection &connection, std::string targetUri, int statusCode)
 {
-	connection.SetResponse(new Response(&connection, 0));
+	connection.SetResponse(new Response(&connection, statusCode));
 	Response *response = connection.GetResponse();
 	response->setHeaders("Server", "webserv");
 	response->setHeaders("Date", ft::getCurrentTime().c_str());
@@ -357,10 +362,10 @@ void			Server::createResponse0(Connection &connection, std::string uriPlusFile)
 
 	std::string body;
 	int fd = -1;
-	body = ft::GetBodyFromFile(uriPlusFile);
+	body = ft::GetBodyFromFile(targetUri);
 	if (body.size() == 0)
 	{
-		fd = open("./error.html", O_RDONLY);
+		fd = open("./default_error.html", O_RDONLY);
 		body = ft::GetBodyFromFd(fd);
 	}
 	response->setBody(body);
@@ -417,6 +422,8 @@ void			Server::solveRequest(Connection& connection, Request& request)
 	std::string root = locationPath->mRoot.getPath();
 	std::string relative_path = request.GetDirectory() + "/" + request.GetFileName();
 	std::string targetUri = absolute_path + root + relative_path;
+
+	this->mErrorPage = locationPath->mErrorPage.getPath().substr(1);
 	connection.SetTargetUri(targetUri);
 	connection.SetServerName(serverBlock->mserverName);
 	

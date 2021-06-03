@@ -107,7 +107,7 @@ public:
 	void								executeCGI(Connection& connection);
 	char**								createCgiArgv(const Connection& connection) const;
 	void								createResponseStatusCode(Connection& connection, int statusCode);
-	void								createResponse0(Connection &connection, std::string uriPlusFile);
+	void								createResponseErrorPage(Connection &connection, std::string targetUri, int statusCode);
 	void								createResponse200(Connection &connection, std::string targetUri);
 
 	const int&							GetSocket(void) const;
@@ -137,6 +137,7 @@ public :
 	std::vector<serverBlock>			mServerBlocks;
 	int									mSocket; // NOTE mConnections의 첫번째 값이 모두 서버소켓의 fd임!
 	std::map<int, Connection>			mConnections;
+	std::string							mErrorPage; // def = "" 설정하지 않은 경우
 };
 
 struct configIterator

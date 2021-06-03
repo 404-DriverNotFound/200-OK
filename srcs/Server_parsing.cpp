@@ -80,6 +80,7 @@ Server::Server(void)
 	, mPort(8000)
 	, mHost("0.0.0.0")
 	, mSocket(0)
+	, mErrorPage("")
 	// , mServerBlocks()
 	// , mPhase(READY)
 {
@@ -90,6 +91,7 @@ Server::Server(ServerManager *manager)
 	, mPort(8000)
 	, mHost("0.0.0.0")
 	, mSocket(0)
+	, mErrorPage("")
 	// , mServerBlocks()
 	// , mPhase(READY)
 {
@@ -115,6 +117,7 @@ Server&	Server::operator=(const Server &ref)
 	this->mSocket = ref.mSocket;
 	this->mHost = ref.mHost;
 	this->mConnections = ref.mConnections;
+	this->mErrorPage = ref.mErrorPage;
 	return (*this);
 }
 
