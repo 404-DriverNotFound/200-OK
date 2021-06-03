@@ -302,13 +302,14 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 				serverIterator->createResponseStatusCode(it2->second, 408);
 				it2->second.GetResponse()->setHttpMessage(it2->second.GetResponse()->makeHttpMessage());
 				ssize_t	count = write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
+				// FIXME 408 안날려도 되는데 친절하게 날려주는것인데 이것때문에 서버가 종료되는 일은 업서야할것같아서 아래 에러처리를 없애야할것같음
 				if (count <= 0)
 				{
 					throw (static_cast<const std::string>("IO Error"));
 				}
 			}
 			serverIterator->closeConnection(it2->second.GetSocket());
-			return ;
+			return ; // FIXME 이러면 커넥션 하나만 끊고 종료되지 않을까?
 		}
 	}
 }
@@ -318,17 +319,21 @@ void	ServerManager::serviceUnavailable(const std::vector<Server>::iterator& serv
 	std::map<int, Connection>::iterator it = serverIterator->mConnections.begin();
 	while (it != serverIterator->mConnections.end())
 	{
+		std::map<int, Connection>::iterator it2 = it++;
+		if (it2->second.GetSocket() == serverIterator->mSocket)
+		{
+			continue ;
+		}
+
 		if (it->second.GetResponse())
 		{
 			delete it->second.GetResponse();
 		}
 		serverIterator->createResponseStatusCode(it->second, 503);
 		it->second.GetResponse()->setHttpMessage(it->second.GetResponse()->makeHttpMessage());
-		ssize_t	count = write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
-		if (count <= 0)
-		{
-			throw (static_cast<const std::string>("IO Error"));
-		}
+
+		write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
+		serverIterator->closeConnection(it2->second.GetSocket());
 	}
 }
 
