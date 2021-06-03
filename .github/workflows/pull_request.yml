@@ -17,6 +17,6 @@ jobs:
     - name: Run webserv
       run: ./webserv test.config &
     - name: test1
-      run: sh test1.sh
+      run: echo "\n\n\n\n\n\n\n\n\n\n\n" | sh test1.sh
     - name: test2
       run: sh test2.sh

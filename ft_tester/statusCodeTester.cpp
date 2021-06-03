@@ -3,15 +3,25 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#define NC "\e[0m"
+#define RED "\e[0;31m"
+#define GRN "\e[0;32m"
+#define REDB "\e[41m"
+#define GRNB "\e[42m"
+
 void	test403(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 403 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 403 STATUS CODE" << NC << std::endl;
 		std::cout << "403 Forbidden" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -26,9 +36,8 @@ void	test403(const struct sockaddr_in& sockAddr)
 		write(clientSocket, message.c_str(), message.length());
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
-		std::cout << "ret : " << ret << std::endl;
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 403" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 403" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("403") != 0)
 		{
@@ -40,13 +49,17 @@ void	test403(const struct sockaddr_in& sockAddr)
 
 void	test401(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 401 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 401 STATUS CODE" << NC << std::endl;
 		std::cout << "401 Unauthorized" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -63,7 +76,7 @@ void	test401(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 401" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 401" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("401") != 0)
 		{
@@ -75,19 +88,23 @@ void	test401(const struct sockaddr_in& sockAddr)
 
 void	test408(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 408 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 408 STATUS CODE" << NC << std::endl;
 		std::cout << "We will do nothing!!" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 408" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 408" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("408") != 0)
 		{
@@ -99,13 +116,17 @@ void	test408(const struct sockaddr_in& sockAddr)
 
 void	test405(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 405 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 405 STATUS CODE" << NC << std::endl;
 		std::cout << "When method is POST" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -122,7 +143,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 405" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 405" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("405") != 0)
 		{
@@ -136,7 +157,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 405 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 405 STATUS CODE" << NC << std::endl;
 		std::cout << "When method is DELETE" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -153,7 +174,7 @@ void	test405(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 405" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 405" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("405") != 0)
 		{
@@ -165,13 +186,17 @@ void	test405(const struct sockaddr_in& sockAddr)
 
 void	test301(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 301 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 301 STATUS CODE" << NC << std::endl;
 		std::cout << "When request uri is file but, is folder." << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -188,7 +213,7 @@ void	test301(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 301" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 301" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("301") != 0)
 		{
@@ -200,13 +225,17 @@ void	test301(const struct sockaddr_in& sockAddr)
 
 void	test413(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 413 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 413 STATUS CODE" << NC << std::endl;
 		std::cout << "When Content-Length 10 but, body 11" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -224,7 +253,7 @@ void	test413(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 413" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 413" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("413") != 0)
 		{
@@ -239,7 +268,7 @@ void	test413(const struct sockaddr_in& sockAddr)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 413 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 413 STATUS CODE" << NC << std::endl;
 		std::cout << "When chunked," << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -262,7 +291,7 @@ void	test413(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 413" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 413" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("413") != 0)
 		{
@@ -275,13 +304,17 @@ void	test413(const struct sockaddr_in& sockAddr)
 
 void	test411(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 411 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 411 STATUS CODE" << NC << std::endl;
 		std::cout << "When existing Content-Length" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -299,7 +332,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0, };
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 200, 201" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 200, 201" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (!(returnStatusCode.compare("200") == 0 || returnStatusCode.compare("201") == 0 || returnStatusCode.compare("204") == 0))
 		{
@@ -314,7 +347,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 411 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 411 STATUS CODE" << NC << std::endl;
 		std::cout << "When not existing Content-Length" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -332,7 +365,7 @@ void	test411(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0, };
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 411" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 411" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("411") != 0)
 		{
@@ -345,13 +378,17 @@ void	test411(const struct sockaddr_in& sockAddr)
 
 void	test505(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 505 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 505 STATUS CODE" << NC << std::endl;
 		std::cout << "When version 1.0" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -368,7 +405,7 @@ void	test505(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 200" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 200" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("200") != 0)
 		{
@@ -383,7 +420,7 @@ void	test505(const struct sockaddr_in& sockAddr)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 505 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 505 STATUS CODE" << NC << std::endl;
 		std::cout << "When version 1.2" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -400,7 +437,7 @@ void	test505(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 505" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 505" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("505") != 0)
 		{
@@ -413,13 +450,17 @@ void	test505(const struct sockaddr_in& sockAddr)
 
 void	test414(const struct sockaddr_in& sockAddr)
 {
+	std::cout << std::endl << "press enter to continue" << std::endl;
+	std::string	tmp;
+	std::getline(std::cin, tmp);
+	system("clear");
 	{
 		int	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clientSocket, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 414 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 414 STATUS CODE" << NC << std::endl;
 		std::cout << "When URI length 200" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -436,7 +477,7 @@ void	test414(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 200" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 200" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("200") != 0)
 		{
@@ -451,7 +492,7 @@ void	test414(const struct sockaddr_in& sockAddr)
 		{
 			throw std::exception();
 		}
-		std::cout << "TEST 414 STATUS CODE" << std::endl;
+		std::cout << GRNB << "TEST 414 STATUS CODE" << NC << std::endl;
 		std::cout << "When URI length 201" << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		std::string	message;
@@ -468,7 +509,7 @@ void	test414(const struct sockaddr_in& sockAddr)
 		char	buf[14] = {0,};
 		ssize_t	ret = read(clientSocket, buf, 13);
 		std::string	returnStatusCode = std::string(buf).substr(9, 3);
-		std::cout << "expected 414" << " returned " << returnStatusCode << std::endl;
+		std::cout << GRN << "expected 414" << " returned " << returnStatusCode << NC << std::endl;
 		std::cout << "--------------------------" << std::endl;
 		if (returnStatusCode.compare("414") != 0)
 		{
@@ -506,15 +547,9 @@ int	main(int argc, char* argv[])
 		test413(sockAddr);
 		test301(sockAddr);
 		test405(sockAddr);
-		test413(sockAddr);
-		test408(sockAddr);
 		test401(sockAddr); // Unauthorized
 		test403(sockAddr); // Forbidden
-
-		// TODO 구현 될 것
-
-		// NOTE 구현되지 않은 것
-		// test410(); GONE
+		test408(sockAddr);
 
 		// NOTE 구현되었으나 테스터에서 보여주지 않는 것
 		// test205(); Reset content
@@ -525,11 +560,10 @@ int	main(int argc, char* argv[])
 		// test201();
 		// test200();
 		// test500();
-		// test504();
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << "Something wrong!" << '\n';
 	}
-	std::cout << "TEST OK!!!!!!!" << std::endl;
+	std::cout << "TEST OK!!!!" << std::endl;
 }
