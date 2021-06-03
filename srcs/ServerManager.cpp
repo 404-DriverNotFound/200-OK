@@ -49,28 +49,14 @@ void		ServerManager::RunServers(void)
 		{
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
-				try
-				{
-					serviceUnavailable(it);
-				}
-				catch(const std::exception& e)
-				{
-					std::cerr << e.what() << '\n';
-				}
+				serviceUnavailable(it);
 			}
 		}
 		else if (cnt == 0)
 		{
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
-				try
-				{
-					closeOldConnection(it);
-				}
-				catch(const std::exception& e)
-				{
-					std::cerr << e.what() << '\n';
-				}
+				closeOldConnection(it);
 			}
 		}
 		else if (cnt > 0)
@@ -310,21 +296,13 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 		}
 		if (it2->second.IsKeepConnection() == false && (FD_ISSET(fd, &this->mReadCopyFds) == 0))
 		{
-			//std::cout << "closeOldconnection: " << fd << std::endl;
-			if (it2->second.GetRequest() == NULL) // FIXME GetResponse() 를 봐야하지 않을지..?
+			if (it2->second.GetRequest() == NULL)
 			{
 				serverIterator->createResponseStatusCode(it2->second, 408);
 				it2->second.GetResponse()->setHttpMessage(it2->second.GetResponse()->makeHttpMessage());
-				ssize_t	count = write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
-				// FIXME 408 안날려도 되는데 친절하게 날려주는것인데 이것때문에 서버가 종료되는 일은 업서야할것같아서 아래 에러처리를 없애야할것같음
-				if (count <= 0)
-				{
-					serverIterator->closeConnection(it2->second.GetSocket());
-					throw Server::IOError();
-				}
+				write(it2->first, it2->second.GetResponse()->GetHttpMessage().c_str(), it2->second.GetResponse()->GetHttpMessage().length());
 			}
 			serverIterator->closeConnection(it2->second.GetSocket());
-			return ; // FIXME 이러면 커넥션 하나만 끊고 종료되지 않을까?
 		}
 	}
 }
@@ -341,15 +319,10 @@ void	ServerManager::serviceUnavailable(const std::vector<Server>::iterator& serv
 		}
 		serverIterator->createResponseStatusCode(it->second, 503);
 		it->second.GetResponse()->setHttpMessage(it->second.GetResponse()->makeHttpMessage());
-		ssize_t count = write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
-		if (count <= 0)
-		{
-			serverIterator->closeConnection(it2->second.GetSocket());
-			throw Server::IOError();
-		}
+		write(it->first, it->second.GetResponse()->GetHttpMessage().c_str(), it->second.GetResponse()->GetHttpMessage().length());
 		serverIterator->closeConnection(it2->second.GetSocket());
-		return ;
 	}
+	std::cout << "Close all connections in Servers" << std::endl;
 }
 
 class OverlapedValue
