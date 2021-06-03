@@ -778,16 +778,18 @@ bool		Server::isRightCredentials(const std::string& authorization)
 	return (true);
 }
 
-char**			Server::createCgiArgv(const Connection& connection, const std::string &cgiProgramPath) const
+char**			Server::createCgiArgv(const Connection& connection) const
 {
 	try
 	{
-		char**		ret = (char **)malloc(sizeof(char *) * 3);
+		char**		ret = new char*[3];
 		std::string	targetUri = connection.GetTargetUri();
-		ret[0] = (char *)malloc(sizeof(char) * cgiProgramPath.length() + 1);
-		strlcpy(ret[0], const_cast<char*>(cgiProgramPath.c_str()), cgiProgramPath.length() + 1);
-		ret[1] = (char *)malloc(sizeof(char) * targetUri.length() + 1);
-		strlcpy(ret[1], const_cast<char*>(targetUri.c_str()), targetUri.length() + 1);
+		std::string	cgiProgramPath = connection.GetCgiProgramPath();
+
+		ret[0] = new char[cgiProgramPath.length() + 1];
+		strcpy(ret[0], const_cast<char*>(cgiProgramPath.c_str())); ret[0][cgiProgramPath.length()] = '\0';
+		ret[1] = new char[targetUri.length() + 1];
+		strcpy(ret[1], const_cast<char*>(targetUri.c_str())); ret[1][targetUri.length()] = '\0';
 		ret[2] = 0;
 		return (ret);
 	}

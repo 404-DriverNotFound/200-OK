@@ -104,7 +104,7 @@ public:
 	void								executeOptions(Connection& connection, configIterator configIterator);
 	void								aexecuteTrace(Connection& connection);
 	void								executeCGI(Connection& connection);
-	char**								createCgiArgv(const Connection& connection, const std::string &cgiProgramPath) const;
+	char**								createCgiArgv(const Connection& connection) const;
 	void								createResponseStatusCode(Connection& connection, int statusCode);
 	void								createResponse0(Connection &connection, std::string uriPlusFile);
 	void								createResponse200(Connection &connection, std::string targetUri);
