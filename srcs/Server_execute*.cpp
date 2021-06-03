@@ -184,27 +184,20 @@ void		Server::executeDelete(Connection& connection, const Request& request, std:
 	errno = 0; // NOTE 초기화!
 }
 
-void		Server::executeOptions(Connection& connection, std::string targetUri, configIterator configIterator)
+void		Server::executeOptions(Connection& connection, configIterator configIterator)
 {
-	int fd = open(targetUri.c_str(), O_RDONLY);
-	if (fd < 0)
-		throw 404;
-	else
+	connection.SetResponse(new Response(&connection, 200));
+	Response *response = connection.GetResponse();
+	response->setHeaders("Date", ft::getCurrentTime().c_str());
+	response->setHeaders("Server", "webserv");
+	std::string value;
+	for (size_t i = 0; i < configIterator.locationPath->mMethod.size(); i++)
 	{
-		connection.SetResponse(new Response(&connection, 200));
-		Response *response = connection.GetResponse();
-		response->setHeaders("Date", ft::getCurrentTime().c_str());
-		response->setHeaders("Server", "webserv");
-		std::string value;
-		for (size_t i = 0; i < configIterator.locationPath->mMethod.size(); i++)
-		{
-			value += configIterator.locationPath->mMethod[i];
-			if (i != configIterator.locationPath->mMethod.size() - 1)
-				value += " ";
-		}
-		response->setHeaders("Allow", value);
-		close(fd);
+		value += configIterator.locationPath->mMethod[i];
+		if (i != configIterator.locationPath->mMethod.size() - 1)
+			value += " ";
 	}
+	response->setHeaders("Allow", value);
 }
 
 void		Server::aexecuteTrace(Connection& connection)
