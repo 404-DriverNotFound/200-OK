@@ -21,7 +21,7 @@ void		Server::run(void)
 				gettimeofday(&time, NULL);
 				it2->second.SetLastReqeustAt(time);
 				runSend(it2->second);
-			 	continue ;
+				continue ;
 			}
 			if (hasExecuteWork(it2->second))
 			{
@@ -214,7 +214,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
-	catch (const Server::IOError& e)
+	catch (const std::exception& e)
 	{
 		throw (e);
 	}
