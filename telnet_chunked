@@ -1,0 +1,21 @@
+// 안되는거
+PUT /tst.txt HTTP/1.1
+User-Agent: Arduino
+Host: ooboontoo
+Accept: */*
+Transfer-Encoding: chunked
+
+100
+this is the text, of this file, wooo!
+0
+
+// 되는것
+PUT /tst.txt HTTP/1.1
+Accept: */*
+Transfer-Encoding: chunked
+
+25
+this is the text, of this file, wooo!
+A
+more test,
+0
