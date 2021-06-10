@@ -68,7 +68,7 @@ bool		Server::hasSendWork(Connection& connection)
 		return (false);
 	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
-		if (FT_FD_ISSET(connection.GetSocket(), &(this->mManager->GetWriteCopyFds())))
+		if (this->mManager->mPollFds[connection.GetSocket()].revents & POLLOUT)
 		{
 			return (true);
 		}
@@ -140,8 +140,12 @@ bool		Server::runSend(Connection& connection)
 	delete response;
 	connection.SetResponse(NULL);
 	connection.SetStatus(Connection::REQUEST_READY);
-	mManager->ClrWriteFds(connection.GetSocket());
-	mManager->ClrWriteCopyFds(connection.GetSocket());
+	if (mManager->mPollFds[connection.GetSocket()].events & POLLOUT)
+	{
+		mManager->mPollFds[connection.GetSocket()].events = (short)0 | POLLIN;
+	}
+	// mManager->ClrWriteFds(connection.GetSocket());
+	// mManager->ClrWriteCopyFds(connection.GetSocket());
 	if (statusCode >= 400)
 	{
 		closeConnection(connection.GetSocket());
@@ -191,7 +195,7 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (FT_FD_ISSET(connection.GetSocket(), &(this->mManager->GetReadCopyFds())))
+	if (this->mManager->mPollFds[connection.GetSocket()].revents & (POLLIN | POLLPRI))
 	{
 		return (true);
 	}
@@ -210,7 +214,8 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	catch (int statusCode)
 	{
 		createResponseStatusCode(connection, statusCode);
-		mManager->SetWriteFds(connection.GetSocket());
+		// mManager->SetWriteFds(connection.GetSocket());
+		mManager->mPollFds[connection.GetSocket()].events = POLLOUT;
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
@@ -243,7 +248,7 @@ bool		Server::runRecvAndSolve(Connection& connection)
 
 bool		Server::hasNewConnection()
 {
-	if (FT_FD_ISSET(this->mSocket, &(this->mManager->GetReadCopyFds())))
+	if (this->mManager->mPollFds[this->mSocket].revents & (POLLIN | POLLPRI))
 	{
 		return (true);
 	}
@@ -263,8 +268,10 @@ bool		Server::acceptNewConnection()
 		return (false);
 	}
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);
-	mManager->SetReadFds(client_socket);
-	mManager->SetReadCopyFds(client_socket);
+	// mManager->SetReadFds(client_socket);
+	// mManager->SetReadCopyFds(client_socket);
+	mManager->mPollFds[client_socket].fd = client_socket;
+	mManager->mPollFds[client_socket].events = POLLIN | POLLPRI;
 	this->mConnections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mPort);
 	// this->mConnections[client_socket] = Connection(client_socket, this->mHost, this->mPort); // NOTE 이것도 됨
 	gTotalClients++;

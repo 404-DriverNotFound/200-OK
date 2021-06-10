@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <poll.h>
 
 #include "Define.hpp"
 #include "Server.hpp"
@@ -73,5 +74,7 @@ class ServerManager
 		fd_set					mWriteFds;
 		fd_set					mWriteCopyFds;
 		uint16_t				mTotalClients;
+	public:
+		struct pollfd			mPollFds[1024];
 };
 #endif

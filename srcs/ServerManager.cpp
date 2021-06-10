@@ -32,19 +32,17 @@ void		ServerManager::CreateServers(const std::string& configurationFilePath)
 
 void		ServerManager::RunServers(void)
 {
-	struct timeval	timeOut;
+	memset(this->mPollFds, 0, sizeof(this->mPollFds));
 	for (std::vector<Server>::iterator it = mServers.begin(); it != mServers.end(); ++it)
 	{
-		FT_FD_SET(it->GetSocket(), &mReadFds);
+		mPollFds[it->GetSocket()].fd = it->GetSocket();
+		mPollFds[it->GetSocket()].events = POLLIN | POLLPRI;
 	}
+
 	while (true)
 	{
-		timeOut.tv_sec = SELECT_TIMEOUT_SEC; timeOut.tv_usec = SELECT_TIMEOUT_USEC;
-
-		FT_FD_COPY(&mReadFds, &mReadCopyFds);
-		FT_FD_COPY(&mWriteFds, &mWriteCopyFds);
 		updateMaxFd();
-		int	cnt = select(mMaxFd + 1, &mReadCopyFds, &mWriteCopyFds, NULL, &timeOut);
+		int cnt = poll(mPollFds, mMaxFd + 1, SELECT_TIMEOUT_SEC * 1000);
 		if (cnt < 0)
 		{
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
@@ -61,11 +59,11 @@ void		ServerManager::RunServers(void)
 		}
 		else if (cnt > 0)
 		{
-			std::cout << "select : " << cnt << std::endl;
-			std::vector<int> readSet; std::cout << "--- read ---" << std::endl;
-			readSet = ft::getVectorChangedFD(&mReadCopyFds);
-			std::vector<int> writeSet; std::cout << "--- write ---" << std::endl;
-			writeSet = ft::getVectorChangedFD(&mWriteCopyFds);
+			std::cout << "poll: " << cnt << std::endl;
+			// std::vector<int> readSet; std::cout << "--- read ---" << std::endl;
+			// readSet = ft::getVectorChangedFD(&mReadCopyFds);
+			// std::vector<int> writeSet; std::cout << "--- write ---" << std::endl;
+			// writeSet = ft::getVectorChangedFD(&mWriteCopyFds);
 			std::cout << "-------------------------------" << std::endl;
 
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
@@ -296,7 +294,7 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 		{
 			continue ;
 		}
-		if (it2->second.IsKeepConnection() == false && (FT_FD_ISSET(fd, &this->mReadCopyFds) == 0))
+		if (it2->second.IsKeepConnection() == false && (mPollFds[fd].revents & (POLLIN | POLLPRI)) == 0)
 		{
 			if (it2->second.GetRequest() == NULL)
 			{

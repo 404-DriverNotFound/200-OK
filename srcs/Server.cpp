@@ -37,7 +37,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.GetSocket() == fd)
 			continue ;
-		if ((FT_FD_ISSET(it2->second.GetSocket(), &(this->mManager->GetReadCopyFds())) == 0) &&
+		if ((this->mManager->mPollFds[it2->second.GetSocket()].revents & (POLLIN | POLLPRI)) &&
 				it2->second.IsKeepConnection() == false)
 		{
 			return (it2->second.GetSocket());
@@ -49,10 +49,11 @@ int				Server::getUnuseConnectionFd()
 void			Server::closeConnection(int clientFd)
 {
 	close(clientFd);
-	mManager->ClrReadFds(clientFd);
-	mManager->ClrReadCopyFds(clientFd);
-	mManager->ClrWriteFds(clientFd);
-	mManager->ClrWriteCopyFds(clientFd);
+	// mManager->ClrReadFds(clientFd);
+	// mManager->ClrReadCopyFds(clientFd);
+	// mManager->ClrWriteFds(clientFd);
+	// mManager->ClrWriteCopyFds(clientFd);
+	memset(&mManager->mPollFds[clientFd], 0, sizeof(struct pollfd));
 	gTotalClients--;
 	std::map<int, Connection>::iterator it = mConnections.begin();
 	while (it != mConnections.end())
@@ -97,15 +98,17 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					mManager->SetWriteFds(connection.GetSocket());
-					mManager->SetWriteCopyFds(connection.GetSocket());
+					mManager->mPollFds[connection.GetSocket()].events = POLLOUT;
+					// mManager->SetWriteFds(connection.GetSocket());
+					// mManager->SetWriteCopyFds(connection.GetSocket());
 				}
 			}
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				mManager->SetWriteFds(connection.GetSocket());
-				mManager->SetWriteCopyFds(connection.GetSocket());
+				mManager->mPollFds[connection.GetSocket()].events = POLLOUT;
+				// mManager->SetWriteFds(connection.GetSocket());
+				// mManager->SetWriteCopyFds(connection.GetSocket());
 			}
 		}
 	}
