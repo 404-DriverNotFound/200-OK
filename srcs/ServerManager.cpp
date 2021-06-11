@@ -32,17 +32,49 @@ void		ServerManager::CreateServers(const std::string& configurationFilePath)
 
 void		ServerManager::RunServers(void)
 {
-	memset(this->mPollFds, 0, sizeof(this->mPollFds));
+	mKqueue = kqueue();
+	memset(this->mKevent_set, 0, sizeof(this->mKevent_set));
+	memset(this->mKevent_get, 0, sizeof(this->mKevent_get));
+
 	for (std::vector<Server>::iterator it = mServers.begin(); it != mServers.end(); ++it)
 	{
-		mPollFds[it->GetSocket()].fd = it->GetSocket();
-		mPollFds[it->GetSocket()].events = POLLIN | POLLPRI;
-	}
+		// struct kevent	kevent_one;
+		// memset(&kevent_one, 0, sizeof(kevent_one));
 
+		EV_SET(&mKevent_set[it->GetSocket()], it->GetSocket(), EVFILT_READ, \
+					EV_ADD, 0, 0, NULL);
+		// int temp = kevent(mKqueue, &mKevent_set[it->GetSocket()], 1, NULL, 0, NULL);
+		// EV_SET(&mKevent_set[it->GetSocket()].fd], it->GetSocket(), EVFILT_READ, \
+		// 			EV_ADD | EV_CLEAR, 0, NULL);
+		// EV_SET(&event, fd, EVFILT_VNODE, EV_ADD | EV_CLEAR, NOTE_WRITE, 0, NULL);
+		// mPollFds[it->GetSocket()].fd = it->GetSocket();
+		// mPollFds[it->GetSocket()].events = POLLIN | POLLPRI;
+	}
+	EV_SET(&mKevent_set[0], 0, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
+	EV_SET(&mKevent_set[1], 1, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
+	EV_SET(&mKevent_set[2], 2, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
+	// int temp = kevent(mKqueue, mKevent_set, 3, NULL, 0, NULL);
+	// errno = 0;
+	// int temp = kevent(mKqueue, &mKevent_set[it->GetSocket()], 1, NULL, 0, NULL);
+	updateMaxFd();
+	int temp;
+	if ((temp = kevent(mKqueue, mKevent_set, mMaxFd + 1, NULL, 0, NULL)) == -1)
+	{
+		std::cout << "kevent setting error: " << errno << std::endl;
+		exit(1);
+	}
 	while (true)
 	{
+		timespec time_temp;
+		time_temp.tv_sec = SELECT_TIMEOUT_SEC; time_temp.tv_nsec = SELECT_TIMEOUT_USEC;
+		// if (temp == -1)
+		// {
+		// 	std::cout << "what?: " << errno << std::endl;
+		// 	exit(1);
+		// }
 		updateMaxFd();
-		int cnt = poll(mPollFds, mMaxFd + 1, SELECT_TIMEOUT_SEC * 1000);
+		// int cnt = poll(mPollFds, mMaxFd + 1, SELECT_TIMEOUT_SEC * 1000);
+		int cnt = kevent(mKqueue, NULL, 0, mKevent_get, mMaxFd + 1, &time_temp);
 		if (cnt < 0)
 		{
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
@@ -52,6 +84,7 @@ void		ServerManager::RunServers(void)
 		}
 		else if (cnt == 0)
 		{
+			std::cout << "kqueue: " << cnt << std::endl;
 			for (std::vector<Server>::iterator it = mServers.begin() ; it != mServers.end() ; ++it)
 			{
 				closeOldConnection(it);
@@ -59,7 +92,7 @@ void		ServerManager::RunServers(void)
 		}
 		else if (cnt > 0)
 		{
-			std::cout << "poll: " << cnt << std::endl;
+			std::cout << "kqueue: " << cnt << std::endl;
 			// std::vector<int> readSet; std::cout << "--- read ---" << std::endl;
 			// readSet = ft::getVectorChangedFD(&mReadCopyFds);
 			// std::vector<int> writeSet; std::cout << "--- write ---" << std::endl;
@@ -294,7 +327,8 @@ void	ServerManager::closeOldConnection(const std::vector<Server>::iterator& serv
 		{
 			continue ;
 		}
-		if (it2->second.IsKeepConnection() == false && (mPollFds[fd].revents & (POLLIN | POLLPRI)) == 0)
+
+		if (it2->second.IsKeepConnection() == false && serverIterator->indexKeventGet(fd, EVFILT_READ) == -1)
 		{
 			if (it2->second.GetRequest() == NULL)
 			{

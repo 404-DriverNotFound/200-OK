@@ -68,7 +68,8 @@ bool		Server::hasSendWork(Connection& connection)
 		return (false);
 	if (connection.GetStatus() == Connection::SEND_READY || connection.GetStatus() == Connection::SEND_ING)
 	{
-		if (this->mManager->mPollFds[connection.GetSocket()].revents & POLLOUT)
+		if (indexKeventGet(connection.GetSocket(), EVFILT_WRITE) != -1)
+		// if (this->mManager->mKevent_get[connection.GetSocket()].flags & EVFILT_WRITE)
 		{
 			return (true);
 		}
@@ -140,9 +141,30 @@ bool		Server::runSend(Connection& connection)
 	delete response;
 	connection.SetResponse(NULL);
 	connection.SetStatus(Connection::REQUEST_READY);
-	if (mManager->mPollFds[connection.GetSocket()].events & POLLOUT)
+
+	if (indexKeventGet(connection.GetSocket(), EVFILT_WRITE) != -1)
+	// if (mManager->mKevent_set[connection.GetSocket()].filter & EVFILT_WRITE)
 	{
-		mManager->mPollFds[connection.GetSocket()].events = (short)0 | POLLIN;
+		int temp;
+		EV_SET(&mManager->mKevent_set[connection.GetSocket()], connection.GetSocket(), \
+							EVFILT_WRITE, EV_DELETE, NULL, 0, NULL);
+		temp = kevent(this->mManager->mKqueue, &mManager->mKevent_set[connection.GetSocket()], \
+							1, NULL, 0, NULL);
+		if (temp == -1)
+		{
+			std::cout << "kevent setting error " << std::endl;
+			exit(1);
+		}
+		// mManager->mKevent_set[connection.GetSocket()].filter = (short)0 | EVFILT_READ;
+		EV_SET(&mManager->mKevent_set[connection.GetSocket()], connection.GetSocket(), \
+							EVFILT_READ, EV_ADD | EV_CLEAR, NULL, 0, NULL); // NOTE ㄷㅐ체 뭘까..? EV_CLEAR를 추가하면 안된다니 엣지 트리거?
+		temp = kevent(this->mManager->mKqueue, &mManager->mKevent_set[connection.GetSocket()], \
+							1, NULL, 0, NULL);
+		if (temp == -1)
+		{
+			std::cout << "kevent setting error " << std::endl;
+			exit(1);
+		}
 	}
 	// mManager->ClrWriteFds(connection.GetSocket());
 	// mManager->ClrWriteCopyFds(connection.GetSocket());
@@ -195,7 +217,8 @@ bool		Server::runExecute(Connection& connection)
 
 bool		Server::hasRequest(const Connection& connection)
 {
-	if (this->mManager->mPollFds[connection.GetSocket()].revents & (POLLIN | POLLPRI))
+	if (indexKeventGet(connection.GetSocket(), EVFILT_READ) != -1)
+	// if (this->mManager->mKevent_get[connection.GetSocket()].filter & (EVFILT_READ))
 	{
 		return (true);
 	}
@@ -215,7 +238,8 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	{
 		createResponseStatusCode(connection, statusCode);
 		// mManager->SetWriteFds(connection.GetSocket());
-		mManager->mPollFds[connection.GetSocket()].events = POLLOUT;
+		mManager->mKevent_set[connection.GetSocket()].filter = EVFILT_WRITE;
+		// kevent(mManager->mKqueue, &mManager->mKevent_set[connection.GetSocket()], 1, NULL, 0, NULL);
 		connection.SetStatus(Connection::SEND_READY);
 		return (true);
 	}
@@ -246,9 +270,21 @@ bool		Server::runRecvAndSolve(Connection& connection)
 	return (false);
 }
 
+int			Server::indexKeventGet(int fd, int filter)
+{
+	for (int i = 0; i < this->mManager->GetMaxFd() + 1; i++)
+	{
+		if (this->mManager->mKevent_get[i].filter & filter \
+				&& this->mManager->mKevent_get[i].ident == (unsigned long)fd)
+			return (i);
+	}
+	return (-1);
+}
+
 bool		Server::hasNewConnection()
 {
-	if (this->mManager->mPollFds[this->mSocket].revents & (POLLIN | POLLPRI))
+	if (indexKeventGet(this->mSocket, EVFILT_READ) != -1)
+	// if (this->mManager->mKevent_get[this->mSocket].filter & (EVFILT_READ))
 	{
 		return (true);
 	}
@@ -270,8 +306,18 @@ bool		Server::acceptNewConnection()
 	fcntl(client_socket, F_SETFL, O_NONBLOCK);
 	// mManager->SetReadFds(client_socket);
 	// mManager->SetReadCopyFds(client_socket);
-	mManager->mPollFds[client_socket].fd = client_socket;
-	mManager->mPollFds[client_socket].events = POLLIN | POLLPRI;
+	// mManager->mKevent_set[client_socket].ident = client_socket;
+	// mManager->mKevent_set[client_socket].filter = EVFILT_READ;
+	// mManager->mKevent_set[client_socket].flags = EVFILT_READ;
+	EV_SET(&mManager->mKevent_set[client_socket], client_socket, \
+			EVFILT_READ, EV_ADD | EV_CLEAR, NULL, 0, NULL);
+	int temp = kevent(mManager->mKqueue, &mManager->mKevent_set[client_socket], 1, NULL, 0, NULL);
+	if (temp == -1)
+	{
+		std::cout << "what?: " << errno << std::endl;
+		exit(1);
+	}
+
 	this->mConnections[client_socket] = Connection(client_socket, ft::inet_ntos(sockaddr.sin_addr), this->mPort);
 	// this->mConnections[client_socket] = Connection(client_socket, this->mHost, this->mPort); // NOTE 이것도 됨
 	gTotalClients++;

@@ -4,8 +4,8 @@
 #define DEFAULT_CONFIG_FILE_PATH "default.config"
 #define BUFFER_SIZE 1000000
 #define INIT_FD_MAX 1023
-#define KEEP_ALIVE_LIMIT 6000  // NOTE 로컬 환경이여서 조금 더 넉넉하게 줬음
-#define SELECT_TIMEOUT_SEC 200 // NOTE 로컬 환경이여서 조금 더 넉넉하게 줬음
+#define KEEP_ALIVE_LIMIT 300  // NOTE 로컬 환경이여서 조금 더 넉넉하게 줬음
+#define SELECT_TIMEOUT_SEC 3 // NOTE 로컬 환경이여서 조금 더 넉넉하게 줬음
 #define SELECT_TIMEOUT_USEC 0
 
 #define BUFIZE_HTMLFILE 300

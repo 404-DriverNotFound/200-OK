@@ -132,6 +132,9 @@ private:
 	bool								hasAuthModule(const configIterator& config_it);
 	bool								isRightCredentials(const std::string& authorization);
 
+public:
+	int									indexKeventGet(int fd, int filter);
+
 public :
 	ServerManager*						mManager;
 	uint16_t							mPort;					// def = 8000;

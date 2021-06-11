@@ -37,7 +37,8 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.GetSocket() == fd)
 			continue ;
-		if ((this->mManager->mPollFds[it2->second.GetSocket()].revents & (POLLIN | POLLPRI)) &&
+		if (indexKeventGet(it2->second.GetSocket(), EVFILT_READ == -1) &&
+		// if ((this->mManager->mKevent_get[it2->second.GetSocket()].filter & EVFILT_READ) == 0 &&
 				it2->second.IsKeepConnection() == false)
 		{
 			return (it2->second.GetSocket());
@@ -53,7 +54,13 @@ void			Server::closeConnection(int clientFd)
 	// mManager->ClrReadCopyFds(clientFd);
 	// mManager->ClrWriteFds(clientFd);
 	// mManager->ClrWriteCopyFds(clientFd);
-	memset(&mManager->mPollFds[clientFd], 0, sizeof(struct pollfd));
+	// EV_SET(&mManager->mKevent_set[clientFd], clientFd, 0, \
+	// 				EV_DELETE, 0, 0, NULL);
+	// kevent(mManager->mKqueue, &mManager->mKevent_set[clientFd], 1, NULL, 0, NULL);
+	memset(&mManager->mKevent_set[clientFd], 0, sizeof(struct kevent));
+	EV_SET(&mManager->mKevent_set[clientFd], clientFd, \
+			EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
+	// EV_SET(&mKevent_set[1], 1, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
 	gTotalClients--;
 	std::map<int, Connection>::iterator it = mConnections.begin();
 	while (it != mConnections.end())
@@ -98,7 +105,16 @@ void			Server::recvRequest(Connection& connection)
 				if (parseBody(connection))
 				{
 					request->SetPhase(Request::COMPLETE);
-					mManager->mPollFds[connection.GetSocket()].events = POLLOUT;
+					// mManager->mKevent_set[connection.GetSocket()].filter = EVFILT_WRITE;
+					EV_SET(&mManager->mKevent_set[connection.GetSocket()], connection.GetSocket(), \
+							EVFILT_WRITE, EV_ADD, NULL, 0, NULL); // NOTE ㄷㅐ체 뭘까..? EV_CLEAR를 추가하면 안된다니 엣지 트리거?
+					int temp = kevent(this->mManager->mKqueue, &mManager->mKevent_set[connection.GetSocket()], \
+							1, NULL, 0, NULL);
+					if (temp == -1)
+					{
+						std::cout << "kevent setting error " << std::endl;
+						exit(1);
+					}
 					// mManager->SetWriteFds(connection.GetSocket());
 					// mManager->SetWriteCopyFds(connection.GetSocket());
 				}
@@ -106,7 +122,16 @@ void			Server::recvRequest(Connection& connection)
 			else
 			{
 				request->SetPhase(Request::COMPLETE);
-				mManager->mPollFds[connection.GetSocket()].events = POLLOUT;
+				// mManager->mKevent_set[connection.GetSocket()].filter = EVFILT_WRITE;
+				EV_SET(&mManager->mKevent_set[connection.GetSocket()], connection.GetSocket(), \
+							EVFILT_WRITE, EV_ADD, NULL, 0, NULL); // NOTE ㄷㅐ체 뭘까..? EV_CLEAR를 추가하면 안된다니 엣지 트리거?
+				int temp = kevent(this->mManager->mKqueue, &mManager->mKevent_set[connection.GetSocket()], \
+									1, NULL, 0, NULL);
+				if (temp == -1)
+				{
+					std::cout << "kevent setting error " << std::endl;
+					exit(1);
+				}
 				// mManager->SetWriteFds(connection.GetSocket());
 				// mManager->SetWriteCopyFds(connection.GetSocket());
 			}
