@@ -37,7 +37,7 @@ int				Server::getUnuseConnectionFd()
 		int fd = it2->first;
 		if (it2->second.GetSocket() == fd)
 			continue ;
-		if ((this->mManager->mPollFds[it2->second.GetSocket()].revents & (POLLIN | POLLPRI)) &&
+		if ((this->mManager->mPollFds[it2->second.GetSocket()].revents & (POLLIN | POLLPRI)) == 0 &&
 				it2->second.IsKeepConnection() == false)
 		{
 			return (it2->second.GetSocket());
